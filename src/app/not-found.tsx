@@ -1,28 +1,29 @@
-import { FlagIcon } from 'lucide-react'
+'use client'
+
 import Link from 'next/link'
-import { buttonVariants } from '~/components/ui/core/button'
+import React from 'react'
 
 export default function NotFound() {
   return (
-    <div className='h-screen mx-auto grid place-items-center text-center px-8'>
-      <div>
-        <FlagIcon className='w-20 h-20 mx-auto' />
-        <h1
-          color='blue-gray'
-          className='mt-10 !text-3xl !leading-snug md:!text-4xl'
-        >
-          Error 404 <br /> It looks like something went wrong.
-        </h1>
-        <p className='mt-8 mb-14 text-[18px] font-normal text-gray-500 mx-auto md:max-w-sm'>
-          Don&apos;t worry, our team is already on it.Please try refreshing the
-          page or come back later.
-        </p>
+    <div className='h-screen w-full bg-primary text-black relative flex flex-col items-center justify-center overflow-hidden font-heading'>
+      {/* Top Left Navigation Area */}
+      <div className='absolute top-6 left-6 md:top-8 md:left-8 flex flex-col items-start z-10'>
+        <div className='text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-none mb-1'>
+          AKR.
+        </div>
         <Link
           href='/'
-          className={`w-full px-4 md:w-[8rem] ${buttonVariants()} `}
+          className='border-[3px] border-black text-black text-sm md:text-base font-black uppercase px-3 py-0.5 hover:bg-black hover:text-[#E50000] transition-colors tracking-widest'
         >
-          back home
+          HOME
         </Link>
+      </div>
+
+      {/* Massive 404 Text */}
+      <div className='flex items-center justify-center w-full h-full pointer-events-none select-none overflow-hidden'>
+        <h1 className='text-[50vw] lg:text-[45vw] leading-[0.9] font-black tracking-tighter text-black m-0 p-0 transform'>
+          404
+        </h1>
       </div>
     </div>
   )

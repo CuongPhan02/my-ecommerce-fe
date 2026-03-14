@@ -36,18 +36,18 @@ const ProductDetail = () => {
               <ProductImages />
               <SeoMetaTags />
             </div>
-            <div className='col-span-5 space-y-10'>
+            <div className='col-span-5 space-y-10 sticky top-20 right-0 h-fit w-full'>
               <ShippingConfiguration />
               <ProductFeatured />
               <ProductRefundable />
               <ProductWarranty />
               <ProductStockQuantity />
               <ProductCollections />
+              <ActionForm />
             </div>
           </div>
         </CardContent>
       </Card>
-      <ActionForm />
     </FormProvider>
   )
 }
@@ -63,8 +63,8 @@ const ActionForm = () => {
     })()
   }
   return (
-    <div className='min-h-[100px] py-5 w-fit  flex items-center justify-between custom-gradient dark:custom-gradient-dark fixed bottom-0 right-0 z-10'>
-      <div className='flex max-md:flex-col gap-2 items-center justify-between w-full px-4 lg:px-10 '>
+    <div className='w-full flex justify-end custom-gradient dark:custom-gradient-dark'>
+      <div className='flex gap-2 items-center w-fit'>
         <div className='flex items-center justify-center gap-3'>
           <Button variant={'outline'} className='bg-muted'>
             CANCLE

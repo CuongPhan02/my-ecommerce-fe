@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Fashion E-commerce | Coming Soon</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;family=Cormorant+Garamond:wght@300;400;500;600&amp;family=Montserrat:wght@200;300;400&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <style type="text/tailwindcss">:root {
+    --primary-black: #0a0a0a;
+    --muted-gold: #b5a48b;
+    --overlay: rgba(0, 0, 0, 0.4)
+    }
+body {
+    font-family: "Cormorant Garamond", serif;
+    letter-spacing: 0.02em
+    }
+.serif-display {
+    font-family: "Playfair Display", serif
+    }
+.sans-minimal {
+    font-family: "Montserrat", sans-serif
+    }
+.fashion-bg {
+    background-image: linear-gradient(var(--overlay), var(--overlay)), url(https://lh3.googleusercontent.com/aida-public/AB6AXuAud1IoE3jbFL99L91vYxJstX7an5OC511YkqbdfOaPRrNI0ermyrj5Flk5DFgwO3Ebkqu0UVljen1QwqUBVJEcPuX2LE5gKjLPNE-_JBkb2dr47WtFDc9SHLuD5UIywkEtkYBtQ64Nl-57fDSADjz35QvYgUq34E7IiVekBoQHBYju395w-6rHJAS3PQwO-1V6rjta2JmKKCWalSto8kFuCAY6r_uCI1c38L0WtfDYdS7KuwSCWuDx7gLpKa9BctWXDaQnvtlwSQY);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed
+    }
+.thin-border {
+    border-width: 0.5px
+    }</style>
+  <script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0a0a0a",
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-white text-primary overflow-x-hidden">
+  <div class="relative min-h-screen flex flex-col fashion-bg">
+    <header class="w-full py-10 px-8 md:px-16 flex justify-between items-center z-10 text-white">
+      <div class="flex items-center space-x-2">
+        <span class="material-symbols-outlined font-thin">all_inclusive</span>
+        <h1 class="serif-display text-2xl tracking-[0.2em] uppercase font-light">Maison Élégance</h1>
+      </div>
+      <nav class="hidden md:flex space-x-12 items-center">
+        <a class="sans-minimal text-[10px] uppercase tracking-[0.3em] hover:opacity-50 transition-opacity"
+          href="#">Collections</a>
+        <a class="sans-minimal text-[10px] uppercase tracking-[0.3em] hover:opacity-50 transition-opacity" href="#">The
+          Atelier</a>
+        <a class="sans-minimal text-[10px] uppercase tracking-[0.3em] hover:opacity-50 transition-opacity"
+          href="#">Contact</a>
+      </nav>
+    </header>
+    <main class="flex-1 flex flex-col items-center justify-center px-6 text-center z-10 text-white">
+      <div class="max-w-4xl w-full">
+        <div class="mb-8 flex justify-center items-center gap-4">
+          <div class="h-[1px] w-12 bg-white/40"></div>
+          <span class="sans-minimal text-[10px] uppercase tracking-[0.5em] text-white/80">Coming Summer 2024</span>
+          <div class="h-[1px] w-12 bg-white/40"></div>
+        </div>
+        <h2 class="serif-display text-5xl md:text-8xl lg:text-9xl font-light italic mb-12 leading-tight">
+          The Art of <br /> Modern Luxury
+        </h2>
+        <div class="grid grid-cols-4 gap-4 md:gap-12 mb-20 max-w-2xl mx-auto">
+          <div class="flex flex-col border-r border-white/20">
+            <span class="serif-display text-3xl md:text-5xl font-light tracking-tighter">18</span>
+            <span class="sans-minimal text-[8px] uppercase tracking-[0.3em] mt-2 opacity-60">Days</span>
+          </div>
+          <div class="flex flex-col border-r border-white/20">
+            <span class="serif-display text-3xl md:text-5xl font-light tracking-tighter">04</span>
+            <span class="sans-minimal text-[8px] uppercase tracking-[0.3em] mt-2 opacity-60">Hours</span>
+          </div>
+          <div class="flex flex-col border-r border-white/20">
+            <span class="serif-display text-3xl md:text-5xl font-light tracking-tighter">22</span>
+            <span class="sans-minimal text-[8px] uppercase tracking-[0.3em] mt-2 opacity-60">Mins</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="serif-display text-3xl md:text-5xl font-light tracking-tighter">45</span>
+            <span class="sans-minimal text-[8px] uppercase tracking-[0.3em] mt-2 opacity-60">Secs</span>
+          </div>
+        </div>
+        <div class="max-w-md mx-auto w-full mb-12">
+          <p class="sans-minimal text-[11px] uppercase tracking-[0.2em] mb-8 text-white/70">
+            Be the first to access the private collection
+          </p>
+          <form class="relative group">
+            <input
+              class="w-full bg-transparent border-t-0 border-x-0 border-b border-white/40 pb-4 text-center sans-minimal text-xs tracking-[0.2em] focus:ring-0 focus:border-white transition-colors placeholder:text-white/30 uppercase"
+              placeholder="ENTER YOUR EMAIL" type="email" />
+            <button
+              class="mt-8 w-full py-4 border thin-border border-white/40 hover:bg-white hover:text-black transition-all duration-500 sans-minimal text-[10px] uppercase tracking-[0.4em]"
+              type="submit">
+              Join the Waitlist
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+    <footer
+      class="py-12 px-8 flex flex-col md:flex-row justify-between items-center z-10 text-white/50 border-t border-white/10">
+      <div class="flex gap-8 mb-6 md:mb-0">
+        <a class="hover:text-white transition-colors" href="#"><span
+            class="sans-minimal text-[9px] uppercase tracking-[0.2em]">Instagram</span></a>
+        <a class="hover:text-white transition-colors" href="#"><span
+            class="sans-minimal text-[9px] uppercase tracking-[0.2em]">Pinterest</span></a>
+        <a class="hover:text-white transition-colors" href="#"><span
+            class="sans-minimal text-[9px] uppercase tracking-[0.2em]">Vogue Business</span></a>
+      </div>
+      <div class="text-center md:text-right">
+        <p class="sans-minimal text-[8px] uppercase tracking-[0.2em]">© 2024 Maison Élégance • All rights reserved.</p>
+      </div>
+    </footer>
+    <div
+      class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]">
+    </div>
+  </div>
+
+</body>
+
+</html>

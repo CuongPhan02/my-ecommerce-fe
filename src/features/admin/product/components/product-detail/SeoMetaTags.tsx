@@ -1,14 +1,17 @@
 'use client'
-
 import { UploadCloud } from 'lucide-react'
-import React from 'react'
+import { Button } from '~/components/ui/core/button'
 import { Card, CardContent, CardHeader } from '~/components/ui/core/card'
 import { Input } from '~/components/ui/core/input'
 import { Label } from '~/components/ui/core/label'
 import { Textarea } from '~/components/ui/core/textarea'
+import { MediaPickerModal, MediaItem } from '~/features/admin/media'
 import { cn } from '~/lib/utils'
 
 const SeoMetaTags = () => {
+  const handleSelectMultipleMedia = (items: MediaItem[]) => {
+    console.log('Selected Gallery Items:', items)
+  }
   return (
     <Card className='bg-muted shadow-none '>
       <CardHeader className='border-b font-bold'>Seo Meta Tags</CardHeader>
@@ -45,7 +48,7 @@ const SeoMetaTags = () => {
           <div className='flex flex-col items-start gap-3'>
             <div
               className={cn(
-                'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-500 transition-colors hover:border-primary dark:bg-muted dark:hover:border-primary h-36 w-full'
+                'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50 text-gray-500 transition-colors hover:border-primary dark:bg-muted dark:hover:border-primary h-36 w-full',
               )}
             >
               <UploadCloud className='h-8 w-8 text-gray-400' />
@@ -53,12 +56,18 @@ const SeoMetaTags = () => {
                 Choose Image
               </span>
             </div>
-            <Label
-              htmlFor='gallery-upload-enhanced'
-              className='cursor-pointer text-base font-medium text-primary transition-colors mx-auto'
-            >
-              Choose Files
-            </Label>
+
+            <MediaPickerModal
+              onSelect={handleSelectMultipleMedia}
+              trigger={
+                <Button
+                  variant={'ghost'}
+                  className='text-base font-medium text-primary transition-colors mx-auto'
+                >
+                  Choose File
+                </Button>
+              }
+            />
             <Input
               id='gallery-upload-enhanced'
               type='file'

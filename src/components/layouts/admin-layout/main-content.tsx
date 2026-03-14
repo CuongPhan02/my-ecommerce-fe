@@ -17,8 +17,8 @@ export function MainContent({ fixed, className, fluid, ...props }: MainProps) {
         fixed && 'flex grow flex-col ',
 
         // If layout is not fluid, set the max-width
-        !fluid && 'mx-auto w-full main-container',
-        className
+        !fluid ? 'mx-auto w-full main-container' : 'w-full',
+        className,
       )}
       {...props}
     />

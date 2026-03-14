@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Metadata } from 'next'
 import { Antonio } from 'next/font/google'
 // @ts-ignore
 import './globals.css'
-
 import { ThemeProvider } from '~/providers/theme-provider'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import ToasterCustom from '~/components/shared/toaster-custom'
 import GlobalLoadingOverlay from '~/components/shared/global-loading-overlay'
 import ProviderReactQuery from '~/providers/provider-react-query'
+import ProviderGoogle from '~/providers/provider-google'
 
 const font = Antonio({
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   variable: '--font-heading3',
 })
@@ -28,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${font.variable} ${font.variable} antialiased overflow-x-hidden`}
+        className={`${font.className} ${font.variable} antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
         <ToasterCustom />
@@ -40,7 +39,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <NuqsAdapter> {children}</NuqsAdapter>
+            <ProviderGoogle>
+              <NuqsAdapter> {children}</NuqsAdapter>
+            </ProviderGoogle>
           </ThemeProvider>
         </ProviderReactQuery>
       </body>

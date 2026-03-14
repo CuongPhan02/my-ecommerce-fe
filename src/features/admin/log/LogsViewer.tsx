@@ -2,6 +2,7 @@
 'use client'
 import { Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { ApiResponse } from '~/@types/api'
 import {
   Accordion,
   AccordionContent,
@@ -16,9 +17,9 @@ import {
   CardTitle,
 } from '~/components/ui/core/card'
 import { ScrollArea } from '~/components/ui/core/scroll-area'
-import https from '~/config/https'
+import { https } from '~/config/https'
+
 import { cn } from '~/lib/utils'
-import { ApiResponse } from '~/types/apiConfig'
 
 const LogsViewer = () => {
   const [files, setFiles] = useState([])
@@ -75,7 +76,7 @@ const LogsViewer = () => {
                 key={file}
                 className={cn(
                   'flex items-center justify-between rounded border p-2',
-                  selectedFile === file ? 'bg-muted' : ''
+                  selectedFile === file ? 'bg-muted' : '',
                 )}
               >
                 <Button

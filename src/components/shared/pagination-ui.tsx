@@ -65,7 +65,6 @@ export default function Pagination({
       <Button
         onClick={() => updateQuery('page', String(meta.page - 1))}
         disabled={meta.page <= 1}
-        className='px-3 py-1'
       >
         Prev
       </Button>
@@ -83,13 +82,13 @@ export default function Pagination({
               </span>
             ) : (
               <Button
-                variant={`${meta.page === p ? 'default' : 'secondary'}`}
+                variant={`${meta.page === p ? 'default' : 'outline'}`}
                 key={idx}
                 onClick={() => updateQuery('page', String(p))}
               >
                 {p}
               </Button>
-            )
+            ),
           )}
         </div>
       )}
@@ -97,7 +96,6 @@ export default function Pagination({
       <Button
         onClick={() => updateQuery('page', String(meta.page + 1))}
         disabled={meta.page >= meta.totalPages}
-        className='px-3 py-1'
       >
         Next
       </Button>

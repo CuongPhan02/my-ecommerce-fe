@@ -23,7 +23,7 @@ import {
 } from '~/hooks/use-form-validation'
 
 import { useUiStore } from '~/store/useUiStore'
-import { _mediaService } from '../media.queries'
+import { _mediaService } from '../media.query'
 
 const AddFolder = () => {
   const [open, setOpen] = useState(false)
@@ -35,7 +35,7 @@ const AddFolder = () => {
       },
       {
         name: [required('Name is required'), minLength(3)],
-      }
+      },
     )
 
   const { mutate: addFolder } = _mediaService.useMediaFolderCreate()

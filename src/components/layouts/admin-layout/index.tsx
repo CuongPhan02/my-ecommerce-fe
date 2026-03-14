@@ -16,7 +16,7 @@ const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
         <ThemeToggle />
         <ProfileDropdown />
       </Header>
-      <MainContent fixed className='min-h-screen'>
+      <MainContent fixed className='min-h-screen' fluid>
         {children}
       </MainContent>
     </div>
