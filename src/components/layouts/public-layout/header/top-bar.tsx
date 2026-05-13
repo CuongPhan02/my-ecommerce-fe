@@ -1,45 +1,54 @@
 'use client'
 
 import React from 'react'
-import { motion } from 'motion/react'
-
-const MESSAGES = [
-  'MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN HÀNG TRÊN 50 EUR',
-  'GIAO HÀNG TRONG 3-6 NGÀY LÀM VIỆC',
-  'MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN HÀNG TRÊN 50 EUR',
-  'GIAO HÀNG TRONG 3-6 NGÀY LÀM VIỆC',
-  'MIỄN PHÍ VẬN CHUYỂN CHO ĐƠN HÀNG TRÊN 50 EUR',
-  'GIAO HÀNG TRONG 3-6 NGÀY LÀM VIỆC',
-]
+import { Link } from 'next-view-transitions'
+import { ChevronDown } from 'lucide-react'
 
 const TopBar = () => {
   return (
-    <div className='w-full bg-[#1a1a1a] text-white text-[10px] md:text-xs font-bold py-2.5 overflow-hidden flex items-center border-b border-neutral-800 tracking-wider uppercase whitespace-nowrap min-h-[36px]'>
-      <motion.div
-        className='flex items-center gap-6 shrink-0'
-        initial={{ x: 0 }}
-        animate={{ x: '-50%' }}
-        transition={{
-          duration: 30,
-          repeat: Infinity,
-          ease: 'linear',
-          repeatType: 'loop',
-        }}
-      >
-        {[...Array(2)].map((_, loopIndex) => (
-          <div
-            key={loopIndex}
-            className='flex items-center gap-6 shrink-0 pb-[2px]'
-          >
-            {MESSAGES.map((msg, index) => (
-              <React.Fragment key={`${loopIndex}-${index}`}>
-                <span>{msg}</span>
-                <span className='w-1.5 h-1.5 bg-white shrink-0'></span>
-              </React.Fragment>
-            ))}
+    <div className='w-full bg-[#3c3d41] text-white text-[10px] md:text-[11px] font-medium py-1.5 overflow-hidden border-b border-neutral-700/50 tracking-tight whitespace-nowrap min-h-[32px]'>
+      <div className='container-layout flex items-center justify-between px-4 md:px-8'>
+        {/* Left Side Branding Links */}
+        <div className='flex items-center gap-4 md:gap-6 opacity-90 uppercase'>
+          <Link href='#' className='hover:text-primary transition-colors font-bold'>
+            Về Coolmate
+          </Link>
+          <span className='w-[1px] h-3 bg-neutral-500'></span>
+          <Link href='#' className='hover:text-primary transition-colors font-bold'>
+            CXP BY COOLMATE
+          </Link>
+          <span className='w-[1px] h-3 bg-neutral-500'></span>
+          <Link href='#' className='hover:text-primary transition-colors font-bold'>
+            CARE&SHARE
+          </Link>
+        </div>
+
+        {/* Right Side Utility Links */}
+        <div className='hidden md:flex items-center gap-5 opacity-90'>
+          <Link href='#' className='flex items-center gap-1 hover:text-primary transition-colors'>
+            <span className='text-yellow-400'>★</span> Coolclub
+          </Link>
+          <Link href='#' className='hover:text-primary transition-colors'>
+            Cửa hàng
+          </Link>
+          <Link href='#' className='hover:text-primary transition-colors'>
+            Blog
+          </Link>
+          <Link href='#' className='hover:text-primary transition-colors'>
+            CSKH
+          </Link>
+          <Link href='/auth/sign-in' className='hover:text-primary transition-colors font-semibold'>
+            Đăng nhập
+          </Link>
+          <div className='flex items-center gap-1 cursor-pointer hover:text-primary transition-colors'>
+            <span className='w-4 h-3 bg-red-600 relative overflow-hidden flex items-center justify-center'>
+              <span className='text-[6px] text-yellow-400'>★</span>
+            </span>
+            <span>VN</span>
+            <ChevronDown className='w-3 h-3' />
           </div>
-        ))}
-      </motion.div>
+        </div>
+      </div>
     </div>
   )
 }

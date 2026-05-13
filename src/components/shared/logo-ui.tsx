@@ -9,7 +9,7 @@ const LogoUi = ({ className }: { className?: string }) => {
     <div
       onClick={() => router.push('/')}
       className={cn(
-        'font-extrabold text-xl sm:text-3xl text-primary-color whitespace-nowrap  flex items-center gap-2 cursor-pointer',
+        'font-extrabold text-xl sm:text-3xl text-primary whitespace-nowrap  flex items-center gap-2 cursor-pointer',
         className,
       )}
     >

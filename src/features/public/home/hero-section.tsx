@@ -34,161 +34,86 @@ const marqueeItems = [
   },
 ]
 
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
+
 const HeroSection = () => {
   return (
-    <div className='relative w-full md:min-h-[calc(100vh-110px)] lg:h-[calc(100vh-110px)] flex flex-col lg:grid lg:grid-cols-[1fr_380px] overflow-hidden bg-black font-sans'>
-      {/* Left Content Column / Main Hero Area */}
-      <div className='relative min-h-[40vh] lg:flex-1 lg:min-h-[50vh] lg:h-full w-full flex flex-col justify-end p-8 lg:p-12 xl:p-20 overflow-hidden'>
-        {/* Background Image */}
-        <div className='absolute inset-0 z-0 aspect-video'>
-          <Image
-            src='https://framerusercontent.com/images/KxF8H6qGSaJvRZEhALbixoOrQg.jpg?scale-down-to=2048&width=1920&height=2400'
-            alt='Hero Background'
-            fill
-            priority
-            className='object-cover'
-          />
-          {/* Gradients to ensure text readability */}
-          <div className='absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent' />
-          <div className='absolute inset-0 bg-black/10' />
-        </div>
+    <div className='relative w-full h-[60vh] md:h-[85vh] overflow-hidden bg-[#f4f4f4]'>
+      {/* Background Image */}
+      <div className='absolute inset-0 z-0'>
+        <Image
+          src='https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&q=80&w=2000'
+          alt='Fitness Community'
+          fill
+          priority
+          className='object-cover object-center'
+        />
+        {/* Subtle overlay for readability if needed, but the image is bright */}
+        <div className='absolute inset-0 bg-black/10' />
+      </div>
 
-        {/* Text Content */}
-        <div className='relative z-20 space-y-4 lg:space-y-6 max-w-5xl'>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-          >
-            <span className='inline-block text-[10px] lg:text-xs font-black uppercase tracking-[0.5em] text-neutral-300 mb-1 lg:mb-2'>
-              Dress the Unconventional
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
+      {/* Content Overlay */}
+      <div className='relative z-10 h-full flex flex-col justify-center px-4 md:px-20 lg:px-32'>
+        <div className='max-w-4xl space-y-6 md:space-y-8'>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className='text-3xl md:text-5xl lg:text-7xl font-black text-white leading-tight uppercase tracking-tight'
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}
           >
-            <h1 className='text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black text-white leading-[0.9] tracking-tighter uppercase italic'>
-              WEAR{' '}
-              <span className='text-outline-white text-xl lg:text-4xl xl:text-9xl xl:text-[10rem] block lg:inline'>
-                THE
-              </span>{' '}
-              <br />
-              <div className='flex flex-wrap items-baseline gap-2 lg:gap-4'>
-                <span className='not-italic'>HYPE</span>
-                <span className='text-outline-white inline-block'>"PHỐ"</span>
-              </div>
-            </h1>
-          </motion.div>
-        </div>
-      </div>
+            MORE THAN A BRAND — <br />
+            WE ARE A COMMUNITY IN MOTION
+          </motion.h1>
 
-      {/* Right Column / Bottom Bar (Marquee + Button) */}
-      <div className='relative md:min-h-[40vh] lg:h-full flex flex-col bg-neutral-950 z-30 border-t lg:border-t-0 lg:border-l border-neutral-800'>
-        {/* Product Marquee Area */}
-        <div className='flex-1 relative overflow-hidden flex lg:flex-col items-center justify-center py-0'>
-          {/* Desktop Vertical Marquee */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className='text-white text-sm md:text-lg lg:text-xl font-medium max-w-2xl leading-relaxed drop-shadow-sm'
+          >
+            Coolmate đồng hành cùng hàng nghìn cá nhân, câu lạc bộ và tổ chức để lan toả lối sống tích cực, năng động và bền bỉ mỗi ngày
+          </motion.p>
+
           <motion.div
-            className='hidden lg:flex flex-col gap-6 w-full border-5 border-primary'
-            animate={{ y: [0, -1200] }}
-            transition={{
-              y: {
-                duration: 35,
-                repeat: Infinity,
-                ease: 'linear',
-              },
-            }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
-            {[...marqueeItems, ...marqueeItems, ...marqueeItems].map(
-              (item, idx) => (
-                <div key={`${item.id}-${idx}`} className='w-full'>
-                  <div className='aspect-square relative flex items-center justify-center bg-neutral-900/50 border border-neutral-800/40 group cursor-pointer transition-colors '>
-                    <div className='relative aspect-video w-full h-full'>
-                      <Image
-                        src={item.src}
-                        alt={item.alt}
-                        fill
-                        sizes='300px'
-                        className='object-cover'
-                      />
-                    </div>
-                  </div>
-                </div>
-              ),
-            )}
-          </motion.div>
-
-          {/* Mobile Horizontal Marquee */}
-          <div className='lg:hidden w-full overflow-hidden flex items-center'>
-            <motion.div
-              className='flex  px-4 border-4 border-primary'
-              animate={{ x: [0, -1000] }}
-              transition={{
-                x: {
-                  duration: 25,
-                  repeat: Infinity,
-                  ease: 'linear',
-                },
-              }}
+            <Link
+              href='/auth/sign-up'
+              className='inline-flex items-center gap-3 bg-white text-[#231f20] px-6 md:px-10 py-3 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-primary hover:text-white transition-all group'
             >
-              {[
-                ...marqueeItems,
-                ...marqueeItems,
-                ...marqueeItems,
-                ...marqueeItems,
-              ].map((item, idx) => (
-                <div
-                  key={`${item.id}-${idx}-mobile`}
-                  className='md:w-48 w-32 md:h-48 h-32 relative flex-shrink-0 flex items-center justify-center bg-neutral-900 '
-                >
-                  <div className='relative w-full h-full'>
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes='200px'
-                      className='object-cover'
-                    />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
+              ĐĂNG KÝ NGAY
+              <ArrowRight className='w-5 h-5 group-hover:translate-x-1 transition-transform' />
+            </Link>
+          </motion.div>
         </div>
-
-        {/* Global Action Button */}
-        <Link
-          href='/shop'
-          className='relative h-10 md:h-14 lg:h-20 xl:h-24 bg-primary hover:bg-white group transition-colors duration-500 flex items-center justify-center lg:justify-between px-10 overflow-hidden'
-        >
-          <span className='relative z-10 text-xs md:text-lg lg:text-xl xl:text-2xl font-black text-white group-hover:text-black uppercase tracking-widest transition-colors duration-500'>
-            Shop Now
-          </span>
-          <ArrowUpRight className='relative z-10 hidden lg:block w-8 h-8 xl:w-10 xl:h-10 text-white group-hover:text-black transition-all duration-500 group-hover:rotate-45' />
-
-          {/* Slide up hover effect */}
-          <div className='absolute bottom-0 left-0 w-full h-0 bg-white group-hover:h-full transition-all duration-500 ease-in-out' />
-        </Link>
       </div>
 
-      <style jsx>{`
-        .text-outline-white {
-          color: transparent;
-          -webkit-text-stroke: 1px rgba(255, 255, 255, 0.7);
-        }
-        @media (min-width: 1024px) {
-          .text-outline-white {
-            -webkit-text-stroke: 1.5px white;
-          }
-        }
-        @media (min-width: 1280px) {
-          .text-outline-white {
-            -webkit-text-stroke: 2px white;
-          }
-        }
-      `}</style>
+      {/* Navigation Arrows */}
+      <div className='absolute inset-y-0 left-4 md:left-8 flex items-center z-20'>
+        <button className='w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors'>
+          <ChevronLeft className='w-8 h-8' />
+        </button>
+      </div>
+      <div className='absolute inset-y-0 right-4 md:right-8 flex items-center z-20'>
+        <button className='w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors'>
+          <ChevronRight className='w-8 h-8' />
+        </button>
+      </div>
+
+      {/* Pagination Dots */}
+      <div className='absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20'>
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`w-2 h-2 rounded-full transition-all ${
+              i === 1 ? 'bg-white w-6' : 'bg-white/40'
+            }`}
+          />
+        ))}
+      </div>
     </div>
   )
 }

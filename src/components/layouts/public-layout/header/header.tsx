@@ -11,6 +11,9 @@ import MobileNavbar from './mobile-navbar'
 import { AvatarDropdown } from './avatar'
 import { Link } from 'next-view-transitions'
 
+import PromotionBar from './promotion-bar'
+import { User, Search as SearchIcon } from 'lucide-react'
+
 const Header = () => {
   const [isLogin, setIsLogin] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -38,100 +41,85 @@ const Header = () => {
 
   return (
     <>
-      <div className='flex flex-col w-full font-heading relative'>
+      <div className='flex flex-col w-full font-heading relative z-50'>
         <TopBar />
-        {isScrolled && <div className='h-[65px] w-full' />}
         <motion.header
-          className={`w-full z-50 transition-colors duration-300 border-b border-neutral-800 ${
+          className={`w-full z-50 transition-all duration-300 border-b border-neutral-100 ${
             isScrolled
-              ? 'fixed top-0 left-0 bg-black/95 backdrop-blur-md shadow-xl'
-              : 'relative bg-black'
+              ? 'fixed top-0 left-0 bg-white/95 backdrop-blur-md shadow-sm'
+              : 'relative bg-white'
           }`}
           initial={{ y: 0 }}
           animate={{ y: isScrolled ? [-80, 0] : 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
         >
-          <div className='flex items-center justify-between container-layout px-4 md:px-8'>
-            {/* Logo Section & Mobile Toggle */}
-            <div className='flex items-center gap-4 md:gap-10'>
+          <div className='flex items-center justify-between container-layout px-4 md:px-8 h-[65px] md:h-[80px]'>
+            {/* Logo Section */}
+            <div className='flex-shrink-0'>
               <LogoUi />
-
-              {/* Desktop Navigation */}
-              <nav className='hidden md:flex items-center space-x-5 text-lg font-bold tracking-wide'>
-                <div className='group h-full flex items-center'>
-                  <Link
-                    href='/shop'
-                    className='hover:text-neutral-300 transition-colors uppercase px-2 py-4'
-                  >
-                    Cửa hàng
-                  </Link>
-
-                  {/* Mega Menu Dropdown */}
-                  <div className='absolute left-0 top-full w-full invisible group-hover:visible z-50 transition-all duration-300 opacity-0 group-hover:opacity-100'>
-                    <ShopDropdown />
-                  </div>
-                </div>
-                <Link
-                  href='/best-sellers'
-                  className='hover:text-neutral-300 transition-colors uppercase'
-                >
-                  Bán chạy nhất
-                </Link>
-                <Link
-                  href='/about'
-                  className='hover:text-neutral-300 transition-colors uppercase'
-                >
-                  Giới thiệu
-                </Link>
-              </nav>
             </div>
 
-            {/* Right Actions */}
-            <div className='flex items-center gap-6 text-lg font-bold tracking-wide'>
-              <button aria-label='Tìm kiếm' className='hover:text-neutral-300'>
-                <Search className='w-5 h-5' />
-              </button>
-
-              <Link
-                href='/help'
-                className='hidden md:block hover:text-neutral-300 uppercase'
-              >
-                Trợ giúp
-              </Link>
-
-              <button className='hidden md:flex items-center gap-1 hover:text-neutral-300 uppercase'>
-                VN / VND <ChevronDown className='w-4 h-4' />
-              </button>
-
-              {/* Auth & Cart */}
-              <div className='flex items-center gap-4'>
-                <button className='flex items-center gap-1 hover:text-neutral-300 uppercase'>
-                  <ShoppingBag className='w-6 h-6 md:hidden' />
-                  <span className='hidden md:inline'>Giỏ hàng (0)</span>
-                </button>
-                <div className='hidden md:contents'>
-                  {isLogin ? (
-                    <AvatarDropdown handleLogout={handleLogout} />
-                  ) : (
-                    <Link
-                      href='/auth/sign-in'
-                      className='hover:text-neutral-300 uppercase'
-                    >
-                      Đăng nhập
-                    </Link>
+            {/* Desktop Navigation - Centered */}
+            <nav className='hidden lg:flex items-center space-x-1 xl:space-x-4 text-[13px] xl:text-[14px] font-bold tracking-tight'>
+              {['NEW', 'NAM', 'NỮ', 'THỂ THAO', 'PHỤ KIỆN', 'SALE'].map((item) => (
+                <div key={item} className='group h-full flex items-center relative'>
+                  <Link
+                    href={item === 'SALE' ? '/sale' : `/category/${item.toLowerCase()}`}
+                    className={`hover:text-primary transition-colors uppercase px-3 py-4 flex items-center gap-1 ${
+                      item === 'SALE' ? 'text-red-500' : 'text-[#231f20]'
+                    }`}
+                  >
+                    {item}
+                    {item === 'SALE' && (
+                      <span className='text-[8px] bg-red-500 text-white px-1 rounded-sm ml-0.5 leading-tight'>
+                        -50%
+                      </span>
+                    )}
+                  </Link>
+                  {item === 'NAM' && (
+                    <div className='absolute left-0 top-full w-screen -ml-[40vw] invisible group-hover:visible z-50 transition-all duration-300 opacity-0 group-hover:opacity-100'>
+                      <ShopDropdown />
+                    </div>
                   )}
                 </div>
+              ))}
+            </nav>
+
+            {/* Right Actions */}
+            <div className='flex items-center gap-2 md:gap-5'>
+              {/* Search Bar */}
+              <div className='hidden md:flex items-center relative group max-w-[200px] xl:max-w-[280px]'>
+                <input
+                  type='text'
+                  placeholder='Tìm kiếm...'
+                  className='w-full bg-[#f1f1f1] rounded-full py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all'
+                />
+                <SearchIcon className='w-4 h-4 absolute right-4 text-neutral-500 group-hover:text-primary transition-colors cursor-pointer' />
               </div>
 
-              <button
-                className='md:hidden hover:text-neutral-300 p-2 rounded-full border border-neutral-600 bg-neutral-800'
-                onClick={() => setIsMobileMenuOpen(true)}
-              >
-                <Menu className='w-6 h-6' />
-              </button>
+              <div className='flex items-center gap-4 text-[#231f20]'>
+                <button className='hover:text-primary transition-colors relative'>
+                  <User className='w-6 h-6' />
+                </button>
+
+                <button className='hover:text-primary transition-colors relative'>
+                  <ShoppingBag className='w-6 h-6' />
+                  <span className='absolute -top-1 -right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold'>
+                    0
+                  </span>
+                </button>
+
+                <button
+                  className='lg:hidden hover:text-primary p-1'
+                  onClick={() => setIsMobileMenuOpen(true)}
+                >
+                  <Menu className='w-7 h-7' />
+                </button>
+              </div>
             </div>
           </div>
         </motion.header>
+        <PromotionBar />
 
         <MobileNavbar
           isOpen={isMobileMenuOpen}
