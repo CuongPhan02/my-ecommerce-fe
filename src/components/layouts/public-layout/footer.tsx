@@ -1,179 +1,209 @@
 'use client'
+
+import React from 'react'
 import Link from 'next/link'
-import { ArrowUp, Copy } from 'lucide-react'
+import { Phone, Mail, Facebook, Instagram, Youtube, ArrowRight, ChevronUp } from 'lucide-react'
+import { cn } from '~/lib/utils'
 
 const Footer = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+  const footerLinks = [
+    {
+      title: 'COOLCLUB',
+      links: [
+        { label: 'Tài khoản CoolClub', href: '#' },
+        { label: 'Đăng ký thành viên', href: '#' },
+        { label: 'Ưu đãi & Đặc quyền', href: '#' },
+      ],
+      extra: [
+        { title: 'TÀI LIỆU - TUYỂN DỤNG', links: [
+          { label: 'Tuyển dụng', href: '#' },
+          { label: 'Đăng ký bản quyền', href: '#' },
+        ]}
+      ]
+    },
+    {
+      title: 'CHÍNH SÁCH',
+      links: [
+        { label: 'Chính sách đổi trả tại cửa hàng', href: '#' },
+        { label: 'Chính sách đổi trả 60 ngày online', href: '#' },
+        { label: 'Chính sách khuyến mãi', href: '#' },
+        { label: 'Chính sách bảo mật', href: '#' },
+        { label: 'Chính sách giao hàng', href: '#' },
+      ],
+      extra: [
+        { title: 'COOLMATE.ME', links: [
+          { label: 'Lịch sử thay đổi website', href: '#' },
+        ]}
+      ]
+    },
+    {
+      title: 'CHĂM SÓC KHÁCH HÀNG',
+      links: [
+        { label: 'Trải nghiệm mua sắm 100% hài lòng', href: '#' },
+        { label: 'Hỏi đáp - FAQs', href: '#' },
+      ],
+      extra: [
+        { title: 'KIẾN THỨC MẶC ĐẸP', links: [
+          { label: 'Hướng dẫn chọn size', href: '#' },
+          { label: 'Blog', href: '#' },
+        ]}
+      ]
+    },
+    {
+      title: 'VỀ COOLMATE',
+      links: [
+        { label: 'Quy tắc ứng xử của Coolmate', href: '#' },
+        { label: 'Coolmate 101', href: '#' },
+        { label: 'DVKH xuất sắc', href: '#' },
+        { label: 'Câu chuyện về Coolmate', href: '#' },
+        { label: 'Nhà máy', href: '#' },
+        { label: 'Care & Share', href: '#' },
+        { label: 'Cam kết bền vững', href: '#' },
+        { label: 'Tầm nhìn 2030', href: '#' },
+      ]
+    }
+  ]
 
   return (
-    <div className='flex flex-col w-full'>
-      <footer className='w-full bg-black text-white pt-20 border-t border-neutral-800 overflow-hidden flex flex-col'>
-        <div className='container-layout flex-1 lg:mb-8'>
-          {/* Massive Brand Title - Taking up full width */}
-          <div className='w-full mb-20 2xl:mb-30'>
-            <h1 className='text-[24vw] xl:text-[24vw] 3xl:text-[26vw] leading-[0.8] font-bold text-center uppercase whitespace-nowrap select-none text-primary'>
-              AKR-SHOP
-            </h1>
+    <footer className="bg-black text-white py-16">
+      <div className="main-container mx-auto px-4">
+        {/* Top Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16 border-b border-white/10 pb-16">
+          {/* Left: Feedback */}
+          <div className="lg:col-span-5">
+            <h2 className="text-2xl md:text-3xl font-black mb-6 tracking-tight uppercase">COOLMATE lắng nghe bạn!</h2>
+            <p className="text-gray-400 text-sm mb-8 leading-relaxed max-w-md">
+              Chúng tôi luôn trân trọng và mong đợi nhận được mọi ý kiến đóng góp từ khách hàng 
+              để có thể nâng cấp trải nghiệm dịch vụ và sản phẩm tốt hơn nữa.
+            </p>
+            <button className="bg-white text-black px-8 py-3 rounded-full font-bold text-sm flex items-center gap-2 hover:bg-primary hover:text-white transition-all group">
+              ĐÓNG GÓP Ý KIẾN
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
 
-          {/* Info Grid - Matching Reference Layout */}
-          <div className='grid grid-cols-1 md:grid-cols-12 gap-8 mb-8 lg:mb-32 text-lg  lg:text-sm text-neutral-400 font-medium'>
-            {/* Col 1: Contact Info (Left) - Span 3 */}
-            <div className='md:col-span-3 flex flex-col gap-2'>
-              <div
-                className='flex items-center gap-2 group cursor-pointer w-fit'
-                onClick={() => copyToClipboard('hello@stubbleandco.com')}
-              >
-                <span className='hover:text-white transition-colors'>
-                  hello@stubbleandco.com
-                </span>
-                <Copy className='w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity' />
+          {/* Center: Contact */}
+          <div className="lg:col-span-4 flex flex-col gap-8">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white/5 rounded-2xl">
+                <Phone className="w-6 h-6" />
               </div>
-              <div
-                className='flex items-center gap-2 group cursor-pointer w-fit'
-                onClick={() => copyToClipboard('+44 20 7144 6699')}
-              >
-                <span className='hover:text-white transition-colors'>
-                  +44 20 7144 6699
-                </span>
-                <Copy className='w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity' />
+              <div>
+                <p className="text-xs text-gray-500 mb-1 uppercase font-bold tracking-wider">Hotline</p>
+                <p className="text-lg font-black">1900.272737 - 028.7777.2737</p>
               </div>
             </div>
-
-            {/* Col 2: Shop Categories (Center-Left) - Span 3 */}
-            <div className='md:col-span-3'>
-              <p className='text-xs uppercase tracking-widest text-neutral-300 mb-4'>
-                Cửa hàng
-              </p>
-              <div className='flex flex-col gap-1'>
-                <Link
-                  href='/shop/men'
-                  className='hover:text-white transition-colors'
-                >
-                  Nam
-                </Link>
-                <Link
-                  href='/shop/women'
-                  className='hover:text-white transition-colors'
-                >
-                  Nữ
-                </Link>
-                <Link
-                  href='/shop/accessories'
-                  className='hover:text-white transition-colors'
-                >
-                  Phụ kiện
-                </Link>
-                <Link
-                  href='/shop/new-arrivals'
-                  className='hover:text-white transition-colors'
-                >
-                  Hàng mới về
-                </Link>
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-white/5 rounded-2xl">
+                <Mail className="w-6 h-6" />
               </div>
-            </div>
-
-            {/* Col 3: Spacer/Dot (Center) - Span 1 */}
-            <div className='md:col-span-1 flex justify-center'>
-              <div className='w-2 h-2 rounded-full bg-neutral-700 hidden md:block mt-2'></div>
-            </div>
-
-            {/* Col 4: Address (Center-Right) - Span 3 */}
-            <div className='md:col-span-3'>
-              <p className='text-xs uppercase tracking-widest text-neutral-300 mb-4'>
-                Trụ sở chính
-              </p>
-              <div className='flex flex-col gap-1'>
-                <p>25 Lindsey Street</p>
-                <p>Epping</p>
-                <p>CM16 6RB</p>
-                <p>Vương quốc Anh</p>
+              <div>
+                <p className="text-xs text-gray-500 mb-1 uppercase font-bold tracking-wider">Email</p>
+                <p className="text-lg font-black">Cool@coolmate.me</p>
               </div>
-            </div>
-
-            {/* Col 5: Socials (Right) - Span 2 */}
-            <div className='md:col-span-2 md:text-right flex flex-col gap-1 items-start md:items-end'>
-              <a href='#' className='hover:text-white transition-colors'>
-                Instagram
-              </a>
-              <a href='#' className='hover:text-white transition-colors'>
-                X
-              </a>
-              <a href='#' className='hover:text-white transition-colors'>
-                Youtube
-              </a>
-              <a href='#' className='hover:text-white transition-colors'>
-                Facebook
-              </a>
-              <a href='#' className='hover:text-white transition-colors'>
-                Linkedin
-              </a>
-              <a href='#' className='hover:text-white transition-colors'>
-                TikTok
-              </a>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className='border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-neutral-500 uppercase tracking-wide gap-6 font-medium'>
-            <div className='w-full md:w-auto text-center md:text-left'>
-              © {new Date().getFullYear()} Stubble & Co — Bảo lưu mọi quyền.
-            </div>
+          {/* Right: Socials */}
+          <div className="lg:col-span-3 flex justify-start lg:justify-end gap-3">
+             {[Facebook, Instagram, Youtube, Mail, Instagram].map((Icon, idx) => (
+               <Link key={idx} href="#" className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                 <Icon className="w-6 h-6" />
+               </Link>
+             ))}
+          </div>
+        </div>
 
-            <div className='flex flex-wrap justify-center gap-8 w-full md:w-auto'>
-              <Link
-                href='/privacy-policy'
-                className='hover:text-white transition-colors'
-              >
-                Chính sách bảo mật
-              </Link>
-              <Link
-                href='/terms'
-                className='hover:text-white transition-colors'
-              >
-                Điều khoản & Điều kiện
-              </Link>
-              <Link
-                href='/imprint'
-                className='hover:text-white transition-colors'
-              >
-                Ấn bản
-              </Link>
+        {/* Middle Section: Links */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 mb-16">
+          {footerLinks.map((col, idx) => (
+            <div key={idx} className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                <h3 className="font-black text-sm tracking-widest uppercase">{col.title}</h3>
+                <div className="flex flex-col gap-2">
+                  {col.links.map((link, lIdx) => (
+                    <Link key={lIdx} href={link.href} className="text-gray-400 text-sm hover:text-white transition-colors">
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              {col.extra && col.extra.map((extra, eIdx) => (
+                <div key={eIdx} className="flex flex-col gap-4">
+                  <h3 className="font-black text-sm tracking-widest uppercase">{extra.title}</h3>
+                  <div className="flex flex-col gap-2">
+                    {extra.links.map((link, lIdx) => (
+                      <Link key={lIdx} href={link.href} className="text-gray-400 text-sm hover:text-white transition-colors">
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
+          ))}
 
-            <div className='w-full md:w-auto flex justify-end pr-4 md:pr-0'>
-              <button
-                onClick={scrollToTop}
-                className='hover:text-white transition-colors group'
-              >
-                <ArrowUp className='w-5 h-5 group-hover:-translate-y-1 transition-transform' />
-              </button>
+          {/* Address Column */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            <h3 className="font-black text-sm tracking-widest uppercase">ĐỊA CHỈ LIÊN HỆ</h3>
+            <div className="flex flex-col gap-6 text-xs text-gray-400 leading-relaxed">
+              <p>
+                <span className="text-white font-bold block mb-1">Cửa hàng:</span>
+                B2-R4, Tầng B2, Vincom Center, 191 Bà Triệu, Hai Bà Trưng, Hà Nội
+              </p>
+              <p>
+                <span className="text-white font-bold block mb-1">Văn phòng Hà Nội:</span>
+                Tầng 3-4, Tòa nhà BMM, Km2, Đường Phùng Hưng, Phường Phúc La, Quận Hà Đông, Hà Nội
+              </p>
+              <p>
+                <span className="text-white font-bold block mb-1">Trung tâm vận hành Hà Nội:</span>
+                Lô C8, KCN Lại Yên, Xã Lại Yên, Huyện Hoài Đức, Hà Nội
+              </p>
+              <p>
+                <span className="text-white font-bold block mb-1">Văn phòng & Trung tâm vận hành TP.HCM:</span>
+                Lô C3, Đường D2, KCN Cát Lái, Thạnh Mỹ Lợi, TP. Thủ Đức, TP. Hồ Chí Minh
+              </p>
             </div>
           </div>
         </div>
 
-        {/* App Download Banner */}
-        <div className='w-full bg-primary text-black py-6 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4'>
-          <div className='text-center text-white md:text-left'>
-            <h3 className='text-xl md:text-2xl font-bold uppercase tracking-tighter'>
-              Tải ứng dụng của chúng tôi
-            </h3>
-            <p className='text-xs md:text-sm font-medium opacity-80 mt-1'>
-              Nhận ưu đãi độc quyền và trải nghiệm mua sắm liền mạch.
+        {/* Bottom Section */}
+        <div className="pt-8 border-t border-white/10 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="text-center lg:text-left">
+            <p className="text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+              @ CÔNG TY TNHH FASTECH ASIA
+            </p>
+            <p className="text-[10px] text-gray-600 mt-1">
+              Mã số doanh nghiệp: 0108617038. Giấy chứng nhận đăng ký doanh nghiệp do Sở Kế hoạch và Đầu tư TP Hà Nội cấp lần đầu ngày 20/02/2019.
             </p>
           </div>
-          <button className='bg-white text-black text-xs md:text-sm font-bold uppercase tracking-wider py-3 px-8 rounded-full hover:bg-white/90 transition-colors whitespace-nowrap'>
-            Tải ứng dụng
-          </button>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+             {/* Simple trust badges/logos placeholders */}
+             <div className="h-10 w-24 bg-white/5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500 italic">NCSC</div>
+             <div className="h-10 w-24 bg-white/5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500 italic">DMCA</div>
+             <div className="h-10 w-24 bg-white/5 rounded-lg border border-white/10 flex items-center justify-center text-[10px] font-bold text-gray-500 italic">BỘ CÔNG THƯƠNG</div>
+          </div>
         </div>
-      </footer>
-    </div>
+      </div>
+
+      {/* Floating Buttons */}
+      <div className="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+         <button className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+           <span className="font-bold text-xs tracking-tighter">Zalo</span>
+         </button>
+         <button 
+           onClick={scrollToTop}
+           className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl hover:bg-primary hover:text-white transition-all group"
+         >
+           <ChevronUp className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
+         </button>
+      </div>
+    </footer>
   )
 }
 
