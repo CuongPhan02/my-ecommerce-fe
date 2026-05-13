@@ -78,7 +78,7 @@ const HeroSection = () => {
               <br />
               <div className='flex flex-wrap items-baseline gap-2 lg:gap-4'>
                 <span className='not-italic'>HYPE</span>
-                <span className='text-outline-white inline-block'>"RAW"</span>
+                <span className='text-outline-white inline-block'>"PHỐ"</span>
               </div>
             </h1>
           </motion.div>

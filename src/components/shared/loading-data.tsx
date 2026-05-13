@@ -21,8 +21,8 @@ interface SizeConfig {
 }
 
 const LoadingData: React.FC<LoadingDataProps> = ({
-  message = 'Loading',
-  submessage = 'Please wait a moment...',
+  message = 'Đang tải',
+  submessage = 'Vui lòng chờ trong giây lát...',
   size = 'medium',
   fullscreen = true,
 }) => {

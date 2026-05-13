@@ -1,9 +1,10 @@
 'use client'
 
-import Link from 'next/link'
-import React from 'react'
+import { Button } from '~/components/ui/core/button'
+import { useRouter } from 'next/navigation'
 
 export default function NotFound() {
+  const router = useRouter()
   return (
     <div className='h-screen w-full bg-primary text-black relative flex flex-col items-center justify-center overflow-hidden font-heading'>
       {/* Top Left Navigation Area */}
@@ -11,12 +12,12 @@ export default function NotFound() {
         <div className='text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase leading-none mb-1'>
           AKR.
         </div>
-        <Link
-          href='/'
+        <Button
+          onClick={() => router.back()}
           className='border-[3px] border-black text-black text-sm md:text-base font-black uppercase px-3 py-0.5 hover:bg-black hover:text-[#E50000] transition-colors tracking-widest'
         >
-          HOME
-        </Link>
+          Quay lại
+        </Button>
       </div>
 
       {/* Massive 404 Text */}

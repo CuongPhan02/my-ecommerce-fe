@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation'
 import { SETTING_AUTH } from '~/constants'
 import IconGoogle from '~/components/ui/icon/icon-google'
 
+import { ROLES } from '~/lib/auth-utils'
+
 export default function GoogleLoginButton() {
   const queryClient = useQueryClient()
   const { login } = useAuthStore()
@@ -28,16 +30,14 @@ export default function GoogleLoginButton() {
         },
         {
           onSuccess: (data) => {
-            toast.success('Login success')
-            setAccessToken(data.result.accessToken)
-            login(data.result.user)
-            const role = data.result.user.role
-            document.cookie = `isLoggedIn=true; path=/; max-age=31536000`
-            document.cookie = `userRole=${role}; path=/; max-age=31536000`
+            toast.success('Đăng nhập thành công')
+            const { accessToken, user } = data.result
+            login(user, accessToken)
+            const role = user.role
             if (
-              role === 'ADMIN' ||
-              role === 'SUPER_ADMIN' ||
-              role === 'STAFF'
+              role === ROLES.ADMIN ||
+              role === ROLES.SUPER_ADMIN ||
+              role === ROLES.STAFF
             ) {
               router.push('/admin/dashboard')
             } else {
@@ -47,7 +47,7 @@ export default function GoogleLoginButton() {
           },
           onError: (error: any) => {
             console.log(error, '====>')
-            toast.error(error.response?.data?.message || 'Login failed')
+            toast.error(error.response?.data?.message || 'Đăng nhập thất bại')
           },
         },
       )
@@ -55,7 +55,7 @@ export default function GoogleLoginButton() {
     flow: 'auth-code',
     onError: (errorResponse) => {
       console.log(errorResponse)
-      toast.error('Google Login Failed')
+      toast.error('Đăng nhập Google thất bại')
     },
   })
 

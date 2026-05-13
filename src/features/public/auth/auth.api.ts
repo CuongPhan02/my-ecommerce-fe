@@ -50,4 +50,8 @@ export const AUTH_API = {
     const response = await https.post<ApiResponse<any>>('/auth/google', payload)
     return response.data
   },
+  getMe: async () => {
+    const response = await https.get<ApiResponse<any>>('/auth/me')
+    return response.data
+  },
 }

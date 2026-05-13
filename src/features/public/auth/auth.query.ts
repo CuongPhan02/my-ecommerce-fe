@@ -1,4 +1,4 @@
-import { QueryClient, useMutation } from '@tanstack/react-query'
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import {
   SignInSchemaType,
   SignUpSchemaType,
@@ -17,9 +17,16 @@ export const AUTH_QUERY_KEY = {
   forgotPassword: ['AUTH', 'FORGOT_PASSWORD'] as const,
   resetPassword: ['AUTH', 'RESET_PASSWORD'] as const,
   loginWithGoogle: ['AUTH', 'LOGIN_WITH_GOOGLE'] as const,
+  me: ['AUTH', 'ME'] as const,
 }
 
 export const AUTH_QUERY = {
+  useMe: () => {
+    return useQuery({
+      queryKey: AUTH_QUERY_KEY.me,
+      queryFn: () => AUTH_API.getMe(),
+    })
+  },
   useLogin: (queryClient: QueryClient) => {
     return useMutation({
       mutationFn: async (payload: SignInSchemaType) =>

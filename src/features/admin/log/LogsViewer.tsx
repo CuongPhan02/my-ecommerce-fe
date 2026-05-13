@@ -47,7 +47,7 @@ const LogsViewer = () => {
   }, [selectedFile])
 
   const handleDelete = async (file: string) => {
-    if (!confirm(`Are you remove file ${file}?`)) return
+    if (!confirm(`Bạn có chắc chắn muốn xóa file ${file}?`)) return
     try {
       await https.delete<ApiResponse<null>>(`/logs/delete/${file}`)
 
@@ -57,7 +57,7 @@ const LogsViewer = () => {
         setLogs([])
       }
     } catch (err: any) {
-      alert(`Remove fail: ${err.message}`)
+      alert(`Xóa thất bại: ${err.message}`)
     }
   }
 
@@ -65,11 +65,11 @@ const LogsViewer = () => {
     <div className='space-y-6'>
       <Card>
         <CardHeader>
-          <CardTitle>List file logs</CardTitle>
+          <CardTitle>Danh sách tệp nhật ký</CardTitle>
         </CardHeader>
         <CardContent className='flex flex-col gap-2'>
           {files.length === 0 ? (
-            <p>No data file log</p>
+            <p>Không có tệp dữ liệu nhật ký nào</p>
           ) : (
             files.map((file) => (
               <div

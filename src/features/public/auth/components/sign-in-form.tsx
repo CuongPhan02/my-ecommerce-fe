@@ -15,6 +15,8 @@ import { https, setAccessToken } from '~/config/https'
 import { AUTH_QUERY } from '../auth.query'
 import { useQueryClient } from '@tanstack/react-query'
 
+import { ROLES } from '~/lib/auth-utils'
+
 const SignInForm = () => {
   const { login } = useAuthStore()
   const router = useRouter()
@@ -40,13 +42,15 @@ const SignInForm = () => {
   const onSubmit = async (data: SignInSchemaType) => {
     loginMutation(data, {
       onSuccess: (data) => {
-        toast.success('Login success')
-        setAccessToken(data.result.accessToken)
-        login(data.result.user)
-        const role = data.result.user.role
-        document.cookie = `isLoggedIn=true; path=/; max-age=31536000`
-        document.cookie = `userRole=${role}; path=/; max-age=31536000`
-        if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'STAFF') {
+        toast.success('Đăng nhập thành công')
+        const { accessToken, user } = data.result
+        login(user, accessToken)
+        const role = user.role
+        if (
+          role === ROLES.ADMIN ||
+          role === ROLES.SUPER_ADMIN ||
+          role === ROLES.STAFF
+        ) {
           router.push('/admin/dashboard')
         } else {
           router.push('/')
@@ -55,7 +59,7 @@ const SignInForm = () => {
       },
       onError: (error: any) => {
         console.log(error, '====>')
-        toast.error(error.response?.data?.message || 'Login failed')
+        toast.error(error.response?.data?.message || 'Đăng nhập thất bại')
       },
     })
   }
@@ -67,26 +71,26 @@ const SignInForm = () => {
         <div className='w-full max-w-md'>
           <div className='space-y-2 mb-10'>
             <h1 className='text-3xl font-semibold tracking-tight'>
-              Welcome back
+              Chào mừng quay trở lại
             </h1>
             <p className='text-slate-500 dark:text-gray-400 font-light'>
-              Please sign in to your account
+              Vui lòng đăng nhập vào tài khoản của bạn
             </p>
           </div>
           <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
             <div className='space-y-4'>
               <Input
-                label='Email address'
+                label='Địa chỉ email'
                 id='email'
-                placeholder='Email address'
+                placeholder='Địa chỉ email'
                 type='email'
                 {...register('email')}
                 errorMessage={errors.email?.message}
               />
               <Input
-                label='Password'
+                label='Mật khẩu'
                 id='password'
-                placeholder='Password'
+                placeholder='Mật khẩu'
                 type='password'
                 {...register('password')}
                 errorMessage={errors.password?.message}
@@ -97,14 +101,14 @@ const SignInForm = () => {
                 className='text-xs font-medium hover:underline text-slate-600 dark:text-gray-400'
                 href='/auth/forgot-password'
               >
-                Forgot your password?
+                Quên mật khẩu?
               </Link>
             </div>
             <Button className='w-full' type='submit' disabled={isPending}>
               {isPending ? (
                 <Loader2 className='w-4 h-4 animate-spin' />
               ) : (
-                'Sign in'
+                'Đăng nhập'
               )}
             </Button>
             <div className='relative py-4'>
@@ -113,7 +117,7 @@ const SignInForm = () => {
               </div>
               <div className='relative flex justify-center text-xs uppercase'>
                 <span className='bg-background-light dark:bg-background-dark px-4 text-slate-500 dark:text-gray-500 font-medium tracking-widest'>
-                  or continue with
+                  hoặc tiếp tục với
                 </span>
               </div>
             </div>
@@ -121,12 +125,12 @@ const SignInForm = () => {
               <GoogleLoginButton />
             </div>
             <p className='text-center text-sm text-slate-500 dark:text-gray-400 mt-8'>
-              Don't have an account?
+              Chưa có tài khoản?
               <Link
                 className='font-semibold text-slate-900 dark:text-white hover:underline ml-1'
                 href='/auth/sign-up'
               >
-                Sign up
+                Đăng ký
               </Link>
             </p>
           </form>

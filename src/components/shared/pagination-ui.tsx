@@ -66,12 +66,12 @@ export default function Pagination({
         onClick={() => updateQuery('page', String(meta.page - 1))}
         disabled={meta.page <= 1}
       >
-        Prev
+        Trước
       </Button>
 
       {variant === 'simple' ? (
         <span className='text-sm'>
-          Page {meta.page} / {meta.totalPages}
+          Trang {meta.page} / {meta.totalPages}
         </span>
       ) : (
         <div className='flex items-center gap-1'>
@@ -97,7 +97,7 @@ export default function Pagination({
         onClick={() => updateQuery('page', String(meta.page + 1))}
         disabled={meta.page >= meta.totalPages}
       >
-        Next
+        Sau
       </Button>
     </div>
   )

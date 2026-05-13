@@ -16,35 +16,36 @@ import { ApiResponse } from '~/@types/api'
 export const _mediaApi = {
   // ======= MEDIA FOLDER SETTING ====== //
   fetchFolderMedia: async () => {
-    const response = await https.get<ApiResponse<FolderType[]>>(
-      '/media/folder-getAll',
-    )
+    const response =
+      await https.get<ApiResponse<FolderType[]>>('/media/folders')
 
     return response.data
   },
   fetchFolderCreate: async (payload: FolderInputType) => {
     const response: ApiResponse<FolderType> = await https.post(
-      '/media/create',
+      '/media/folders',
       payload,
     )
     return response
   },
   fetchFolderUpdate: async (payload: FolderUpdateType) => {
     const response: ApiResponse<FolderType> = await https.put(
-      '/media/folder-update',
+      '/media/folders',
       payload,
     )
     return response
   },
   fetchFolderDelete: async (id: string) => {
-    const response: ApiResponse<any> = await https.delete(`/media/delete/${id}`)
+    const response: ApiResponse<any> = await https.delete(
+      `/media/folders/${id}`,
+    )
     return response
   },
   // ======= MEDIA ITEM SETTING ====== //
   fetchMediFileList: async (params?: MediaFileQuery) => {
     const { folderId, page = 1, limit = 20 } = params || {}
     const response = await https.get<ApiResponse<MediaFileQueryResponse>>(
-      `/media/get-media`,
+      `/media`,
       {
         params: {
           ...(folderId ? { folderId } : {}),
@@ -66,7 +67,7 @@ export const _mediaApi = {
       formData.append('files', file.file)
     })
     const response: ApiResponse<any> = await https.post(
-      '/media/upload-multiple',
+      '/media/upload',
       formData,
       {
         params: { ...(folderId ? { folderId } : {}) },
@@ -85,15 +86,12 @@ export const _mediaApi = {
     return response
   },
   fetchMediaDeleteSingle: async (id: string) => {
-    const response: ApiResponse<any> = await https.post(
-      `/media/delete-single`,
-      { id: id },
-    )
+    const response: ApiResponse<any> = await https.post(`/media`, { id: id })
     return response
   },
   fetchMediaDeleteMutiple: async (payload: MediaFileDelete) => {
     const response: ApiResponse<any> = await https.post(
-      '/media/delete-multiple',
+      '/media/delete-many',
       payload,
     )
     return response

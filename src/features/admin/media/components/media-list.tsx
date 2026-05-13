@@ -111,12 +111,12 @@ const MediaList = () => {
         <div className='flex w-full flex-col gap-3'>
           <div className='flex items-center justify-between gap-3 flex-wrap'>
             <h3 className='truncate text-sm font-medium'>
-              Media Library ({displayItems.length})
+              Thư viện phương tiện ({displayItems.length})
             </h3>
 
             <div className='flex items-center gap-2 flex-wrap'>
               <Button onClick={handleClearAll} disabled={!isSelectMedia}>
-                Clear Selected All
+                Bỏ chọn tất cả
               </Button>
               <Button
                 disabled={!isSelectMedia}
@@ -124,15 +124,15 @@ const MediaList = () => {
                 variant='destructive'
               >
                 {selectMedia.length > 0
-                  ? `Remove ${selectMedia.length} file`
-                  : 'Remove 0 file'}
+                  ? `Xóa ${selectMedia.length} tệp`
+                  : 'Xóa 0 tệp'}
 
                 <Trash />
               </Button>
 
               <MediaModalUpload
                 onSuccess={() => refetch()}
-                trigger={<Button>Add File</Button>}
+                trigger={<Button>Thêm tệp</Button>}
               />
             </div>
           </div>
@@ -168,12 +168,13 @@ const MediaList = () => {
                 <LoadingUiMediaList count={12} />
               ) : (
                 <div className='flex flex-col items-center justify-center px-4 py-12 text-center text-muted-foreground'>
-                  <p>No media files found in this folder.</p>
+                  <p>Không tìm thấy tệp phương tiện nào trong thư mục này.</p>
                 </div>
               )}
             </>
           )}
         </div>
+
       </div>
     </div>
   )

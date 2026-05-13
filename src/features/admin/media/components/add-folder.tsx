@@ -34,7 +34,7 @@ const AddFolder = () => {
         name: '',
       },
       {
-        name: [required('Name is required'), minLength(3)],
+        name: [required('Tên thư mục là bắt buộc'), minLength(3)],
       },
     )
 
@@ -54,7 +54,7 @@ const AddFolder = () => {
 
     addFolder(payload, {
       onSuccess: () => {
-        toast.success(`Add folder ${values.name} successfuly`)
+        toast.success(`Thêm thư mục ${values.name} thành công`)
         resetForm()
         setOpen(false)
       },
@@ -71,7 +71,7 @@ const AddFolder = () => {
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button className='h-fit mr-5'>
-          CREATE FOLDER
+          TẠO THƯ MỤC
           <FolderClosed className='w-5 h-5 mr-2' />
         </Button>
       </DialogTrigger>
@@ -84,7 +84,7 @@ const AddFolder = () => {
             <FolderClosed />
           </div>
           <DialogHeader>
-            <DialogTitle className='sm:text-center'>ADD NEW FOLDER</DialogTitle>
+            <DialogTitle className='sm:text-center'>THÊM THƯ MỤC MỚI</DialogTitle>
           </DialogHeader>
         </div>
 
@@ -93,7 +93,7 @@ const AddFolder = () => {
             <div className='relative'>
               <InputGroup>
                 <InputGroupInput
-                  placeholder='Folder name'
+                  placeholder='Tên thư mục'
                   type='text'
                   value={values.name}
                   onChange={(e) => handleChange('name', e.target.value)}
@@ -108,12 +108,13 @@ const AddFolder = () => {
             </div>
           </div>
           <Button className='float-end' onClick={hanleSubmit}>
-            Create New
+            Tạo mới
             <FolderEdit />
           </Button>
         </div>
       </DialogContent>
     </Dialog>
+
   )
 }
 

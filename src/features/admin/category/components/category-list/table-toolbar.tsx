@@ -20,8 +20,9 @@ import Link from 'next/link'
 interface TableToolbarProps {
   filterValue: string
   setFilter: (key: string, value: string | boolean | undefined) => void
-  selectedRows: Row<Category>[]
+  selectedRows: any[] // Changed from Row<Category>[] to simplify if not using table
   onDelete: () => void
+  onAdd: () => void
 }
 
 export function TableToolbar({
@@ -29,51 +30,50 @@ export function TableToolbar({
   setFilter,
   selectedRows,
   onDelete,
+  onAdd,
 }: TableToolbarProps) {
-  const [status, setStatus] = useState('all')
-
-  const handleStatusChange = (newStatus: string) => {
-    setStatus(newStatus)
-    setFilter(
-      'isActive',
-      newStatus === 'all' ? undefined : newStatus === 'active'
-    )
-  }
+  const [sort, setSort] = useState('newest')
 
   return (
     <div className='flex items-center justify-between flex-wrap mb-4 gap-4'>
-      <div className='flex gap-2 items-center '>
+      <div className='flex gap-2 items-center flex-1'>
         <Input
-          placeholder='Search categpry name...'
+          placeholder='Tìm kiếm danh mục...'
           value={filterValue || ''}
-          onChange={(e) => setFilter('name', e.target.value)}
+          onChange={(e) => setFilter('search', e.target.value)}
+          className='max-w-[300px] bg-white'
         />
 
-        <Select value={status} onValueChange={handleStatusChange}>
-          <SelectTrigger className='w-[180px]'>
-            <SelectValue placeholder='Select a fruit' />
+        <Select
+          value={sort}
+          onValueChange={(value) => {
+            setSort(value)
+            setFilter('sort', value)
+          }}
+        >
+          <SelectTrigger className='w-[150px] bg-white'>
+            <SelectValue placeholder='Sắp xếp theo' />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value='all'>All</SelectItem>
-              <SelectItem value='active'>Active</SelectItem>
-              <SelectItem value='inactive'>Inactive</SelectItem>
+              <SelectItem value='newest'>Mới nhất</SelectItem>
+              <SelectItem value='oldest'>Cũ nhất</SelectItem>
+              <SelectItem value='name_asc'>Tên: A đến Z</SelectItem>
+              <SelectItem value='name_desc'>Tên: Z đến A</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
 
-      <div className='flex items-center gap-4'>
-        <Button
-          onClick={onDelete}
-          disabled={selectedRows.length > 0 ? false : true}
-          variant={'destructive'}
-        >
-          <Trash2 /> Delete ({selectedRows.length})
+      <div className='flex items-center gap-2'>
+        {selectedRows.length > 0 && (
+          <Button onClick={onDelete} variant={'destructive'}>
+            <Trash2 className='mr-2 h-4 w-4' /> Xóa ({selectedRows.length})
+          </Button>
+        )}
+        <Button onClick={onAdd} className='bg-primary hover:bg-primary/90'>
+          <Plus className='mr-2 h-4 w-4' /> Thêm danh mục
         </Button>
-        <Link href={'/admin/category/create'} className={`${buttonVariants()}`}>
-          <Plus /> Add Products
-        </Link>
       </div>
     </div>
   )

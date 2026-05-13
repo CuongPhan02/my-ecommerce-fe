@@ -21,11 +21,13 @@ import { DisplayItem, MediaItem } from '../types'
 export type MediaPickerModalProps = {
   onSelect: (items: MediaItem[]) => void
   trigger?: React.ReactNode
+  multiple?: boolean
 }
 
-export const MediaPickerModal = ({
+const MediaPickerModal = ({
   onSelect,
   trigger,
+  multiple = false,
 }: MediaPickerModalProps) => {
   const [open, setOpen] = useState(false)
   const [folderMedia] = useQueryState('folderMedia')
@@ -89,7 +91,7 @@ export const MediaPickerModal = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className='sm:max-w-[1500px] w-full h-[90vh] flex flex-col gap-0 p-0 overflow-hidden'>
         <DialogHeader className='p-6 pb-4 border-b shrink-0'>
-          <DialogTitle>Select Media</DialogTitle>
+          <DialogTitle>Chọn phương tiện</DialogTitle>
         </DialogHeader>
 
         <div className='flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-0 p-6'>
@@ -123,21 +125,24 @@ export const MediaPickerModal = ({
 
         <DialogFooter className='border-t p-6 sm:justify-between flex-row items-center shrink-0'>
           <div className='text-sm text-muted-foreground'>
-            {selectedItems.length} items selected
+            {selectedItems.length} mục đã chọn
           </div>
           <div className='flex gap-2'>
             <Button variant='outline' onClick={() => setOpen(false)}>
-              Cancel
+              Hủy
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={selectedItems.length === 0}
             >
-              Confirm Selection
+              Xác nhận lựa chọn
             </Button>
           </div>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   )
 }
+
+export default MediaPickerModal

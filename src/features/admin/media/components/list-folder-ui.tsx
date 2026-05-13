@@ -78,7 +78,7 @@ const ListFolderUi = () => {
     <div className='space-y-5 w-full'>
       <div className='flex items-center gap-5 sm:gap-20'>
         <legend className='text-foreground text-sm leading-none font-medium whitespace-nowrap'>
-          Select Folder
+          Chọn thư mục
         </legend>
         <AddFolder />
       </div>

@@ -11,7 +11,7 @@ interface EnhancedImagePlaceholderProps {
 }
 
 const UploadFormMediaUi = ({
-  text = 'Drag & Drop or Choose File',
+  text = 'Kéo & Thả hoặc Chọn tệp',
   icon = <UploadCloud className='h-8 w-8 text-gray-400' />,
   size = 'md',
   className,
@@ -34,7 +34,7 @@ const UploadFormMediaUi = ({
         </span>
       </div>
       <span className='cursor-pointer text-base font-medium text-primary transition-colors mx-auto'>
-        Choose Files
+        Chọn tệp
       </span>
     </div>
   )

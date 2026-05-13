@@ -41,7 +41,7 @@ const UpdateFolder = ({
         name: '',
       },
       {
-        name: [required('Name is required'), minLength(3)],
+        name: [required('Tên thư mục là bắt buộc'), minLength(3)],
       }
     )
 
@@ -72,7 +72,7 @@ const UpdateFolder = ({
             <FolderEdit />
           </div>
           <DialogHeader>
-            <DialogTitle className='sm:text-center'>UPDATE FOLDER</DialogTitle>
+            <DialogTitle className='sm:text-center'>CẬP NHẬT THƯ MỤC</DialogTitle>
           </DialogHeader>
         </div>
 
@@ -81,7 +81,7 @@ const UpdateFolder = ({
             <div className='relative'>
               <InputGroup>
                 <InputGroupInput
-                  placeholder='Folder name'
+                  placeholder='Tên thư mục'
                   type='text'
                   value={values.name}
                   onChange={(e) => handleChange('name', e.target.value)}
@@ -98,16 +98,17 @@ const UpdateFolder = ({
         </div>
         <div className='flex items-center gap-5 justify-end '>
           <Button onClick={hanleSubmit} variant={'outline'}>
-            Update
+            Cập nhật
             <Edit2 />
           </Button>
           <Button variant={'destructive'} onClick={handleDelete}>
-            Remove
+            Xóa bỏ
             <Trash2 />
           </Button>
         </div>
       </DialogContent>
     </Dialog>
+
   )
 }
 

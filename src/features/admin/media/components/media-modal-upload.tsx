@@ -110,7 +110,7 @@ const MediaModalUpload = ({ trigger, onSuccess }: MediaModalUploadProps) => {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className='sm:max-w-4xl w-full h-[85vh] flex flex-col gap-0 p-0 overflow-hidden'>
         <DialogHeader className='p-6 pb-4 border-b shrink-0'>
-          <DialogTitle>Upload Media</DialogTitle>
+          <DialogTitle>Tải lên phương tiện</DialogTitle>
         </DialogHeader>
 
         <div className='flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4 p-6'>
@@ -136,10 +136,10 @@ const MediaModalUpload = ({ trigger, onSuccess }: MediaModalUploadProps) => {
                 <ImageIcon className='size-4 opacity-60' />
               </div>
               <p className='mb-1.5 text-sm font-medium'>
-                Click or drop your images here
+                Nhấp hoặc kéo thả hình ảnh của bạn vào đây
               </p>
               <p className='text-muted-foreground text-xs'>
-                SVG, PNG, JPG or GIF (max. {maxSizeMB}MB)
+                SVG, PNG, JPG hoặc GIF (tối đa {maxSizeMB}MB)
               </p>
               <Button
                 variant='outline'
@@ -148,7 +148,7 @@ const MediaModalUpload = ({ trigger, onSuccess }: MediaModalUploadProps) => {
                 disabled={files.length >= maxFiles}
               >
                 <UploadIcon className='-ms-1 opacity-60' aria-hidden='true' />
-                Select images
+                Chọn hình ảnh
               </Button>
             </div>
           </div>
@@ -157,10 +157,10 @@ const MediaModalUpload = ({ trigger, onSuccess }: MediaModalUploadProps) => {
             <div className='mt-4'>
               <div className='flex justify-between items-center mb-4'>
                 <h3 className='truncate text-sm font-medium'>
-                  Selected Files ({files.length}/{maxFiles})
+                  Tệp đã chọn ({files.length}/{maxFiles})
                 </h3>
                 <Button variant='secondary' size='sm' onClick={clearFiles}>
-                  Clear All
+                  Xóa tất cả
                   <X className='size-4 ml-1' />
                 </Button>
               </div>
@@ -178,22 +178,23 @@ const MediaModalUpload = ({ trigger, onSuccess }: MediaModalUploadProps) => {
         <DialogFooter className='border-t p-6 sm:justify-between flex-row items-center shrink-0'>
           <div className='text-sm text-muted-foreground'>
             {files.length > 0
-              ? `${files.length} ready to upload`
-              : 'No files selected'}
+              ? `${files.length} tệp đã sẵn sàng để tải lên`
+              : 'Chưa chọn tệp nào'}
           </div>
           <div className='flex gap-2'>
             <Button variant='outline' onClick={() => setOpen(false)}>
-              Cancel
+              Hủy
             </Button>
             <Button
               onClick={handleUploadMedia}
               disabled={files.length === 0 || isPendingUploadFiles}
             >
-              {isPendingUploadFiles ? 'Uploading...' : 'Upload Files'}
+              {isPendingUploadFiles ? 'Đang tải lên...' : 'Tải lên tệp'}
               {!isPendingUploadFiles && <UploadIcon className='w-4 h-4 ml-2' />}
             </Button>
           </div>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   )

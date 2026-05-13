@@ -1,23 +1,15 @@
 'use client'
-import { Button } from '~/components/ui/core/button'
 import { useAuthStore } from '~/store/auth-store'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { motion, useScroll, useMotionValueEvent } from 'motion/react'
-import Link from 'next/link'
 import { https, logout } from '~/config/https'
 import TopBar from './top-bar'
-import {
-  Search,
-  HelpCircle,
-  ChevronDown,
-  ShoppingBag,
-  Menu,
-  X,
-} from 'lucide-react'
+import { Search, ChevronDown, ShoppingBag, Menu, X } from 'lucide-react'
 import ShopDropdown from './shop-dropdown'
 import LogoUi from '~/components/shared/logo-ui'
 import MobileNavbar from './mobile-navbar'
+import { AvatarDropdown } from './avatar'
+import { Link } from 'next-view-transitions'
 
 const Header = () => {
   const [isLogin, setIsLogin] = useState(false)
@@ -50,7 +42,7 @@ const Header = () => {
         <TopBar />
         {isScrolled && <div className='h-[65px] w-full' />}
         <motion.header
-          className={`w-full z-[100] transition-colors duration-300 border-b border-neutral-800 ${
+          className={`w-full z-50 transition-colors duration-300 border-b border-neutral-800 ${
             isScrolled
               ? 'fixed top-0 left-0 bg-black/95 backdrop-blur-md shadow-xl'
               : 'relative bg-black'
@@ -71,7 +63,7 @@ const Header = () => {
                     href='/shop'
                     className='hover:text-neutral-300 transition-colors uppercase px-2 py-4'
                   >
-                    Shop
+                    Cửa hàng
                   </Link>
 
                   {/* Mega Menu Dropdown */}
@@ -83,20 +75,20 @@ const Header = () => {
                   href='/best-sellers'
                   className='hover:text-neutral-300 transition-colors uppercase'
                 >
-                  Best Sellers
+                  Bán chạy nhất
                 </Link>
                 <Link
                   href='/about'
                   className='hover:text-neutral-300 transition-colors uppercase'
                 >
-                  About
+                  Giới thiệu
                 </Link>
               </nav>
             </div>
 
             {/* Right Actions */}
             <div className='flex items-center gap-6 text-lg font-bold tracking-wide'>
-              <button aria-label='Search' className='hover:text-neutral-300'>
+              <button aria-label='Tìm kiếm' className='hover:text-neutral-300'>
                 <Search className='w-5 h-5' />
               </button>
 
@@ -104,7 +96,7 @@ const Header = () => {
                 href='/help'
                 className='hidden md:block hover:text-neutral-300 uppercase'
               >
-                Help
+                Trợ giúp
               </Link>
 
               <button className='hidden md:flex items-center gap-1 hover:text-neutral-300 uppercase'>
@@ -115,30 +107,17 @@ const Header = () => {
               <div className='flex items-center gap-4'>
                 <button className='flex items-center gap-1 hover:text-neutral-300 uppercase'>
                   <ShoppingBag className='w-6 h-6 md:hidden' />
-                  <span className='hidden md:inline'>Cart (0)</span>
+                  <span className='hidden md:inline'>Giỏ hàng (0)</span>
                 </button>
                 <div className='hidden md:contents'>
                   {isLogin ? (
-                    <div className='flex items-center gap-4 text-lg font-bold tracking-wide'>
-                      <Link
-                        href='/profile'
-                        className='hover:text-neutral-300 uppercase'
-                      >
-                        Profile
-                      </Link>
-                      <Button
-                        onClick={handleLogout}
-                        className='text-white hover:text-neutral-300 text-sm tracking-wide py-1 uppercase font-bold h-auto bg-transparent hover:bg-transparent'
-                      >
-                        Log out
-                      </Button>
-                    </div>
+                    <AvatarDropdown handleLogout={handleLogout} />
                   ) : (
                     <Link
                       href='/auth/sign-in'
                       className='hover:text-neutral-300 uppercase'
                     >
-                      Log In
+                      Đăng nhập
                     </Link>
                   )}
                 </div>

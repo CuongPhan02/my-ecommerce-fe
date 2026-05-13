@@ -37,10 +37,10 @@ const VerifyEmailForm = () => {
         <div className='w-full max-w-xl text-center space-y-6'>
           <div className='space-y-2 mb-10'>
             <h1 className='text-3xl font-semibold tracking-tight'>
-              Verify Your Email
+              Xác thực Email
             </h1>
             <p className='text-slate-500 dark:text-gray-400 font-light'>
-              Please wait while we verify your email address.
+              Vui lòng chờ trong khi chúng tôi xác thực địa chỉ email của bạn.
             </p>
           </div>
 
@@ -48,7 +48,7 @@ const VerifyEmailForm = () => {
             {isPending && (
               <div className='flex flex-col items-center gap-2'>
                 <Loader2 className='w-10 h-10 animate-spin text-primary' />
-                <p className='text-sm text-muted-foreground'>Verifying...</p>
+                <p className='text-sm text-muted-foreground'>Đang xác thực...</p>
               </div>
             )}
 
@@ -56,10 +56,10 @@ const VerifyEmailForm = () => {
               <div className='flex flex-col items-center gap-2'>
                 <CheckCircle2 className='w-12 h-12 text-green-500' />
                 <p className='text-lg font-medium text-green-600'>
-                  Email verified successfully!
+                  Xác thực email thành công!
                 </p>
                 <p className='text-sm text-slate-500'>
-                  You can now sign in to your account.
+                  Bây giờ bạn có thể đăng nhập vào tài khoản của mình.
                 </p>
               </div>
             )}
@@ -68,11 +68,11 @@ const VerifyEmailForm = () => {
               <div className='flex flex-col items-center gap-2'>
                 <XCircle className='w-12 h-12 text-red-500' />
                 <p className='text-lg font-medium text-red-600'>
-                  Verification failed
+                  Xác thực thất bại
                 </p>
                 <p className='text-sm text-slate-500'>
                   {(error as any)?.response?.data?.message ||
-                    'Invalid or expired token.'}
+                    'Mã xác thực không hợp lệ hoặc đã hết hạn.'}
                 </p>
               </div>
             )}
@@ -82,7 +82,7 @@ const VerifyEmailForm = () => {
                 !isSuccess &&
                 !isError && (
                   <p className='text-red-500'>
-                    Invalid verification link. Missing email or token.
+                    Liên kết xác thực không hợp lệ. Thiếu email hoặc mã xác thực.
                   </p>
                 )
               : null}
@@ -91,7 +91,7 @@ const VerifyEmailForm = () => {
           <div className='pt-6'>
             <Link href='/auth/sign-in'>
               <Button className='w-full max-w-xs' variant='default'>
-                Back to Sign In
+                Quay lại Đăng nhập
               </Button>
             </Link>
           </div>

@@ -11,7 +11,7 @@ interface Props {
   placeholder?: string
 }
 
-export function SearchBar({ className = '', placeholder = 'Search' }: Props) {
+export function SearchBar({ className = '', placeholder = 'Tìm kiếm' }: Props) {
   const { setOpen } = useSearch()
   return (
     <Button

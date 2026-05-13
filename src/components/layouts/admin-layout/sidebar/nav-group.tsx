@@ -166,7 +166,7 @@ const SidebarMenuCollapsedDropdown = ({
             <DropdownMenuItem key={`${sub.title}-${sub.url}`} asChild>
               <Link
                 href={sub.url}
-                className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}
+                className={`${checkIsActive(href, sub) ? 'bg-primary text-primary-foreground' : ''}`}
               >
                 {sub.icon && <sub.icon />}
                 <span className='max-w-52 text-wrap'>{sub.title}</span>
@@ -189,7 +189,7 @@ function checkIsActive(pathname: string, item: NavItem, mainNav = false) {
 
   if (
     item.items?.some(
-      (child) => pathname === child.url || pathname.split('?')[0] === child.url
+      (child) => pathname === child.url || pathname.split('?')[0] === child.url,
     )
   ) {
     return true

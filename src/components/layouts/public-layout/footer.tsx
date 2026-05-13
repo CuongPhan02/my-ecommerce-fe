@@ -49,32 +49,32 @@ const Footer = () => {
             {/* Col 2: Shop Categories (Center-Left) - Span 3 */}
             <div className='md:col-span-3'>
               <p className='text-xs uppercase tracking-widest text-neutral-300 mb-4'>
-                Shop
+                Cửa hàng
               </p>
               <div className='flex flex-col gap-1'>
                 <Link
                   href='/shop/men'
                   className='hover:text-white transition-colors'
                 >
-                  Men
+                  Nam
                 </Link>
                 <Link
                   href='/shop/women'
                   className='hover:text-white transition-colors'
                 >
-                  Women
+                  Nữ
                 </Link>
                 <Link
                   href='/shop/accessories'
                   className='hover:text-white transition-colors'
                 >
-                  Accessories
+                  Phụ kiện
                 </Link>
                 <Link
                   href='/shop/new-arrivals'
                   className='hover:text-white transition-colors'
                 >
-                  New Arrivals
+                  Hàng mới về
                 </Link>
               </div>
             </div>
@@ -87,13 +87,13 @@ const Footer = () => {
             {/* Col 4: Address (Center-Right) - Span 3 */}
             <div className='md:col-span-3'>
               <p className='text-xs uppercase tracking-widest text-neutral-300 mb-4'>
-                Headquarters
+                Trụ sở chính
               </p>
               <div className='flex flex-col gap-1'>
                 <p>25 Lindsey Street</p>
                 <p>Epping</p>
                 <p>CM16 6RB</p>
-                <p>United Kingdom</p>
+                <p>Vương quốc Anh</p>
               </div>
             </div>
 
@@ -123,7 +123,7 @@ const Footer = () => {
           {/* Bottom Bar */}
           <div className='border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-neutral-500 uppercase tracking-wide gap-6 font-medium'>
             <div className='w-full md:w-auto text-center md:text-left'>
-              © {new Date().getFullYear()} Stubble & Co — All rights reserved.
+              © {new Date().getFullYear()} Stubble & Co — Bảo lưu mọi quyền.
             </div>
 
             <div className='flex flex-wrap justify-center gap-8 w-full md:w-auto'>
@@ -131,19 +131,19 @@ const Footer = () => {
                 href='/privacy-policy'
                 className='hover:text-white transition-colors'
               >
-                Privacy Policy
+                Chính sách bảo mật
               </Link>
               <Link
                 href='/terms'
                 className='hover:text-white transition-colors'
               >
-                Terms & Conditions
+                Điều khoản & Điều kiện
               </Link>
               <Link
                 href='/imprint'
                 className='hover:text-white transition-colors'
               >
-                Imprint
+                Ấn bản
               </Link>
             </div>
 
@@ -162,14 +162,14 @@ const Footer = () => {
         <div className='w-full bg-primary text-black py-6 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-4'>
           <div className='text-center text-white md:text-left'>
             <h3 className='text-xl md:text-2xl font-bold uppercase tracking-tighter'>
-              Download Our App
+              Tải ứng dụng của chúng tôi
             </h3>
             <p className='text-xs md:text-sm font-medium opacity-80 mt-1'>
-              Get exclusive offers and seamless shopping experience.
+              Nhận ưu đãi độc quyền và trải nghiệm mua sắm liền mạch.
             </p>
           </div>
           <button className='bg-white text-black text-xs md:text-sm font-bold uppercase tracking-wider py-3 px-8 rounded-full hover:bg-white/90 transition-colors whitespace-nowrap'>
-            Get The App
+            Tải ứng dụng
           </button>
         </div>
       </footer>

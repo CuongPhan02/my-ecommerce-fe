@@ -1,24 +1,24 @@
 export const topNav = [
   {
-    title: 'Overview',
+    title: 'Tổng quan',
     href: 'dashboard/overview',
     isActive: true,
     disabled: false,
   },
   {
-    title: 'Customers',
+    title: 'Khách hàng',
     href: 'dashboard/customers',
     isActive: false,
     disabled: true,
   },
   {
-    title: 'Products',
+    title: 'Sản phẩm',
     href: 'dashboard/products',
     isActive: false,
     disabled: true,
   },
   {
-    title: 'Settings',
+    title: 'Cài đặt',
     href: 'dashboard/settings',
     isActive: false,
     disabled: true,

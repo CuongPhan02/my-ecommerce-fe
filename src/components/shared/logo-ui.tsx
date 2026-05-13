@@ -1,10 +1,10 @@
 'use client'
 import Image from 'next/image'
 import { cn } from '~/lib/utils'
-import { useRouter } from 'next/navigation'
+import { useTransitionRouter } from 'next-view-transitions'
 
 const LogoUi = ({ className }: { className?: string }) => {
-  const router = useRouter()
+  const router = useTransitionRouter()
   return (
     <div
       onClick={() => router.push('/')}
@@ -18,7 +18,7 @@ const LogoUi = ({ className }: { className?: string }) => {
         alt='Logo'
         width={200}
         height={200}
-        className='w-14 h-14 object-cover'
+        className='max-w-12 h-auto object-cover'
       />
       AKR-SHOP
     </div>

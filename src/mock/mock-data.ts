@@ -177,7 +177,7 @@ export const listMedia = [
   },
 ]
 
-export const productData: Product[] = [
+export const productData = [
   {
     id: 'a1b2c3d4-1111-aaa1-1234-abcdef000001',
     name: 'Áo thun Unisex Origins',
@@ -572,7 +572,7 @@ export const productData: Product[] = [
   },
 ]
 
-export const categoryData: Category[] = [
+export const categoryData = [
   {
     id: 'cat-0001-uuid-abc1-network',
     metaImage:

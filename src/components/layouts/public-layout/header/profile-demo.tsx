@@ -1,8 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { ApiResponse } from '~/@types/api'
-import { https } from '~/config/https'
+import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 
 interface User {
   id: string
@@ -12,21 +10,9 @@ interface User {
 }
 
 const ProfileDemo = () => {
-  const [data, setData] = useState<User | null>(null)
+  const { data: profileRes } = AUTH_QUERY.useMe()
+  const data = profileRes?.result
 
-  useEffect(() => {
-    getAth()
-  }, [])
-  const getAth = async () => {
-    try {
-      const res = await https.get<ApiResponse<User>>('/auth/me')
-      if (res.data.success) {
-        setData(res.data.result)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
   return (
     <div className='relative min-h-screen flex flex-col fashion-bg mt-10'>
       <main className='flex-1 flex flex-col items-center justify-center px-6 text-center z-10 text-white'>

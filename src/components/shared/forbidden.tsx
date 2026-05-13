@@ -14,7 +14,7 @@ export default function Forbidden() {
           href='/'
           className='border-[3px] border-black text-black text-sm md:text-base font-black uppercase px-3 py-0.5 hover:bg-black hover:text-[#E50000] transition-colors tracking-widest'
         >
-          HOME
+          TRANG CHỦ
         </Link>
       </div>
 

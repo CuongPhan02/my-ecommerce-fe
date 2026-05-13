@@ -45,12 +45,12 @@ const SignUpForm = () => {
   const onSubmit = (data: SignUpSchemaType) => {
     registerMutation(data, {
       onSuccess: () => {
-        toast.success('Register success')
+        toast.success('Đăng ký thành công')
         reset()
       },
       onError: (error: any) => {
         console.log(error, '====>')
-        toast.error(error.response?.data?.message || 'Register failed')
+        toast.error(error.response?.data?.message || 'Đăng ký thất bại')
       },
     })
   }
@@ -62,18 +62,18 @@ const SignUpForm = () => {
         <div className='w-full max-w-xl'>
           <div className='space-y-2 mb-10'>
             <h1 className='text-3xl font-semibold tracking-tight'>
-              Welcome back
+              Chào mừng bạn
             </h1>
             <p className='text-slate-500 dark:text-gray-400 font-light'>
-              Please sign up to your account
+              Vui lòng đăng ký tài khoản của bạn
             </p>
           </div>
 
           <div className='mb-2'>
             {isSuccess && (
               <p className='text-green-500'>
-                Register success .Please check your email to verify your account
-                before login
+                Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản
+                trước khi đăng nhập
               </p>
             )}
           </div>
@@ -81,33 +81,33 @@ const SignUpForm = () => {
             <div className='space-y-4'>
               <div className='grid grid-cols-2 gap-4'>
                 <Input
-                  label='Email address'
+                  label='Địa chỉ email'
                   id='email'
-                  placeholder='Email address'
+                  placeholder='Địa chỉ email'
                   type='email'
                   {...register('email')}
                   errorMessage={errors.email?.message}
                 />
                 <Input
-                  label='Password'
+                  label='Mật khẩu'
                   id='password'
-                  placeholder='Password'
+                  placeholder='Mật khẩu'
                   type='password'
                   {...register('password')}
                   errorMessage={errors.password?.message}
                 />
                 <Input
-                  label='Name'
+                  label='Họ và tên'
                   id='name'
-                  placeholder='Name'
+                  placeholder='Họ và tên'
                   type='text'
                   {...register('name')}
                   errorMessage={errors.name?.message}
                 />
                 <Input
-                  label='Phone'
+                  label='Số điện thoại'
                   id='phone'
-                  placeholder='Phone'
+                  placeholder='Số điện thoại'
                   type='text'
                   {...register('phone')}
                   errorMessage={errors.phone?.message}
@@ -115,9 +115,9 @@ const SignUpForm = () => {
               </div>
 
               <Input
-                label='Address'
+                label='Địa chỉ'
                 id='address'
-                placeholder='Address'
+                placeholder='Địa chỉ'
                 type='text'
                 {...register('address')}
                 errorMessage={errors.address?.message}
@@ -127,7 +127,7 @@ const SignUpForm = () => {
               {isPending ? (
                 <Loader2 className='w-4 h-4 animate-spin' />
               ) : (
-                'Sign up'
+                'Đăng ký'
               )}
             </Button>
             <div className='relative py-4'>
@@ -136,7 +136,7 @@ const SignUpForm = () => {
               </div>
               <div className='relative flex justify-center text-xs uppercase'>
                 <span className='bg-background-light dark:bg-background-dark px-4 text-slate-500 dark:text-gray-500 font-medium tracking-widest'>
-                  or continue with
+                  hoặc tiếp tục với
                 </span>
               </div>
             </div>
@@ -144,12 +144,12 @@ const SignUpForm = () => {
               <GoogleLoginButton />
             </div>
             <p className='text-center text-sm text-slate-500 dark:text-gray-400 mt-8'>
-              Already have an account?
+              Đã có tài khoản?
               <Link
                 className='font-semibold text-slate-900 dark:text-white hover:underline ml-1'
                 href='/auth/sign-in'
               >
-                Sign in
+                Đăng nhập
               </Link>
             </p>
           </form>

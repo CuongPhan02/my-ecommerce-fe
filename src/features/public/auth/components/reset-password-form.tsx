@@ -48,11 +48,11 @@ const ResetPasswordForm = () => {
   const onSubmit = (data: ResetPasswordSchemaType) => {
     resetPassword(data, {
       onSuccess: () => {
-        toast.success('Password reset successfully')
+        toast.success('Đặt lại mật khẩu thành công')
         router.push('/auth/sign-in')
       },
       onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to reset password')
+        toast.error(error.response?.data?.message || 'Đặt lại mật khẩu thất bại')
       },
     })
   }
@@ -64,13 +64,13 @@ const ResetPasswordForm = () => {
         <div className='w-full flex items-center justify-center p-8 sm:p-12 md:p-24 bg-background-light dark:bg-background-dark'>
           <div className='w-full max-w-xl text-center'>
             <h1 className='text-2xl font-semibold mb-4 text-red-500'>
-              Invalid Link
+              Liên kết không hợp lệ
             </h1>
             <p className='mb-6'>
-              The validation link is missing required information.
+              Liên kết xác thực thiếu thông tin bắt buộc.
             </p>
             <Link href='/auth/sign-in'>
-              <Button variant='outline'>Back to Sign In</Button>
+              <Button variant='outline'>Quay lại Đăng nhập</Button>
             </Link>
           </div>
         </div>
@@ -85,10 +85,10 @@ const ResetPasswordForm = () => {
         <div className='w-full max-w-xl'>
           <div className='space-y-2 mb-10'>
             <h1 className='text-3xl font-semibold tracking-tight'>
-              Reset Password
+              Đặt lại mật khẩu
             </h1>
             <p className='text-slate-500 dark:text-gray-400 font-light'>
-              Enter your new password below
+              Nhập mật khẩu mới của bạn bên dưới
             </p>
           </div>
 
@@ -98,9 +98,9 @@ const ResetPasswordForm = () => {
 
             <div className='space-y-4'>
               <Input
-                label='New Password'
+                label='Mật khẩu mới'
                 id='password'
-                placeholder='New Password'
+                placeholder='Mật khẩu mới'
                 type='password'
                 {...register('password')}
                 errorMessage={errors.password?.message}
@@ -111,7 +111,7 @@ const ResetPasswordForm = () => {
               {isPending ? (
                 <Loader2 className='w-4 h-4 animate-spin' />
               ) : (
-                'Reset Password'
+                'Đặt lại mật khẩu'
               )}
             </Button>
 
@@ -121,7 +121,7 @@ const ResetPasswordForm = () => {
                 className='inline-flex items-center text-sm text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-colors'
               >
                 <ArrowLeft className='w-4 h-4 mr-2' />
-                Back to Sign in
+                Quay lại Đăng nhập
               </Link>
             </div>
           </form>

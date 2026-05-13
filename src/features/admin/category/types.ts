@@ -1,13 +1,17 @@
 export type Category = {
   id: string
-  metaImage: string
   name: string
+  slug: string
+  parentId: string | null
   parent: {
+    id: string
     name: string
-  }
-  icon: null | string
-  isFeatured: boolean
-  isActive: boolean
+    slug: string
+  } | null
+  metaImage?: string
+  icon?: null | string
+  isFeatured?: boolean
+  isActive?: boolean
 }
 
 export type TableMeta = {
@@ -16,4 +20,6 @@ export type TableMeta = {
     columnId: 'isActive' | 'isFeatured',
     value: boolean
   ) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
 }

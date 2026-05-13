@@ -1,0 +1,314 @@
+'use client'
+import {
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  PaginationState,
+  SortingState,
+  useReactTable,
+} from '@tanstack/react-table'
+import { useMemo, useState } from 'react'
+import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
+import { columns } from './components/product-list/columns'
+import { ArrowDown, ArrowUp, ChevronsUpDown, SearchIcon } from 'lucide-react'
+import { Button } from '~/components/ui/core/button'
+import { Product, ProductParams, TableMeta } from './types'
+import { TableToolbar } from './components/product-list/table-toolbar'
+import { _productService } from './product.query'
+import HeadingSectionAdmin from '~/components/shared/heading-section-admin'
+import { logger } from '~/lib/logger'
+import { TableSkeletonLoading } from '~/components/shared/table-skeleton-loading'
+import ProductFormAction from './product-form-action'
+
+const ProductTable = () => {
+  const [editId, setEditId] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
+
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  })
+
+  const pagination = useMemo(
+    () => ({ pageIndex, pageSize }),
+    [pageIndex, pageSize],
+  )
+
+  const debouncedSearch =
+    (columnFilters.find((f) => f.id === 'search')?.value as string) || ''
+
+  const params: ProductParams = {
+    page: pageIndex + 1,
+    limit: pageSize,
+    search: debouncedSearch || null,
+    categoryId:
+      (columnFilters.find((f) => f.id === 'categoryId')?.value as string) ||
+      null,
+    brandId:
+      (columnFilters.find((f) => f.id === 'brandId')?.value as string) || null,
+    minPrice:
+      (columnFilters.find((f) => f.id === 'minPrice')?.value as number) || null,
+    maxPrice:
+      (columnFilters.find((f) => f.id === 'maxPrice')?.value as number) || null,
+    sort:
+      (columnFilters.find((f) => f.id === 'sort')?.value as string) || 'newest',
+  }
+
+  const { data: productsData, isLoading } = _productService.useProducts(params)
+
+  logger.info('Products data:', productsData)
+
+  const deleteProductMutation = _productService.useDeleteProduct()
+  const deleteManyMutation = _productService.useDeleteManyProducts()
+  const updateStatusMutation = _productService.useUpdateProductStatus()
+
+  const data = (productsData?.result as any)?.data || []
+  const pageCount = (productsData?.result as any)?.meta?.totalPages || 0
+
+  const updateProductStatus = async (
+    productId: string,
+    columnId: 'isActive' | 'isFeatured',
+    value: boolean,
+  ) => {
+    await updateStatusMutation.mutateAsync({
+      id: productId,
+      data: { [columnId]: value },
+    })
+  }
+
+  const handleEdit = (id: string) => {
+    setEditId(id)
+    setIsModalOpen(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
+      await deleteProductMutation.mutateAsync(id)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    const ids = table.getSelectedRowModel().rows.map((row) => row.original.id)
+    if (confirm(`Bạn có chắc chắn muốn xóa ${ids.length} sản phẩm này không?`)) {
+      await deleteManyMutation.mutateAsync(ids)
+      table.resetRowSelection()
+    }
+  }
+
+  const table = useReactTable<Product>({
+    data,
+    columns,
+    pageCount,
+    meta: {
+      updateProductStatus,
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+    } as TableMeta,
+    state: {
+      columnFilters,
+      sorting,
+      pagination,
+    },
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
+  })
+
+  const selectedRows = table.getSelectedRowModel().rows
+
+  return (
+    <>
+      <div className='w-full '>
+        <div className='mb-6'>
+          <HeadingSectionAdmin title={' Quản lý sản phẩm'} />
+        </div>
+
+        <TableToolbar
+          filterValue={debouncedSearch}
+          setFilter={(key, value) => {
+            const otherFilters = columnFilters.filter((f) => f.id !== key)
+            setColumnFilters(
+              value !== null
+                ? [...otherFilters, { id: key, value }]
+                : otherFilters,
+            )
+          }}
+          onReset={() => {
+            setColumnFilters([])
+            setPagination({ pageIndex: 0, pageSize: 10 })
+          }}
+          selectedRows={selectedRows}
+          onDelete={handleBulkDelete}
+          onAdd={() => {
+            setEditId(null)
+            setIsModalOpen(true)
+          }}
+        />
+
+        <ScrollArea className='w-full rounded-2xl border overflow-hidden shadow-sm'>
+          <div className='min-h-[calc(100vh-400px)]'>
+            <table className='text-sm text-left w-full border-collapse  whitespace-nowrap '>
+              <thead className='backdrop-blur-sm bg-gray-200 dark:bg-muted'>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <th
+                          key={header.id}
+                          className='p-4 font-semibold dark:text-slate-100 text-slate-900 border-b'
+                        >
+                          <div
+                            className={
+                              header.column.getCanSort()
+                                ? 'flex items-center gap-2 cursor-pointer select-none'
+                                : ''
+                            }
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                            {header.column.getCanSort() && (
+                              <span className='ml-1 dark:text-slate-100 text-slate-600 whitespace-nowrap'>
+                                {header.column.getIsSorted() === 'asc' ? (
+                                  <ArrowUp size={14} />
+                                ) : header.column.getIsSorted() === 'desc' ? (
+                                  <ArrowDown size={14} />
+                                ) : (
+                                  <ChevronsUpDown
+                                    size={14}
+                                    className='opacity-30'
+                                  />
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </th>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <TableSkeletonLoading
+                    rowCount={10}
+                    colCount={columns.length}
+                  />
+                ) : data.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length} className='text-center'>
+                      <div className='flex flex-col items-center justify-center m-auto py-12 px-4 text-center min-h-[70vh] border-2 border-dashed border-gray-500 dark:bg-muted bg-gray-200'>
+                        <div className='mb-4 p-4  bg-background rounded-full shadow-sm'>
+                          <SearchIcon />
+                        </div>
+                        <h3 className='font-semibold text-lg'>
+                          Không tìm thấy sản phẩm
+                        </h3>
+                        <p className=' text-muted-foreground mb-6 max-w-xs'>
+                          Chúng tôi không tìm thấy sản phẩm nào khớp với bộ lọc
+                          hiện tại. Hãy thử điều chỉnh tìm kiếm của bạn.
+                        </p>
+                        <Button
+                          type='button'
+                          variant='outline'
+                          className='hover:bg-slate-100 transition-colors'
+                          onClick={() => setColumnFilters([])}
+                        >
+                          Xóa tất cả bộ lọc
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  table?.getRowModel()?.rows?.map((row) => {
+                    return (
+                      <tr
+                        key={row.id}
+                        className='border-b  transition-colors duration-200'
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className='p-4 align-middle'>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+          <ScrollBar orientation='horizontal' />
+        </ScrollArea>
+
+        <div className='flex items-center justify-between py-6 px-2'>
+          <div className='text-sm font-medium text-slate-500'>
+            Đang hiển thị{' '}
+            <span className='text-slate-500'>{data.length}</span> sản phẩm
+            (Trang{' '}
+            <span className='text-slate-500'>
+              {table.getState().pagination.pageIndex + 1}
+            </span>{' '}
+            trên {table.getPageCount()})
+          </div>
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className='bg-white shadow-sm'
+            >
+              Trước
+            </Button>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className='bg-white shadow-sm'
+            >
+              Sau
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <ProductFormAction
+        productId={editId}
+        open={isModalOpen}
+        isModal={true}
+        onOpenChange={(open) => {
+          setIsModalOpen(open)
+          if (!open) setEditId(null)
+        }}
+        onSuccess={() => {
+          setIsModalOpen(false)
+          setEditId(null)
+        }}
+        onCancel={() => {
+          setIsModalOpen(false)
+          setEditId(null)
+        }}
+      />
+    </>
+  )
+}
+
+export default ProductTable

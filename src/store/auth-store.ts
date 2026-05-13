@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { setAccessToken } from '~/config/https'
 
 interface AuthState {
   isAuthenticated: boolean
   user: any
-  login: (user: any) => void
+  login: (user: any, accessToken: string) => void
   logout: () => void
 }
 
@@ -13,11 +14,23 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       isAuthenticated: false,
       user: null,
-      login: (userData: any) => {
-        const { accessToken, refreshToken, ...user } = userData
+      login: (user: any, accessToken: string) => {
+        setAccessToken(accessToken)
+        const role = user.role
+        if (typeof document !== 'undefined') {
+          document.cookie = `isLoggedIn=true; path=/; max-age=31536000`
+          document.cookie = `userRole=${role}; path=/; max-age=31536000`
+        }
         set({ isAuthenticated: true, user })
       },
-      logout: () => set({ isAuthenticated: false, user: null }),
+      logout: () => {
+        setAccessToken(null)
+        if (typeof document !== 'undefined') {
+          document.cookie = 'isLoggedIn=; Max-Age=0; path=/;'
+          document.cookie = 'userRole=; Max-Age=0; path=/;'
+        }
+        set({ isAuthenticated: false, user: null })
+      },
     }),
     {
       name: 'auth',

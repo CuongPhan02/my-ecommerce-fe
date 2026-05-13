@@ -16,11 +16,11 @@ import { SidebarFooter } from './nav-sidebar'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible='icon' variant='floating' {...props}>
+    <Sidebar collapsible='icon' variant='sidebar' {...props}>
       <SidebarHeader>
         <SidebarMenuButton
           size='lg'
-          className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+          className='data-[state=open]:bg-primary/10 data-[state=open]:text-primary'
         >
           <Link href={'/'} className='inline-block'>
             <LogoUi />
@@ -36,13 +36,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenuButton className='font-medium gap-3 h-9 rounded-md bg-gray-200 dark:bg-accent hover:bg-transparent hover:from-sidebar-accent hover:to-sidebar-accent/40 data-[active=true]:from-primary/20 data-[active=true]:to-primary/5 [&>svg]:size-auto'>
+        <SidebarMenuButton className='font-medium gap-3 h-9 rounded-md bg-muted dark:bg-background hover:bg-primary/10 hover:text-primary [&>svg]:size-auto'>
           <IconLogout2
             className='text-muted-foreground/60 group-data-[active=true]/menu-button:text-primary'
             size={22}
             aria-hidden='true'
           />
-          <span>Sign Out</span>
+          <span>Đăng xuất</span>
         </SidebarMenuButton>
       </SidebarFooter>
 

@@ -79,17 +79,17 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: #020618;
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
+  --popover: #0f172b;
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.646 0.222 41.116);
   --primary-foreground: oklch(0.98 0.016 73.684);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
+  --muted: #0f172b;
   --muted-foreground: oklch(0.705 0.015 286.067);
   --accent: oklch(0.274 0.006 286.033);
   --accent-foreground: oklch(0.985 0 0);
@@ -151,29 +151,29 @@
 }
 
 html::-webkit-scrollbar-track {
-  background-color: var(--accent);
+  background-color: var(--sidebar-border);
 }
 
 html::-webkit-scrollbar {
   width: 8px;
-  background-color: var(--accent);
+  background-color: var(--sidebar-border);
 }
 
 html::-webkit-scrollbar-thumb {
-  background-color: var(--card);
+  background-color: var(--muted);
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background-color: var(--accent);
+  background-color: var(--sidebar-border);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
-  background-color: var(--accent);
+  background-color: var(--sidebar-border);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--card);
+  background-color: var(--primary);
 }
 
 button {

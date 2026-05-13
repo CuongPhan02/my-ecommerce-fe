@@ -40,11 +40,11 @@ const ForgotPasswordForm = () => {
   const onSubmit = (data: ForgotPasswordSchemaType) => {
     forgotPassword(data, {
       onSuccess: () => {
-        toast.success('Reset link sent to your email')
+        toast.success('Liên kết đặt lại mật khẩu đã được gửi đến email của bạn')
       },
       onError: (error: any) => {
         toast.error(
-          error.response?.data?.message || 'Failed to send reset link',
+          error.response?.data?.message || 'Gửi liên kết đặt lại mật khẩu thất bại',
         )
       },
     })
@@ -57,33 +57,33 @@ const ForgotPasswordForm = () => {
         <div className='w-full max-w-xl'>
           <div className='space-y-2 mb-10'>
             <h1 className='text-3xl font-semibold tracking-tight'>
-              Forgot Password
+              Quên mật khẩu
             </h1>
             <p className='text-slate-500 dark:text-gray-400 font-light'>
-              Enter your email to receive a password reset link
+              Nhập email của bạn để nhận liên kết đặt lại mật khẩu
             </p>
           </div>
 
           {isSuccess ? (
             <div className='space-y-6'>
               <div className='p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg'>
-                Check your email for the password reset link.
+                Kiểm tra email của bạn để nhận liên kết đặt lại mật khẩu.
               </div>
               <Button
                 variant='outline'
                 className='w-full'
                 onClick={() => router.push('/auth/sign-in')}
               >
-                Back to Sign in
+                Quay lại Đăng nhập
               </Button>
             </div>
           ) : (
             <form className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
               <div className='space-y-4'>
                 <Input
-                  label='Email address'
+                  label='Địa chỉ email'
                   id='email'
-                  placeholder='Email address'
+                  placeholder='Địa chỉ email'
                   type='email'
                   {...register('email')}
                   errorMessage={errors.email?.message}
@@ -94,7 +94,7 @@ const ForgotPasswordForm = () => {
                 {isPending ? (
                   <Loader2 className='w-4 h-4 animate-spin' />
                 ) : (
-                  'Send Reset Link'
+                  'Gửi liên kết đặt lại'
                 )}
               </Button>
 
@@ -104,7 +104,7 @@ const ForgotPasswordForm = () => {
                   className='inline-flex items-center text-sm text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white transition-colors'
                 >
                   <ArrowLeft className='w-4 h-4 mr-2' />
-                  Back to Sign in
+                  Quay lại Đăng nhập
                 </Link>
               </div>
             </form>

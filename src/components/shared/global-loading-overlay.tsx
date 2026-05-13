@@ -36,7 +36,7 @@ const GlobalLoadingOverlay = () => {
             exit={{ scale: 0.9 }}
           >
             <Loader2 className='h-10 w-10 animate-spin text-white' />
-            <span className='text-sm font-medium'>Processing...</span>
+            <span className='text-sm font-medium'>Đang xử lý...</span>
           </motion.div>
         </motion.div>
       )}

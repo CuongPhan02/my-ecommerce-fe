@@ -26,103 +26,75 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'Shadcn Admin',
+      name: 'Quản trị viên',
       logo: Command,
       plan: 'Vite + ShadcnUI',
     },
     {
-      name: 'Acme Inc',
+      name: 'Công ty Acme',
       logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
+      plan: 'Doanh nghiệp',
     },
     {
       name: 'Acme Corp.',
       logo: AudioWaveform,
-      plan: 'Startup',
+      plan: 'Khởi nghiệp',
     },
   ],
   navGroups: [
     {
-      title: 'Admin',
+      title: 'Quản trị',
       items: [
         {
-          title: 'Dashboard',
+          title: 'Bảng điều khiển',
           url: '/admin/dashboard',
           icon: IconLayoutDashboard,
         },
         {
-          title: 'Products',
+          title: 'Sản phẩm',
           icon: IconShoppingBag,
           items: [
             {
-              title: 'Product List',
+              title: 'Danh sách sản phẩm',
               url: '/admin/product/list',
             },
             {
-              title: 'Create Product',
+              title: 'Thêm sản phẩm',
               url: '/admin/product/create',
             },
           ],
         },
         {
-          title: 'Colections',
+          title: 'Bộ sưu tập',
           icon: IconCategory,
-          items: [
-            {
-              title: 'Colection List',
-              url: '/admin/collection',
-            },
-            {
-              title: 'Create Colection',
-              url: '/admin/collection/create',
-            },
-          ],
+          url: '/admin/collection',
         },
         {
-          title: 'Categories',
+          title: 'Danh mục',
           icon: IconPackages,
-          items: [
-            {
-              title: 'Category List',
-              url: '/admin/category/list',
-            },
-            {
-              title: 'Create Category',
-              url: '/admin/category/create',
-            },
-          ],
+          url: '/admin/category',
         },
         {
-          title: 'Brands',
+          title: 'Thương hiệu',
           icon: IconBrandAdobe,
-          items: [
-            {
-              title: 'Brands List',
-              url: '/admin/brand',
-            },
-            {
-              title: 'Create Brands',
-              url: '/admin/brand/create',
-            },
-          ],
+          url: '/admin/brand',
         },
         {
-          title: 'Custommers',
+          title: 'Khách hàng',
           url: '/customer',
           badge: '3',
           icon: IconUser,
         },
         {
-          title: 'Refunds',
-
+          title: 'Hoàn tiền',
           icon: IconRefreshDot,
           items: [
             {
-              title: 'Refund request',
+              title: 'Yêu cầu hoàn tiền',
               url: '/admin/refund-request',
             },
             {
-              title: 'Refund setting',
+              title: 'Cài đặt hoàn tiền',
               url: '/admin/refund-setting',
             },
           ],
@@ -130,83 +102,83 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: 'Vendor',
+      title: 'Nhà cung cấp',
       items: [
         {
-          title: 'Earnings',
+          title: 'Doanh thu',
           icon: IconBellDollar,
           items: [
             {
-              title: 'Earning History',
+              title: 'Lịch sử doanh thu',
               url: '/admin/eearning-history',
             },
             {
-              title: 'Payouts',
+              title: 'Rút tiền',
               url: '/admin/payouts',
             },
             {
-              title: 'Payout Requests',
+              title: 'Yêu cầu rút tiền',
               url: '/admin/payout-requests',
             },
             {
-              title: 'Forgot Password',
+              title: 'Quên mật khẩu',
               url: '/forgot-password',
             },
           ],
         },
         {
-          title: 'Support Tickets',
+          title: 'Phiếu hỗ trợ',
           url: '/admin/support-tickets',
           icon: IconTicket,
         },
       ],
     },
     {
-      title: 'Other',
+      title: 'Khác',
       items: [
         {
-          title: 'Settings',
+          title: 'Cài đặt',
           icon: IconSettings,
           items: [
             {
-              title: 'Profile',
+              title: 'Hồ sơ',
               url: '/settings',
               icon: IconUserCog,
             },
             {
-              title: 'Account Setting',
+              title: 'Cài đặt tài khoản',
               url: '/admin/aacount-setting',
               icon: IconUserEdit,
             },
             {
-              title: 'Shop Settings',
+              title: 'Cài đặt cửa hàng',
               url: '/admin/shop-settings',
               icon: IconSettings,
             },
             {
-              title: 'Notifications',
+              title: 'Thông báo',
               url: '/admin/shop-settings',
               icon: IconNotification,
             },
             {
-              title: 'Display',
+              title: 'Hiển thị',
               url: '/admin/shop-settings',
               icon: IconBrowserCheck,
             },
           ],
         },
         {
-          title: 'Media',
+          title: 'Đa phương tiện',
           icon: IconImageInPicture,
           url: '/admin/media',
         },
       ],
     },
     {
-      title: 'security',
+      title: 'Bảo mật',
       items: [
         {
-          title: 'Logs',
+          title: 'Nhật ký hệ thống',
           icon: IconSettings,
           url: '/admin/log',
         },
