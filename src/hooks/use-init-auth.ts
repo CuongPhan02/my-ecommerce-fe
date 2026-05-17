@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { setAccessToken, refreshAccessToken } from '~/config/https'
+import { setAccessToken, refreshAccessToken, logout } from '~/config/https'
 
 /**
  * Reads a cookie value by name.
@@ -40,10 +40,10 @@ export const useInitAuth = () => {
         if (token) setAccessToken(token)
       })
       .catch(() => {
-        // Refresh token expired or invalid – clear the stale login cookie so
-        // the proactive check in https.ts doesn't keep attempting refreshes.
-        document.cookie = 'isLoggedIn=; Max-Age=0; path=/;'
-        document.cookie = 'userRole=; Max-Age=0; path=/;'
+        // Refresh token expired or invalid – clear the stale login state
+        // We pass false to avoid a hard redirect, allowing the user to stay 
+        // on the current page if it's public (like a 404 page).
+        logout(false)
       })
   }, [])
 }

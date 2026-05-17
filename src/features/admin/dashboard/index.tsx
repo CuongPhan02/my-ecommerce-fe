@@ -1,4 +1,4 @@
-import React from 'react'
+'use client'
 import { Button } from '~/components/ui/core/button'
 import {
   Card,
@@ -7,46 +7,24 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/core/card'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '~/components/ui/core/tabs'
 
 import { RecentSales } from './recent-sales'
 import { Overview } from './OverviewCard'
+import { AnalyticsTab } from './analytics-tab'
+import { ReportsTab } from './reports-tab'
+import { NotificationsTab } from './notifications-tab'
 
 const DashboardPage = () => {
   return (
-    <>
+    <div className='flex-1 space-y-6'>
       <div className='mb-2 flex items-center justify-between space-y-2'>
-        <h1 className='text-2xl font-bold tracking-tight'>Bảng điều khiển</h1>
+        <h1 className='text-3xl font-bold tracking-tight'>Bảng điều khiển</h1>
         <div className='flex items-center space-x-2'>
-          <Button>Tải xuống</Button>
+          <Button>Tải xuống báo cáo</Button>
         </div>
       </div>
-      <Tabs
-        orientation='vertical'
-        defaultValue='overview'
-        className='space-y-4'
-      >
-        <div className='w-full overflow-x-auto pb-2'>
-          <TabsList>
-            <TabsTrigger value='overview'>Tổng quan</TabsTrigger>
-            <TabsTrigger value='analytics' disabled>
-              Phân tích
-            </TabsTrigger>
-            <TabsTrigger value='reports' disabled>
-              Báo cáo
-            </TabsTrigger>
-            <TabsTrigger value='notifications' disabled>
-              Thông báo
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        <TabsContent value='overview' className='space-y-4'>
-          <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
+      
+      <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
             <Card>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                 <CardTitle className='text-sm font-medium'>
@@ -74,9 +52,7 @@ const DashboardPage = () => {
             </Card>
             <Card>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>
-                  Đăng ký
-                </CardTitle>
+                <CardTitle className='text-sm font-medium'>Đăng ký</CardTitle>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   viewBox='0 0 24 24'
@@ -148,31 +124,41 @@ const DashboardPage = () => {
                 </p>
               </CardContent>
             </Card>
-          </div>
-          <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-            <Card className='col-span-1 lg:col-span-4'>
-              <CardHeader>
-                <CardTitle>Tổng quan</CardTitle>
-              </CardHeader>
-              <CardContent className='ps-2'>
-                <Overview />
-              </CardContent>
-            </Card>
-            <Card className='col-span-1 lg:col-span-3'>
-              <CardHeader>
-                <CardTitle>Doanh số gần đây</CardTitle>
-                <CardDescription>
-                  Bạn đã thực hiện 265 giao dịch trong tháng này.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentSales />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </>
+      </div>
+      
+      <AnalyticsTab />
+      
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
+        <Card className='col-span-1 lg:col-span-4'>
+          <CardHeader>
+            <CardTitle>Tổng quan doanh thu</CardTitle>
+          </CardHeader>
+          <CardContent className='ps-2'>
+            <Overview />
+          </CardContent>
+        </Card>
+        <Card className='col-span-1 lg:col-span-3'>
+          <CardHeader>
+            <CardTitle>Doanh số gần đây</CardTitle>
+            <CardDescription>
+              Bạn đã thực hiện 265 giao dịch trong tháng này.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RecentSales />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
+        <div className='col-span-1 lg:col-span-4'>
+          <ReportsTab />
+        </div>
+        <div className='col-span-1 lg:col-span-3'>
+          <NotificationsTab />
+        </div>
+      </div>
+    </div>
   )
 }
 

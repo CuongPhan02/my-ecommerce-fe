@@ -1,84 +1,106 @@
 import {
-  IconBellDollar,
-  IconBrandAdobe,
-  IconBrowserCheck,
-  IconCategory,
-  IconImageInPicture,
   IconLayoutDashboard,
-  IconNotification,
-  IconPackages,
-  IconRefreshDot,
-  IconSettings,
   IconShoppingBag,
-  IconTicket,
+  IconShoppingCart,
   IconUser,
-  IconUserCog,
-  IconUserEdit,
+  IconDiscount,
   IconMessageReport,
+  IconImageInPicture,
+  IconSettings,
+  IconPackages,
+  IconUserCog,
+  IconUserCircle,
 } from '@tabler/icons-react'
-import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
+import { Command } from 'lucide-react'
 import { SidebarData } from './types'
 
 export const sidebarData: SidebarData = {
   user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
+    name: 'Admin',
+    email: 'admin@ecommerce.com',
     avatar: '/avatars/shadcn.jpg',
   },
   teams: [
     {
       name: 'Quản trị viên',
       logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Công ty Acme',
-      logo: GalleryVerticalEnd,
-      plan: 'Doanh nghiệp',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Khởi nghiệp',
+      plan: 'Hệ thống E-commerce',
     },
   ],
   navGroups: [
     {
-      title: 'Quản trị',
+      title: 'Tổng quan',
       items: [
         {
           title: 'Bảng điều khiển',
           url: '/admin/dashboard',
           icon: IconLayoutDashboard,
         },
+      ],
+    },
+    {
+      title: 'Quản lý bán hàng',
+      items: [
+        {
+          title: 'Đơn hàng',
+          icon: IconShoppingCart,
+          items: [
+            {
+              title: 'Danh sách đơn hàng',
+              url: '/admin/order/list',
+            },
+            {
+              title: 'Đổi trả & Hoàn tiền',
+              url: '/admin/order/refunds',
+            },
+          ],
+        },
         {
           title: 'Sản phẩm',
           icon: IconShoppingBag,
           items: [
             {
-              title: 'Danh sách sản phẩm',
+              title: 'Tất cả sản phẩm',
               url: '/admin/product/list',
             },
             {
-              title: 'Thêm sản phẩm',
+              title: 'Thêm sản phẩm mới',
               url: '/admin/product/create',
+            },
+            {
+              title: 'Bộ sưu tập',
+              url: '/admin/collection',
+            },
+            {
+              title: 'Danh mục',
+              url: '/admin/category',
+            },
+            {
+              title: 'Thương hiệu',
+              url: '/admin/brand',
             },
           ],
         },
         {
-          title: 'Bộ sưu tập',
-          icon: IconCategory,
-          url: '/admin/collection',
-        },
-        {
-          title: 'Danh mục',
+          title: 'Quản lý kho',
           icon: IconPackages,
-          url: '/admin/category',
+          url: '/admin/inventory',
         },
         {
-          title: 'Thương hiệu',
-          icon: IconBrandAdobe,
-          url: '/admin/brand',
+          title: 'Người dùng',
+          url: '/admin/user',
+          badge: '3',
+          icon: IconUser,
+        },
+      ],
+    },
+    {
+      title: 'Tiếp thị & Nội dung',
+      items: [
+        {
+          title: 'Khuyến mãi / Voucher',
+          icon: IconDiscount,
+          url: '/admin/discount',
         },
         {
           title: 'Menu & Điều hướng',
@@ -91,109 +113,32 @@ export const sidebarData: SidebarData = {
           url: '/admin/review',
         },
         {
-          title: 'Người dùng',
-          url: '/admin/user',
-          badge: '3',
-          icon: IconUser,
-        },
-        {
-          title: 'Hoàn tiền',
-          icon: IconRefreshDot,
-          items: [
-            {
-              title: 'Yêu cầu hoàn tiền',
-              url: '/admin/refund-request',
-            },
-            {
-              title: 'Cài đặt hoàn tiền',
-              url: '/admin/refund-setting',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Nhà cung cấp',
-      items: [
-        {
-          title: 'Doanh thu',
-          icon: IconBellDollar,
-          items: [
-            {
-              title: 'Lịch sử doanh thu',
-              url: '/admin/eearning-history',
-            },
-            {
-              title: 'Rút tiền',
-              url: '/admin/payouts',
-            },
-            {
-              title: 'Yêu cầu rút tiền',
-              url: '/admin/payout-requests',
-            },
-            {
-              title: 'Quên mật khẩu',
-              url: '/forgot-password',
-            },
-          ],
-        },
-        {
-          title: 'Phiếu hỗ trợ',
-          url: '/admin/support-tickets',
-          icon: IconTicket,
-        },
-      ],
-    },
-    {
-      title: 'Khác',
-      items: [
-        {
-          title: 'Cài đặt',
-          icon: IconSettings,
-          items: [
-            {
-              title: 'Hồ sơ',
-              url: '/settings',
-              icon: IconUserCog,
-            },
-            {
-              title: 'Cài đặt tài khoản',
-              url: '/admin/aacount-setting',
-              icon: IconUserEdit,
-            },
-            {
-              title: 'Cài đặt cửa hàng',
-              url: '/admin/shop-settings',
-              icon: IconSettings,
-            },
-            {
-              title: 'Thông báo',
-              url: '/admin/shop-settings',
-              icon: IconNotification,
-            },
-            {
-              title: 'Hiển thị',
-              url: '/admin/shop-settings',
-              icon: IconBrowserCheck,
-            },
-          ],
-        },
-        {
-          title: 'Đa phương tiện',
+          title: 'Thư viện Đa phương tiện',
           icon: IconImageInPicture,
           url: '/admin/media',
         },
       ],
     },
     {
-      title: 'Bảo mật',
+      title: 'Cấu hình hệ thống',
       items: [
         {
-          title: 'Nhật ký hệ thống',
+          title: 'Cài đặt cửa hàng',
           icon: IconSettings,
-          url: '/admin/log',
+          url: '/admin/settings',
+        },
+        {
+          title: 'Hồ sơ cá nhân',
+          icon: IconUserCircle,
+          url: '/admin/profile',
+        },
+        {
+          title: 'Quản lý nhân viên',
+          icon: IconUserCog,
+          url: '/admin/staff',
         },
       ],
     },
   ],
 }
+
