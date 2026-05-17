@@ -14,6 +14,7 @@ import {
   IconUser,
   IconUserCog,
   IconUserEdit,
+  IconMessageReport,
 } from '@tabler/icons-react'
 import { AudioWaveform, Command, GalleryVerticalEnd } from 'lucide-react'
 import { SidebarData } from './types'
@@ -80,8 +81,18 @@ export const sidebarData: SidebarData = {
           url: '/admin/brand',
         },
         {
-          title: 'Khách hàng',
-          url: '/customer',
+          title: 'Menu & Điều hướng',
+          icon: IconLayoutDashboard,
+          url: '/admin/menu',
+        },
+        {
+          title: 'Đánh giá & Bình luận',
+          icon: IconMessageReport,
+          url: '/admin/review',
+        },
+        {
+          title: 'Người dùng',
+          url: '/admin/user',
           badge: '3',
           icon: IconUser,
         },

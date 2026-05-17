@@ -9,6 +9,7 @@ export interface Collection {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  products?: Product[]
 }
 
 export interface CollectionDetail extends Collection {

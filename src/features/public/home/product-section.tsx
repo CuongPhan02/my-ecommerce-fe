@@ -72,7 +72,7 @@ const ProductSection = ({ title, banner, products }: ProductSectionProps) => {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
             >
-              <ProductCard {...product} />
+              <ProductCard product={product} />
             </motion.div>
           ))}
         </div>

@@ -13,6 +13,8 @@ import { Link } from 'next-view-transitions'
 
 import PromotionBar from './promotion-bar'
 import { User, Search as SearchIcon } from 'lucide-react'
+import { _menuService } from '~/features/admin/menu/menu.query'
+import { useMemo } from 'react'
 
 const Header = () => {
   const [isLogin, setIsLogin] = useState(false)
@@ -23,6 +25,13 @@ const Header = () => {
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setIsScrolled(latest > 40)
   })
+
+  const { data: menusData } = _menuService.useMenus()
+
+  const navigationTree = useMemo(() => {
+    return menusData?.result || []
+  }, [menusData])
+
   const { isAuthenticated, logout: logoutStore } = useAuthStore()
   const handleLogout = async () => {
     try {
@@ -61,24 +70,24 @@ const Header = () => {
 
             {/* Desktop Navigation - Centered */}
             <nav className='hidden lg:flex items-center space-x-1 xl:space-x-4 text-[13px] xl:text-[14px] font-bold tracking-tight'>
-              {['NEW', 'NAM', 'NỮ', 'THỂ THAO', 'PHỤ KIỆN', 'SALE'].map((item) => (
-                <div key={item} className='group h-full flex items-center relative'>
+              {navigationTree.map((item) => (
+                <div key={item.id} className='group h-full flex items-center relative'>
                   <Link
-                    href={item === 'SALE' ? '/sale' : `/category/${item.toLowerCase()}`}
+                    href={item.href || '#'}
                     className={`hover:text-primary transition-colors uppercase px-3 py-4 flex items-center gap-1 ${
-                      item === 'SALE' ? 'text-red-500' : 'text-[#231f20]'
+                      item.label.toLowerCase() === 'sale' ? 'text-red-500' : 'text-[#231f20]'
                     }`}
                   >
-                    {item}
-                    {item === 'SALE' && (
+                    {item.label}
+                    {item.label.toLowerCase() === 'sale' && (
                       <span className='text-[8px] bg-red-500 text-white px-1 rounded-sm ml-0.5 leading-tight'>
                         -50%
                       </span>
                     )}
                   </Link>
-                  {item === 'NAM' && (
+                  {item.isMegaMenu && (
                     <div className='absolute left-0 top-full w-screen -ml-[40vw] invisible group-hover:visible z-50 transition-all duration-300 opacity-0 group-hover:opacity-100'>
-                      <ShopDropdown />
+                      <ShopDropdown config={item.megaMenu} />
                     </div>
                   )}
                 </div>
@@ -126,6 +135,7 @@ const Header = () => {
           onClose={() => setIsMobileMenuOpen(false)}
           isAuthenticated={isAuthenticated}
           handleLogout={handleLogout}
+          navLinks={navigationTree}
         />
       </div>
     </>

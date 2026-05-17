@@ -1,0 +1,161 @@
+import { Menu } from './types'
+
+export const mockMenus: Menu[] = [
+  {
+    id: 'xknn7swdwoyekw75s5kkji1g',
+    type: 'MAIN_LINK',
+    label: 'shop',
+    href: '/shop',
+    categoryType: null,
+    displayOrder: 0,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: false,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:17:13.437Z',
+    updatedAt: '2026-04-23T06:17:13.437Z',
+    children: [],
+    megaMenu: null
+  },
+  {
+    id: 'df0j8yimh4w41z77h7inz32p',
+    type: 'MAIN_LINK',
+    label: 'about',
+    href: '/shop',
+    categoryType: null,
+    displayOrder: 0,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: false,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:17:23.729Z',
+    updatedAt: '2026-04-23T06:17:23.729Z',
+    children: [],
+    megaMenu: null
+  },
+  {
+    id: 'vup1er3n3n46jqsa3cxp6d6g',
+    type: 'MAIN_LINK',
+    label: 'shop-v2',
+    href: null,
+    categoryType: 'CATEGORY_GROUP',
+    displayOrder: 0,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: false,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:18:49.134Z',
+    updatedAt: '2026-04-23T06:18:49.134Z',
+    children: [
+      {
+        id: 'fra5kcec21w9ylhrbecwqb45',
+        type: 'MAIN_LINK',
+        label: 'category',
+        href: null,
+        categoryType: null,
+        displayOrder: 1,
+        parentId: 'vup1er3n3n46jqsa3cxp6d6g',
+        metadata: null,
+        isActive: true,
+        isSystem: false,
+        isMegaMenu: false,
+        createdAt: '2026-04-23T06:22:56.427Z',
+        updatedAt: '2026-04-23T06:22:56.427Z',
+        children: [],
+        megaMenu: null
+      }
+    ],
+    megaMenu: null
+  },
+  {
+    id: 'xsktz81aqil5fqspcglzgfbz',
+    type: 'MAIN_LINK',
+    label: 'Home',
+    href: '/',
+    categoryType: null,
+    displayOrder: 1,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: true,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:48:09.379Z',
+    updatedAt: '2026-04-23T06:48:09.379Z',
+    children: [],
+    megaMenu: null
+  },
+  {
+    id: 'uw2xlckiilpgal1b8pd66b47',
+    type: 'MAIN_LINK',
+    label: 'Shop',
+    href: '/shop',
+    categoryType: null,
+    displayOrder: 2,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: true,
+    isMegaMenu: true,
+    createdAt: '2026-04-23T06:48:09.379Z',
+    updatedAt: '2026-04-23T06:48:09.379Z',
+    children: [],
+    megaMenu: {
+      categories: [
+        { id: 'aw44e73t13fcze1631hllrfd', name: 'string', slug: 'string', parentId: '3fa85f64-5717-4562-b3fc-2c963f66afa6' },
+        { id: 'hf424706f61nt7kdch3qkjsv', name: 'demo-1', slug: 'demo-1', parentId: '' },
+        { id: 'crkkr9l1vxr4gltbv8dw3fhr', name: 'the-he-moi-nha-trang', slug: 'the-he-moi-nha-trang', parentId: 'hf424706f61nt7kdch3qkjsv' },
+        { id: 'ajumz1rr98ueqaov9z4oc5kf', name: 'deploy v1', slug: 'deploy-v1', parentId: null },
+        { id: 'fju8cb7db0p9uqoxwob705hq', name: 'Pedro Duarte 245535353', slug: 'pedro-duarte-245535353', parentId: null }
+      ],
+      collections: [
+        { id: 't8q6vj4nbq92n6d4jlv8tx9v', name: 'phong phan', slug: 'the-he-moi-nha-trang', description: 'ádsadsadasd', imageUrl: 'http://localhost:3000/admin/collection', isActive: true, createdAt: '2026-03-16T10:32:01.175Z', updatedAt: '2026-03-16T10:32:01.175Z' },
+        { id: 'ypyd2qntssuddfaj5bwmm2ck', name: 'Pedro Duarte', slug: 'pedro-duarte', description: '', imageUrl: null, isActive: true, createdAt: '2026-03-27T17:55:43.933Z', updatedAt: '2026-03-27T17:55:43.933Z' },
+        { id: 'kipl5pwflsb87k99dw35yrms', name: 'summer collection', slug: 'summer-collection', description: '', imageUrl: null, isActive: true, createdAt: '2026-03-29T03:19:15.695Z', updatedAt: '2026-03-29T03:19:15.695Z' },
+        { id: 'u14hehk88tzj5nzmdg6hjtoi', name: 'Phong', slug: 'components', description: '', imageUrl: 'https://ik.imagekit.io/htnacim0q/media-ak-shop/Default-Folder/product-roronoa-zoro-3840x2160-18692_vnNzEJcYq', isActive: true, createdAt: '2026-04-06T03:34:06.006Z', updatedAt: '2026-04-06T03:34:06.006Z' },
+        { id: 'poh7mhcdjubg4dcqljzrk1po', name: 'new viral', slug: 'new-viral', description: null, imageUrl: null, isActive: true, createdAt: '2026-02-27T03:53:06.944Z', updatedAt: '2026-05-06T04:46:08.471Z' }
+      ],
+      attributes: [
+        { id: 'vre38zfj1ybvrqg8m0fd4ypm', name: 'Color', values: [] },
+        { id: 'vzrrtyp6593f3ryyuxmc77ai', name: 'Size', values: [] },
+        { id: 'rksi3ms5jsm38n831qjmsvj0', name: 'Colors', values: [] }
+      ]
+    }
+  },
+  {
+    id: 'w4bttycbm64aydybl1q94rg2',
+    type: 'MAIN_LINK',
+    label: 'About',
+    href: '/about',
+    categoryType: null,
+    displayOrder: 3,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: true,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:48:09.379Z',
+    updatedAt: '2026-04-23T06:48:09.379Z',
+    children: [],
+    megaMenu: null
+  },
+  {
+    id: 'q37znct4ve9hfs52r7ll1dns',
+    type: 'MAIN_LINK',
+    label: 'Contact',
+    href: '/contact',
+    categoryType: null,
+    displayOrder: 4,
+    parentId: null,
+    metadata: null,
+    isActive: true,
+    isSystem: true,
+    isMegaMenu: false,
+    createdAt: '2026-04-23T06:48:09.379Z',
+    updatedAt: '2026-04-23T06:48:09.379Z',
+    children: [],
+    megaMenu: null
+  }
+]

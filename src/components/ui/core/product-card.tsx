@@ -6,30 +6,28 @@ import { motion } from 'motion/react'
 import { Star, ShoppingCart } from 'lucide-react'
 import { cn } from '~/lib/utils'
 
-interface ProductColor {
-  name: string
-  hex: string
-  image: string
-}
+import { Product } from '~/features/admin/product/types'
 
 interface ProductCardProps {
-  id: number
-  name: string
-  price: number
-  originalPrice?: number
-  rating: number
-  reviews: number
-  colors: ProductColor[]
-  sizes?: string[]
-  badge?: string
+  product: Product
 }
 
-const ProductCard = ({ name, price, originalPrice, rating, reviews, colors, sizes = ['S', 'M', 'L', 'XL', '2XL'], badge }: ProductCardProps) => {
-  const [activeColorIndex, setActiveColorIndex] = useState(0)
+const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false)
+  const sizes = ['S', 'M', 'L', 'XL', '2XL']
+  
+  const firstVariant = product.variants?.[0]
+  const price = firstVariant?.price || 0
+  const originalPrice = product.discountValue 
+    ? (product.discountType === 'PERCENTAGE' 
+        ? price / (1 - product.discountValue / 100) 
+        : price + product.discountValue)
+    : undefined
 
-  const activeColor = colors[activeColorIndex]
-  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0
+  const discount = product.discountType === 'PERCENTAGE' ? product.discountValue : 0
+  const rating = 5 // Fallback since API doesn't provide rating yet
+  const reviews = 0 // Fallback
+  const badge = product.tags?.[0]
 
   return (
     <div
@@ -40,8 +38,8 @@ const ProductCard = ({ name, price, originalPrice, rating, reviews, colors, size
       {/* Image Container */}
       <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4">
         <Image
-          src={activeColor.image}
-          alt={name}
+          src={product.thumbnail?.url || '/placeholder-product.png'}
+          alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
@@ -79,51 +77,21 @@ const ProductCard = ({ name, price, originalPrice, rating, reviews, colors, size
              </div>
           </div>
         </div>
-
-        {/* Original Quick Add Button (Keep for home page or remove if unified) */}
-        {/* <div className={cn(
-          "absolute bottom-4 left-1/2 -translate-x-1/2 w-[85%] transition-all duration-300 transform",
-          isHovered ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        )}>
-          <button className="w-full bg-black text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
-            <ShoppingCart className="w-4 h-4" />
-            THÊM VÀO GIỎ
-          </button>
-        </div> */}
       </div>
 
       {/* Product Info */}
       <div className="flex flex-col flex-grow px-1">
-        {/* Colors */}
-        <div className="flex gap-2 mb-3">
-          {colors.map((color, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveColorIndex(idx)}
-              className={cn(
-                "w-4 h-4 rounded-full border border-gray-200 transition-all p-[2px]",
-                activeColorIndex === idx ? "ring-1 ring-black" : "hover:scale-110"
-              )}
-            >
-              <div
-                className="w-full h-full rounded-full"
-                style={{ backgroundColor: color.hex }}
-              />
-            </button>
-          ))}
-        </div>
-
         <h3 className="font-bold text-sm text-gray-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors">
-          {name}
+          {product.name}
         </h3>
 
         <div className="flex items-center gap-3 mb-2">
           <span className="font-black text-base text-gray-900">
             {price.toLocaleString('vi-VN')}đ
           </span>
-          {originalPrice && (
+          {originalPrice && originalPrice > price && (
             <span className="text-gray-400 text-sm line-through decoration-red-400">
-              {originalPrice.toLocaleString('vi-VN')}đ
+              {Math.round(originalPrice).toLocaleString('vi-VN')}đ
             </span>
           )}
         </div>

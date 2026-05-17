@@ -5,12 +5,14 @@ import { motion, AnimatePresence, Variants } from 'motion/react'
 import { X, ChevronRight, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import LogoUi from '~/components/shared/logo-ui'
+import { Menu } from '~/features/admin/menu/types'
 
 interface MobileNavbarProps {
   isOpen: boolean
   onClose: () => void
   isAuthenticated: boolean
   handleLogout: () => Promise<void>
+  navLinks: Menu[]
 }
 
 const MobileNavbar = ({
@@ -18,6 +20,7 @@ const MobileNavbar = ({
   onClose,
   isAuthenticated,
   handleLogout,
+  navLinks,
 }: MobileNavbarProps) => {
   useEffect(() => {
     if (isOpen) {
@@ -56,13 +59,6 @@ const MobileNavbar = ({
     open: { opacity: 1, x: 0 },
   }
 
-  const navLinks = [
-    { name: 'Shop', href: '/shop' },
-    { name: 'Best Sellers', href: '/best-sellers' },
-    { name: 'Collections', href: '/collections' },
-    { name: 'About', href: '/about' },
-    { name: 'Help', href: '/help' },
-  ]
 
   return (
     <AnimatePresence>
@@ -101,13 +97,13 @@ const MobileNavbar = ({
             <nav className='flex-1 px-6 py-8 overflow-y-auto'>
               <div className='flex flex-col space-y-2'>
                 {navLinks.map((link) => (
-                  <motion.div key={link.name} variants={itemVariants}>
+                  <motion.div key={link.id} variants={itemVariants}>
                     <Link
-                      href={link.href}
+                      href={link.href || '#'}
                       onClick={onClose}
                       className='flex items-center justify-between group py-4 text-xl font-bold uppercase tracking-widest text-neutral-200 hover:text-white transition-colors'
                     >
-                      <span>{link.name}</span>
+                      <span>{link.label}</span>
                       <ChevronRight className='w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all' />
                     </Link>
                   </motion.div>
