@@ -354,14 +354,16 @@ export const refreshAccessToken = async (): Promise<string> => {
  * - clearing persisted auth store from localStorage
  * - redirecting to the login page
  */
-export const logout = () => {
+export const logout = (shouldRedirect: boolean = true) => {
   accessToken = null
 
   if (typeof document !== 'undefined') {
     document.cookie = 'isLoggedIn=; Max-Age=0; path=/;'
     document.cookie = 'userRole=; Max-Age=0; path=/;'
     localStorage.removeItem('auth')
-    window.location.href = '/auth/sign-in'
+    if (shouldRedirect) {
+      window.location.href = '/auth/sign-in'
+    }
   }
 }
 

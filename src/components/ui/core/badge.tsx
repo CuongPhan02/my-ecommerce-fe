@@ -1,5 +1,6 @@
 'use client'
 import React, { MouseEvent, ReactNode, ReactElement, useState } from 'react'
+import { cn } from '~/lib/utils'
 
 // Enhanced Icons
 const XIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -38,6 +39,15 @@ const LoadingIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
 )
 
 // Enhanced Types
+type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | 'info'
+
 type BadgeSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 type BadgeShape = 'rounded' | 'pill' | 'square' | 'circle'
 type BadgeAnimation =
@@ -55,6 +65,7 @@ type BadgePosition = 'static' | 'absolute' | 'fixed' | 'sticky'
 // Enhanced Badge Props Interface
 interface BadgeBaseProps {
   children: ReactNode
+  variant?: BadgeVariant
   size?: BadgeSize
   shape?: BadgeShape
   animation?: BadgeAnimation
@@ -124,6 +135,7 @@ export const Badge = React.forwardRef<HTMLElement, BadgeProps>(
   (
     {
       children,
+      variant = 'default',
       size = 'md',
       shape = 'rounded',
       animation = 'none',
@@ -248,8 +260,18 @@ export const Badge = React.forwardRef<HTMLElement, BadgeProps>(
     // Get icon size based on badge size
     const iconSize = iconSizeStyles[size]
 
+    const variantStyles: Record<BadgeVariant, string> = {
+      default: 'bg-primary text-primary-foreground border border-transparent hover:bg-primary/80',
+      secondary: 'bg-secondary text-secondary-foreground border border-transparent hover:bg-secondary/80',
+      destructive: 'bg-destructive text-destructive-foreground border border-transparent hover:bg-destructive/80',
+      outline: 'text-foreground border border-border hover:bg-accent hover:text-accent-foreground',
+      success: 'bg-emerald-500 text-white border border-transparent hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700',
+      warning: 'bg-amber-500 text-white border border-transparent hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700',
+      info: 'bg-sky-500 text-white border border-transparent hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700',
+    }
+
     // Build final className - prioritize user's className, fallback to minimal defaults
-    const baseClasses = [
+    const baseClasses = cn(
       'inline-flex items-center justify-center font-medium transition-all duration-200',
       'focus:outline-none focus:ring-2 focus:ring-offset-2',
       sizeStyles[size],
@@ -259,18 +281,13 @@ export const Badge = React.forwardRef<HTMLElement, BadgeProps>(
       shadowStyles[shadow],
       blurStyles[blur],
       positionStyles[position],
-      // Only add default styling if no className is provided
-      !className
-        ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
-        : '',
-      disabled ? 'opacity-50 cursor-not-allowed' : '',
-      active ? 'ring-2 ring-offset-2' : '',
-      glow ? 'shadow-lg' : '',
-      loading ? 'cursor-wait' : '',
-      className,
-    ]
-      .filter(Boolean)
-      .join(' ')
+      variantStyles[variant],
+      disabled && 'opacity-50 cursor-not-allowed',
+      active && 'ring-2 ring-offset-2',
+      glow && 'shadow-lg',
+      loading && 'cursor-wait',
+      className
+    )
 
     // Add positioning styles if needed
     const positioningStyles: React.CSSProperties = {

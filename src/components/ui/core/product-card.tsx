@@ -8,26 +8,70 @@ import { cn } from '~/lib/utils'
 
 import { Product } from '~/features/admin/product/types'
 
+export interface SimpleProduct {
+  id: string | number
+  name: string
+  price: number
+  originalPrice?: number
+  rating?: number
+  reviews?: number
+  badge?: string
+  colors?: {
+    name: string
+    hex: string
+    image: string
+  }[]
+  thumbnail?: {
+    url: string
+  }
+}
+
 interface ProductCardProps {
-  product: Product
+  product: Product | SimpleProduct
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false)
   const sizes = ['S', 'M', 'L', 'XL', '2XL']
   
-  const firstVariant = product.variants?.[0]
-  const price = firstVariant?.price || 0
-  const originalPrice = product.discountValue 
-    ? (product.discountType === 'PERCENTAGE' 
-        ? price / (1 - product.discountValue / 100) 
-        : price + product.discountValue)
-    : undefined
+  const isDbProduct = 'variants' in product && Array.isArray(product.variants)
 
-  const discount = product.discountType === 'PERCENTAGE' ? product.discountValue : 0
-  const rating = 5 // Fallback since API doesn't provide rating yet
-  const reviews = 0 // Fallback
-  const badge = product.tags?.[0]
+  // 1. Price
+  const price = isDbProduct 
+    ? (product as Product).variants?.[0]?.price || 0 
+    : (product as SimpleProduct).price || 0
+
+  // 2. Discount Value
+  const discountValue = isDbProduct ? (product as Product).discountValue : null
+  const discountType = isDbProduct ? (product as Product).discountType : null
+
+  // 3. Original Price
+  const originalPrice = isDbProduct
+    ? (discountValue 
+        ? (discountType === 'PERCENTAGE' 
+            ? price / (1 - (discountValue || 0) / 100) 
+            : price + (discountValue || 0))
+        : undefined)
+    : (product as SimpleProduct).originalPrice
+
+  // 4. Discount label percentage
+  const discount = isDbProduct
+    ? (discountType === 'PERCENTAGE' ? discountValue || 0 : 0)
+    : (originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0)
+
+  // 5. Rating & Reviews
+  const rating = !isDbProduct ? (product as SimpleProduct).rating || 5 : 5
+  const reviews = !isDbProduct ? (product as SimpleProduct).reviews || 0 : 0
+
+  // 6. Badge
+  const badge = isDbProduct 
+    ? (product as Product).tags?.[0] 
+    : (product as SimpleProduct).badge
+
+  // 7. Image URL
+  const imageUrl = isDbProduct
+    ? (product as Product).thumbnail?.url || '/placeholder-product.png'
+    : ((product as SimpleProduct).colors?.[0]?.image || (product as SimpleProduct).thumbnail?.url || '/placeholder-product.png')
 
   return (
     <div
@@ -38,7 +82,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       {/* Image Container */}
       <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4">
         <Image
-          src={product.thumbnail?.url || '/placeholder-product.png'}
+          src={imageUrl}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"

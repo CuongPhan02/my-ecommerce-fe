@@ -185,7 +185,7 @@ const RecentlyViewed = () => {
       </div>
       <div className='grid grid-cols-2 md:grid-cols-4 gap-6'>
         {shopProducts.slice(4, 8).map((product) => (
-          <ProductCard key={product.id} {...product} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </section>
@@ -224,7 +224,7 @@ export default function ShopPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                 >
-                  <ProductCard {...product} />
+                  <ProductCard product={product} />
                 </motion.div>
               ))}
             </div>

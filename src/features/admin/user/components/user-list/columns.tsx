@@ -77,7 +77,7 @@ export const columns: ColumnDef<User>[] = [
         <Switch
           checked={isActive}
           onCheckedChange={(checked) => {
-            meta.updateUserStatus(row.original.id, checked ? 'ACTIVE' : 'BLOCKED')
+            meta.onUpdateStatus(row.original.id, checked ? 'ACTIVE' : 'BLOCKED')
           }}
         />
       )

@@ -37,7 +37,7 @@ const buttonVariants = cva(
 function Button({
   className,
   variant,
-  size,
+  size = 'default',
   asChild = false,
   ...props
 }: React.ComponentProps<'button'> &

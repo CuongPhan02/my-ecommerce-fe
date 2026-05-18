@@ -82,8 +82,8 @@ const UserTable = () => {
     pageCount,
     meta: {
       onEdit: handleEdit,
-      updateUserStatus: handleUpdateStatus,
-      updateUserRole: handleUpdateRole,
+      onUpdateStatus: handleUpdateStatus,
+      onUpdateRole: handleUpdateRole,
       onDelete: handleDelete,
     } as UserTableMeta,
     state: {
