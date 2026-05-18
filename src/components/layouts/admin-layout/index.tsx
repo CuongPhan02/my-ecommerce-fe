@@ -8,8 +8,7 @@ import { ProfileDropdown } from './header/profile-dropdown'
 
 const LayoutAdmin = ({ children }: { children: React.ReactNode }) => {
   return (
-    // overflow-hidden
-    <div className='w-full p-2'>
+    <div className='flex-1 min-w-0 p-2 flex flex-col overflow-x-hidden'>
       <Header fixed>
         <div className='ml-auto flex items-center space-x-4'></div>{' '}
         <SearchBar />

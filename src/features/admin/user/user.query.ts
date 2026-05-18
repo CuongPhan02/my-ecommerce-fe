@@ -21,7 +21,9 @@ export const _userService = {
         toast.success('Cập nhật trạng thái thành công')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Cập nhật trạng thái thất bại')
+        toast.error(
+          error?.response?.data?.message || 'Cập nhật trạng thái thất bại',
+        )
       },
     })
   },
@@ -36,7 +38,9 @@ export const _userService = {
         toast.success('Cập nhật vai trò thành công')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Cập nhật vai trò thất bại')
+        toast.error(
+          error?.response?.data?.message || 'Cập nhật vai trò thất bại',
+        )
       },
     })
   },
@@ -51,6 +55,38 @@ export const _userService = {
       },
       onError: (error: any) => {
         toast.error(error?.response?.data?.message || 'Xóa người dùng thất bại')
+      },
+    })
+  },
+
+  useCreateUser: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _userApi.createUser,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+        toast.success('Thêm người dùng mới thành công!')
+      },
+      onError: (error: any) => {
+        toast.error(
+          error?.response?.data?.message || 'Thêm người dùng thất bại',
+        )
+      },
+    })
+  },
+
+  useUpdateUser: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _userApi.updateUser,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+        toast.success('Cập nhật thông tin người dùng thành công!')
+      },
+      onError: (error: any) => {
+        toast.error(
+          error?.response?.data?.message || 'Cập nhật thông tin thất bại',
+        )
       },
     })
   },

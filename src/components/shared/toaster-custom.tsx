@@ -5,11 +5,11 @@ import { Bounce, ToastContainer } from 'react-toastify'
 
 const ToasterCustom = () => {
   const contextClass = {
-    default: 'bg-white dark:bg-gray-800',
-    info: 'bg-blue-50 dark:bg-blue-900',
-    success: 'bg-green-50 dark:bg-green-600',
-    warning: 'bg-yellow-50 dark:bg-yellow-600',
-    error: 'bg-red-50 dark:bg-red-600',
+    default: 'bg-white bg-gray-800',
+    info: 'bg-blue-50 bg-blue-900',
+    success: 'bg-green-50 bg-green-600',
+    warning: 'bg-yellow-50 bg-yellow-600',
+    error: 'bg-red-50 bg-red-600',
   }
   return (
     <ToastContainer
