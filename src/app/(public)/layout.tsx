@@ -1,4 +1,7 @@
+'use client'
+
 import React from 'react'
+import { usePathname } from 'next/navigation'
 import Footer from '~/components/layouts/public-layout/footer'
 import Header from '~/components/layouts/public-layout/header/header'
 import ComingSoon from '~/components/shared/coming-soon'
@@ -12,7 +15,10 @@ const Layout = ({
 }: Readonly<{
   children: React.ReactNode
 }>) => {
-  if (isComingSoon) {
+  const pathname = usePathname()
+  const isAuthRoute = pathname?.startsWith('/auth')
+
+  if (isComingSoon && !isAuthRoute) {
     return <ComingSoon />
   }
 
@@ -26,3 +32,4 @@ const Layout = ({
 }
 
 export default Layout
+

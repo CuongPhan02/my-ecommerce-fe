@@ -30,13 +30,8 @@ import {
   DialogFooter,
 } from '~/components/ui/core/dialog'
 import {
-  IconTrash,
   IconAlertTriangle,
-  IconCheck,
   IconInfoCircle,
-  IconShieldCheck,
-  IconXCircle,
-  IconHeart,
   IconStar,
 } from '@tabler/icons-react'
 import { Badge } from '~/components/ui/core/badge'
@@ -49,7 +44,10 @@ const ReviewTable = () => {
 
   // Premium Radix confirmation states
   const [reviewToDeleteId, setReviewToDeleteId] = useState<string | null>(null)
-  const [statusChangeReview, setStatusChangeReview] = useState<{ id: string; status: ReviewStatus } | null>(null)
+  const [statusChangeReview, setStatusChangeReview] = useState<{
+    id: string
+    status: ReviewStatus
+  } | null>(null)
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false)
 
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -69,12 +67,20 @@ const ReviewTable = () => {
     page: pageIndex + 1,
     limit: pageSize,
     search: debouncedSearch || null,
-    status: (columnFilters.find((f) => f.id === 'status')?.value as ReviewStatus) || null,
-    rating: (columnFilters.find((f) => f.id === 'rating')?.value as number) || null,
-    sort: (columnFilters.find((f) => f.id === 'sort')?.value as string) || 'newest',
+    status:
+      (columnFilters.find((f) => f.id === 'status')?.value as ReviewStatus) ||
+      null,
+    rating:
+      (columnFilters.find((f) => f.id === 'rating')?.value as number) || null,
+    sort:
+      (columnFilters.find((f) => f.id === 'sort')?.value as string) || 'newest',
   }
 
-  const { data: reviewsData, isLoading, refetch } = _reviewService.useReviews(params)
+  const {
+    data: reviewsData,
+    isLoading,
+    refetch,
+  } = _reviewService.useReviews(params)
 
   const updateStatusMutation = _reviewService.useUpdateReviewStatus()
   const deleteReviewMutation = _reviewService.useDeleteReview()
@@ -93,7 +99,7 @@ const ReviewTable = () => {
         toast.success(
           statusChangeReview.status === 'APPROVED'
             ? 'Đã duyệt hiển thị bình luận thành công!'
-            : 'Đã ẩn bình luận khỏi website thành công!'
+            : 'Đã ẩn bình luận khỏi website thành công!',
         )
       } catch (error) {
         toast.error('Có lỗi xảy ra khi cập nhật trạng thái bình luận!')
@@ -122,9 +128,13 @@ const ReviewTable = () => {
     try {
       // Execute deletion sequence for selected rows
       const selectedIds = selectedRows.map((r) => r.original.id)
-      await Promise.all(selectedIds.map((id) => deleteReviewMutation.mutateAsync(id)))
+      await Promise.all(
+        selectedIds.map((id) => deleteReviewMutation.mutateAsync(id)),
+      )
       table.resetRowSelection()
-      toast.success(`Đã xóa thành công ${selectedIds.length} đánh giá được chọn!`)
+      toast.success(
+        `Đã xóa thành công ${selectedIds.length} đánh giá được chọn!`,
+      )
     } catch (error) {
       toast.error('Có lỗi xảy ra khi xóa hàng loạt!')
     } finally {
@@ -172,10 +182,10 @@ const ReviewTable = () => {
   // Find info about current review targeted for modal detail displays
   const reviewTarget = useMemo(() => {
     if (reviewToDeleteId) {
-      return data.find((r) => r.id === reviewToDeleteId)
+      return data.find((r: Review) => r.id === reviewToDeleteId)
     }
     if (statusChangeReview) {
-      return data.find((r) => r.id === statusChangeReview.id)
+      return data.find((r: Review) => r.id === statusChangeReview.id)
     }
     return null
   }, [reviewToDeleteId, statusChangeReview, data])
@@ -237,7 +247,10 @@ const ReviewTable = () => {
                                 ) : header.column.getIsSorted() === 'desc' ? (
                                   <ArrowDown size={14} />
                                 ) : (
-                                  <ChevronsUpDown size={14} className='opacity-30' />
+                                  <ChevronsUpDown
+                                    size={14}
+                                    className='opacity-30'
+                                  />
                                 )}
                               </span>
                             )}
@@ -256,10 +269,15 @@ const ReviewTable = () => {
                   />
                 ) : data.length === 0 ? (
                   <tr>
-                    <td colSpan={columns.length} className='text-center py-20 bg-white'>
+                    <td
+                      colSpan={columns.length}
+                      className='text-center py-20 bg-white'
+                    >
                       <div className='flex flex-col items-center gap-4 text-slate-400'>
                         <SearchIcon size={40} className='opacity-20' />
-                        <p className='text-sm font-semibold'>Không tìm thấy bình luận đánh giá nào</p>
+                        <p className='text-sm font-semibold'>
+                          Không tìm thấy bình luận đánh giá nào
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -292,7 +310,8 @@ const ReviewTable = () => {
         {data.length > 0 && (
           <div className='flex items-center justify-between py-6 px-4 bg-slate-50/10 border-t border-slate-100/50 mt-2 rounded-2xl'>
             <div className='text-xs font-bold text-slate-500'>
-              Hiển thị {data.length} đánh giá (Trang {pageIndex + 1}/{pageCount})
+              Hiển thị {data.length} đánh giá (Trang {pageIndex + 1}/{pageCount}
+              )
             </div>
             <div className='flex items-center gap-1.5'>
               <Button
@@ -328,7 +347,10 @@ const ReviewTable = () => {
       )}
 
       {/* 2. CUSTOM DELETE CONFIRMATION DIALOG */}
-      <Dialog open={!!reviewToDeleteId} onOpenChange={(open) => !open && setReviewToDeleteId(null)}>
+      <Dialog
+        open={!!reviewToDeleteId}
+        onOpenChange={(open) => !open && setReviewToDeleteId(null)}
+      >
         <DialogContent className='bg-white/95 backdrop-blur-xl border border-rose-100 rounded-3xl max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200'>
           <DialogHeader>
             <div className='flex items-center gap-3 mb-2'>
@@ -340,7 +362,8 @@ const ReviewTable = () => {
                   Xóa đánh giá của khách hàng?
                 </DialogTitle>
                 <DialogDescription className='text-xs text-slate-400 font-medium'>
-                  Hành động này sẽ xóa vĩnh viễn nội dung bình luận khỏi hệ thống.
+                  Hành động này sẽ xóa vĩnh viễn nội dung bình luận khỏi hệ
+                  thống.
                 </DialogDescription>
               </div>
             </div>
@@ -350,23 +373,31 @@ const ReviewTable = () => {
             <div className='bg-rose-50/50 p-4 rounded-2xl border border-rose-100/50 space-y-2.5 my-2 text-sm text-slate-700'>
               <div className='flex items-center justify-between'>
                 <span className='font-bold text-slate-900'>Khách hàng:</span>
-                <span className='font-extrabold text-slate-700'>{reviewTarget.userName}</span>
+                <span className='font-extrabold text-slate-700'>
+                  {reviewTarget.userName}
+                </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='font-bold text-slate-900'>Điểm đánh giá:</span>
                 <div className='flex items-center gap-1 font-extrabold text-amber-500'>
                   <span>{reviewTarget.rating}</span>
-                  <IconStar size={16} className='fill-amber-400 text-amber-400' />
+                  <IconStar
+                    size={16}
+                    className='fill-amber-400 text-amber-400'
+                  />
                 </div>
               </div>
               <div className='flex flex-col gap-1 pt-1.5 border-t border-rose-100/60'>
-                <span className='font-bold text-slate-950 text-xs'>Nội dung bình luận:</span>
+                <span className='font-bold text-slate-950 text-xs'>
+                  Nội dung bình luận:
+                </span>
                 <p className='text-xs text-slate-500 italic bg-white p-2 rounded-lg border border-slate-100 leading-relaxed max-h-[80px] overflow-y-auto'>
                   "{reviewTarget.comment}"
                 </p>
               </div>
               <p className='text-[11px] text-rose-600 font-bold leading-relaxed pt-1'>
-                ⚠️ Lưu ý: Thao tác này sẽ gỡ bỏ bình luận và giảm tổng số lượng feedback của sản phẩm tương ứng. Không thể hoàn tác.
+                ⚠️ Lưu ý: Thao tác này sẽ gỡ bỏ bình luận và giảm tổng số lượng
+                feedback của sản phẩm tương ứng. Không thể hoàn tác.
               </p>
             </div>
           )}
@@ -390,7 +421,10 @@ const ReviewTable = () => {
       </Dialog>
 
       {/* 3. CUSTOM STATUS TRANSITION DIALOG */}
-      <Dialog open={!!statusChangeReview} onOpenChange={(open) => !open && setStatusChangeReview(null)}>
+      <Dialog
+        open={!!statusChangeReview}
+        onOpenChange={(open) => !open && setStatusChangeReview(null)}
+      >
         <DialogContent className='bg-white/95 backdrop-blur-xl border border-indigo-50 rounded-3xl max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200'>
           <DialogHeader>
             <div className='flex items-center gap-3 mb-2'>
@@ -413,24 +447,41 @@ const ReviewTable = () => {
               <div className='bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50 space-y-2.5'>
                 <div className='flex items-center justify-between'>
                   <span className='font-bold text-slate-900'>Người gửi:</span>
-                  <span className='font-extrabold text-slate-700'>{reviewTarget.userName}</span>
+                  <span className='font-extrabold text-slate-700'>
+                    {reviewTarget.userName}
+                  </span>
                 </div>
                 <div className='flex items-center justify-between pt-1 border-t border-indigo-100/40'>
                   <div className='flex items-center gap-1.5'>
-                    <span className='text-xs font-semibold text-slate-400'>Hiện tại:</span>
-                    <Badge variant='outline' className='text-[10px] rounded-full font-bold uppercase'>
-                      {reviewTarget.status === 'APPROVED' ? 'Đã duyệt' : reviewTarget.status === 'HIDDEN' ? 'Đã ẩn' : 'Chờ duyệt'}
+                    <span className='text-xs font-semibold text-slate-400'>
+                      Hiện tại:
+                    </span>
+                    <Badge
+                      variant='outline'
+                      className='text-[10px] rounded-full font-bold uppercase'
+                    >
+                      {reviewTarget.status === 'APPROVED'
+                        ? 'Đã duyệt'
+                        : reviewTarget.status === 'HIDDEN'
+                          ? 'Đã ẩn'
+                          : 'Chờ duyệt'}
                     </Badge>
                   </div>
                   <span className='text-indigo-500 font-bold'>➜</span>
                   <div className='flex items-center gap-1.5'>
-                    <span className='text-xs font-semibold text-slate-900'>Thay đổi thành:</span>
-                    <Badge className={`text-[10px] rounded-full text-white font-bold uppercase ${
-                      statusChangeReview.status === 'APPROVED'
-                        ? 'bg-emerald-600'
-                        : 'bg-rose-600'
-                    }`}>
-                      {statusChangeReview.status === 'APPROVED' ? 'Đã duyệt' : 'Đã ẩn'}
+                    <span className='text-xs font-semibold text-slate-900'>
+                      Thay đổi thành:
+                    </span>
+                    <Badge
+                      className={`text-[10px] rounded-full text-white font-bold uppercase ${
+                        statusChangeReview.status === 'APPROVED'
+                          ? 'bg-emerald-600'
+                          : 'bg-rose-600'
+                      }`}
+                    >
+                      {statusChangeReview.status === 'APPROVED'
+                        ? 'Đã duyệt'
+                        : 'Đã ẩn'}
                     </Badge>
                   </div>
                 </div>
@@ -439,11 +490,13 @@ const ReviewTable = () => {
               <div className='text-xs text-slate-500 leading-relaxed font-semibold pl-1'>
                 {statusChangeReview.status === 'APPROVED' ? (
                   <span className='text-emerald-600 flex items-center gap-1'>
-                    ✅ Bình luận sẽ xuất hiện công khai trên trang sản phẩm chi tiết của khách mua hàng.
+                    ✅ Bình luận sẽ xuất hiện công khai trên trang sản phẩm chi
+                    tiết của khách mua hàng.
                   </span>
                 ) : (
                   <span className='text-rose-600 flex items-center gap-1'>
-                    ⛔ Bình luận sẽ bị ẩn khỏi mọi giao diện public của website (chỉ lưu trữ nội bộ).
+                    ⛔ Bình luận sẽ bị ẩn khỏi mọi giao diện public của website
+                    (chỉ lưu trữ nội bộ).
                   </span>
                 )}
               </div>
@@ -493,13 +546,16 @@ const ReviewTable = () => {
 
           <div className='bg-rose-50/50 p-4 rounded-2xl border border-rose-100/50 space-y-2.5 my-2 text-sm text-slate-700'>
             <div className='flex items-center justify-between'>
-              <span className='font-bold text-slate-900'>Số lượng đã chọn:</span>
+              <span className='font-bold text-slate-900'>
+                Số lượng đã chọn:
+              </span>
               <span className='font-black text-rose-600 bg-rose-50 border border-rose-100 rounded px-2.5 py-0.5'>
                 {selectedRows.length} bình luận
               </span>
             </div>
             <p className='text-xs text-slate-500 leading-relaxed font-medium pt-1.5 border-t border-rose-100/60'>
-              Hành động này sẽ gỡ bỏ vĩnh viễn toàn bộ {selectedRows.length} bình luận đánh giá này khỏi website và không thể phục hồi.
+              Hành động này sẽ gỡ bỏ vĩnh viễn toàn bộ {selectedRows.length}{' '}
+              bình luận đánh giá này khỏi website và không thể phục hồi.
             </p>
           </div>
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'motion/react'
-import { Mail, ArrowRight, ShieldCheck, Sparkles, Instagram, Facebook, Twitter } from 'lucide-react'
+import { Mail, ArrowRight, ShieldCheck, Sparkles, Instagram, Facebook, Twitter, LogIn } from 'lucide-react'
 import Link from 'next/link'
 
 const ComingSoon = () => {
@@ -43,14 +43,24 @@ const ComingSoon = () => {
           </span>
         </div>
 
-        <Link 
-          href="/admin/staff"
-          className="group flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300"
-        >
-          <ShieldCheck className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
-          <span>Hệ thống Admin</span>
-          <ArrowRight className="w-3.5 h-3.5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link 
+            href="/auth/sign-in"
+            className="group flex items-center gap-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 hover:border-indigo-500/40 px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider text-indigo-300 transition-all duration-300 shadow-lg shadow-indigo-500/5"
+          >
+            <LogIn className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+            <span>Đăng nhập</span>
+          </Link>
+
+          <Link 
+            href="/admin/staff"
+            className="group flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-gray-300 transition-all duration-300"
+          >
+            <ShieldCheck className="w-4 h-4 text-violet-400 group-hover:scale-110 transition-transform" />
+            <span>Hệ thống Admin</span>
+            <ArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
       </motion.div>
 
       {/* Main Content */}

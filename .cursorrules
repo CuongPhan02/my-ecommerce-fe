@@ -1,0 +1,84 @@
+# Portfolio App - Development Guidelines & System Rules
+
+When writing, refactoring, or generating code for this project, you MUST strictly adhere to the following rules:
+
+---
+
+## 1. Project Technology Stack
+
+- **Core Framework:** React 19, Vite 8, TypeScript 6.
+- **Routing:** TanStack Router (`@tanstack/react-router`) with file-based routing.
+- **Styling:** Tailwind CSS v4 (`@tailwindcss/vite`) with custom animations (`tailwindcss-animate`, `tw-animate-css`).
+- **State Management:** Zustand for client state, TanStack Query (`@tanstack/react-query`) for server/cache state.
+- **Forms & Validation:** `react-hook-form` + Zod schemas (`zod`).
+- **UI Base:** `@base-ui/react` (headless primitives), `lucide-react` (icons), and Framer Motion (`framer-motion`).
+
+---
+
+## 2. Directory Structure & File Placement
+
+Always place files in their correct semantic location inside `src/`:
+
+- **UI Primitives (`src/components/ui/`):** Low-level, reusable components (e.g., `select.tsx`, `otp-field.tsx`). Must be kept stateless and highly customizable.
+- **Shared Components (`src/components/shared/`):** Layouts or components shared between multiple feature domains.
+- **Feature-Based Domains (`src/features/[feature-name]/`):** Group logic by domain features (e.g. `src/features/physical-sim-activation`). Local hooks, components, API calls, and local stores specific to a feature must reside here.
+- **File-Based Routing (`src/routes/`):** Handled by TanStack Router. Keep route files clean; import heavier feature page components here instead of writing rendering logic inside route files.
+- **Global Stores (`src/stores/`):** Global Zustand stores.
+- **Utilities (`src/lib/utils.ts`):** Standard helper utilities. Always use the `cn` function imported from `@/lib/utils` to safely join Tailwind classes.
+
+---
+
+## 3. Strict TypeScript & Quality Rules
+
+- **Upfront Type Definition (Define Before Code):** Always define types, interfaces, or generic schemas _before_ writing the active logic, components, hooks, or API handlers.
+- **Zero TypeScript Errors (Zero Red Lines):** All written code must be 100% compliant with the project's TypeScript configuration. Never leave code with unresolved TypeScript compile-time errors or warnings.
+- **No Lazy Types:** Avoid using `any` or `as any`. Explicitly declare return types for critical helper functions, custom hooks, and API handlers.
+- **Verify Sourcing and Configuration:** Refer to `tsconfig.json` and `tsconfig.app.json` settings to make sure imports, path aliases (e.g., `@/*`), and compiler options are fully supported.
+
+---
+
+## 4. Styling, Responsive & Component Behavior
+
+- **Utility-First Styling:** Use Tailwind CSS v4 utility classes.
+- **Dynamic Classes:** Always use `cn(...)` from `@/lib/utils` for conditional class joining.
+- **Typography Scale Consistency:** Keep H1-H6 absolute sizing consistent across all screens. Do not use ad-hoc font-sizes.
+- **Responsive Layout Safety:**
+  - Design mobile-first or ensure responsive safety from 320px up to 4K resolutions.
+  - Squeeze margins, padding, and text sizing down aggressively on mobile to prevent content spilling or visual breaking. (e.g., large desktop headers must scale down cleanly, avoiding massive fonts on mobile viewport).
+  - **Mobile 2-Column Exception Grid:** While complex cards with rich interaction default to a single column (`grid-cols-1`) on mobile, low-information cards (e.g., simple blog cards, simple projects, simple product grids) **MUST display in 2 columns on mobile (`grid-cols-2`)**.
+  - **Ultra-dense Mobile Styling:** For 2-column mobile grids, optimize space aggressively like a dedicated native mobile app:
+    - Hide secondary/unimportant text (e.g. long descriptions, redundant tags).
+    - Reduce font sizes (`text-xs` or `text-[10px]`) and paddings (`p-2` or `p-3`) to their absolute minimum readable limits to avoid ugly text wraps or squished elements.
+- **No Line Wrap on Controls:** Action buttons, tabs, menu items, and primary links must strictly use the `whitespace-nowrap` class to stay aligned in a single line.
+- **Body Scroll Lock for Overlays:** When any modal, popup, dialog, drawer, or sidebar is active/opened, the main page body scroll **MUST be disabled** (`document.body.style.overflow = "hidden"`). The scroll lock must be safely restored to its original value when the overlay closes/unmounts to prevent background scroll leaking.
+
+---
+
+## 5. Forms and Schema Validation
+
+- Always use `zod` for validating form inputs and API response schemas.
+- Integrate validation schemas into `react-hook-form` using `@hookform/resolvers/zod`.
+
+---
+
+## 6. API Integration & "Grill-Me" Schema Definition Rule
+
+- **Relentless "Grill-Me" Session for API calls:** Before writing or modifying any new API integration, request handling, or data-fetching hooks (e.g. TanStack Query hooks, Axios/Fetch calls), you **MUST initiate a strict "grill-me" session** with the user.
+- **Detailed Response Field Mapping:** Relentlessly interview/ask the user to provide the exact JSON structure of the API response, detailing each field, its exact type, and whether it can be null or optional.
+- **Strict Data Consistency:** This upfront grill-me session ensures that TypeScript models, Zod validation schemas, and mock data types match the backend exactly.
+- **Meticulous Refactoring & Audit of Mock Data:** If you build the UI first using mock/placeholder data, the second the API definition becomes available, you **MUST meticulously cross-reference, audit, and refactor the entire UI data structure** against the exact API schema to guarantee no discrepancies, type leaks, or unhandled data states.
+
+---
+
+## 7. React Performance, Rendering & Re-render Prevention
+
+- **Prevent Redundant Re-renders:** When writing or editing any component (especially those involving API logic, data mutations, creates, updates, state changes, or list rendering), you **MUST proactively audit its rendering lifecycle**.
+- **Infinite Loop Prevention:** Never allow code that triggers infinite rendering loops (e.g., modifying state inside a `useEffect` that depends on that same state or on unstable reference dependencies).
+- **Stabilize References (`useCallback` / `useMemo`):**
+  - Wrap callback handlers in `useCallback` if they are passed as props to memoized child components or used in `useEffect` dependency arrays.
+  - Wrap heavy computations or unstable array/object definitions inside `useMemo`.
+  - Move static configuration arrays, schemas, or default states outside the component completely.
+  - Ensure all `useEffect` dependency arrays are strictly accurate and minimal.
+- **Server State Optimization:** Fully leverage TanStack Query's caching, selector patterns (`select`), and built-in loading/fetching flags rather than manually mapping fetch states to local React states.
+- **Derived State Over Duplicate State:** Never sync props to state or duplicate state variables. Always compute derived values on-the-fly during render.
+- **Audit Requirement:** Do not write code that "just works" but is unoptimized. Every component logic must be analyzed for performance and reference stability.
