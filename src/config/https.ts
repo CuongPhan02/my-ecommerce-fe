@@ -146,6 +146,10 @@ let failedQueue: Array<{
   reject: (err: unknown) => void
 }> = []
 
+type RefreshAccessTokenOptions = {
+  logoutOnAuthError?: boolean
+}
+
 // ─────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────
@@ -274,6 +278,13 @@ export const setAccessToken = (token: string | null) => {
  */
 export const getAccessToken = () => accessToken
 
+export const isAuthSessionError = (err: unknown): boolean => {
+  if (!isAxiosError(err)) return false
+
+  const status = err.response?.status
+  return Boolean(status && [400, 401, 403].includes(status))
+}
+
 // ─────────────────────────────────────────────────────────────
 // Refresh Access Token
 // ─────────────────────────────────────────────────────────────
@@ -285,7 +296,11 @@ export const getAccessToken = () => accessToken
  * 1. Request interceptor (proactive refresh)
  * 2. Response interceptor (when a request returns 401)
  */
-export const refreshAccessToken = async (): Promise<string> => {
+export const refreshAccessToken = async (
+  options: RefreshAccessTokenOptions = {},
+): Promise<string> => {
+  const { logoutOnAuthError = false } = options
+
   /**
    * If a refresh request is already in progress,
    * we don't start another one.
@@ -329,12 +344,8 @@ export const refreshAccessToken = async (): Promise<string> => {
      */
     processQueue(err, null)
 
-    if (isAxiosError(err)) {
-      const status = err.response?.status
-      // Only logout on 401 (Unauthorized), 403 (Forbidden), or 400 (Bad Request)
-      if (status && [400, 401, 403].includes(status)) {
-        logout()
-      }
+    if (logoutOnAuthError && isAuthSessionError(err)) {
+      logout()
     }
 
     throw err
@@ -397,14 +408,16 @@ https.interceptors.request.use(async (config) => {
    */
   if (isTokenExpiringSoon(60)) {
     try {
-      const freshToken = await refreshAccessToken()
+      const freshToken = await refreshAccessToken({
+        logoutOnAuthError: true,
+      })
       config.headers.Authorization = `Bearer ${freshToken}`
       return config
     } catch {
       /**
-       * If refresh fails,
-       * refreshAccessToken() already logged the user out.
-       * Let the request fail normally.
+       * Auth refresh errors already clear the client session. Non-auth refresh
+       * failures are left alone so transient network/server issues do not log
+       * the user out.
        */
       return config
     }
@@ -446,7 +459,9 @@ https.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const freshToken = await refreshAccessToken()
+        const freshToken = await refreshAccessToken({
+          logoutOnAuthError: true,
+        })
 
         // Attach the new token
         originalRequest.headers.Authorization = `Bearer ${freshToken}`

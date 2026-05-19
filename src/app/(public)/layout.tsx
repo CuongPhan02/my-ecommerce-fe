@@ -5,7 +5,7 @@ import ComingSoon from '~/components/shared/coming-soon'
 
 // Đặt biến này thành true để hiển thị giao diện Coming Soon cho người dùng
 // Đặt thành false để hiển thị đầy đủ giao diện trang chủ/công khai hiện tại
-const isComingSoon = true
+const isComingSoon = false
 
 const Layout = ({
   children,
