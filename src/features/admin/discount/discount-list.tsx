@@ -45,11 +45,7 @@ import {
   IconPlayerPlay,
   IconAlertTriangle,
   IconInfoCircle,
-  IconX,
   IconFilterOff,
-  IconArrowUp,
-  IconArrowDown,
-  IconChevronsUpDown,
 } from '@tabler/icons-react'
 
 // Voucher interface definition
@@ -71,7 +67,8 @@ const INITIAL_DISCOUNTS: Voucher[] = [
   {
     id: 'DISC-001',
     code: 'SUMMER24',
-    description: 'Giảm 20% cho toàn bộ các đơn hàng mua sắm trong dịp mùa hè năng động',
+    description:
+      'Giảm 20% cho toàn bộ các đơn hàng mua sắm trong dịp mùa hè năng động',
     discountType: 'PERCENT',
     value: 20,
     minOrderValue: 200000,
@@ -83,7 +80,8 @@ const INITIAL_DISCOUNTS: Voucher[] = [
   {
     id: 'DISC-002',
     code: 'FREESHIP100K',
-    description: 'Miễn phí chi phí vận chuyển tối đa 30k áp dụng cho các đơn hàng từ 100k',
+    description:
+      'Miễn phí chi phí vận chuyển tối đa 30k áp dụng cho các đơn hàng từ 100k',
     discountType: 'SHIPPING',
     value: 30000,
     minOrderValue: 100000,
@@ -95,7 +93,8 @@ const INITIAL_DISCOUNTS: Voucher[] = [
   {
     id: 'DISC-003',
     code: 'WELCOME50',
-    description: 'Tặng voucher giảm ngay 50.000đ dành riêng cho tài khoản đăng ký mới',
+    description:
+      'Tặng voucher giảm ngay 50.000đ dành riêng cho tài khoản đăng ký mới',
     discountType: 'FIXED',
     value: 50000,
     minOrderValue: 0,
@@ -107,7 +106,8 @@ const INITIAL_DISCOUNTS: Voucher[] = [
   {
     id: 'DISC-004',
     code: 'KHAITRUONG100',
-    description: 'Ưu đãi cực khủng tri ân khai trương giảm trực tiếp 100.000đ vào đơn hàng',
+    description:
+      'Ưu đãi cực khủng tri ân khai trương giảm trực tiếp 100.000đ vào đơn hàng',
     discountType: 'FIXED',
     value: 100000,
     minOrderValue: 500000,
@@ -132,7 +132,7 @@ const INITIAL_DISCOUNTS: Voucher[] = [
 
 export function DiscountList() {
   const [vouchers, setVouchers] = useState<Voucher[]>(INITIAL_DISCOUNTS)
-  
+
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -149,7 +149,9 @@ export function DiscountList() {
   // Form Field States
   const [code, setCode] = useState('')
   const [description, setDescription] = useState('')
-  const [discountType, setDiscountType] = useState<'PERCENT' | 'FIXED' | 'SHIPPING'>('PERCENT')
+  const [discountType, setDiscountType] = useState<
+    'PERCENT' | 'FIXED' | 'SHIPPING'
+  >('PERCENT')
   const [value, setValue] = useState<number>(0)
   const [minOrderValue, setMinOrderValue] = useState<number>(0)
   const [usageLimit, setUsageLimit] = useState<number>(0)
@@ -219,8 +221,8 @@ export function DiscountList() {
                 validUntil,
                 status: v.status === 'EXPIRED' ? 'ACTIVE' : status,
               }
-            : v
-        )
+            : v,
+        ),
       )
       toast.success('Cập nhật mã giảm giá thành công!')
     } else {
@@ -255,16 +257,17 @@ export function DiscountList() {
   // Handle Pause/Resume status toggle
   const confirmToggleStatus = () => {
     if (voucherToToggle) {
-      const nextStatus = voucherToToggle.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
+      const nextStatus =
+        voucherToToggle.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
       setVouchers((prev) =>
         prev.map((v) =>
-          v.id === voucherToToggle.id ? { ...v, status: nextStatus } : v
-        )
+          v.id === voucherToToggle.id ? { ...v, status: nextStatus } : v,
+        ),
       )
       toast.success(
         nextStatus === 'ACTIVE'
           ? `Kích hoạt thành công mã ${voucherToToggle.code}`
-          : `Đã tạm ngưng hoạt động mã ${voucherToToggle.code}`
+          : `Đã tạm ngưng hoạt động mã ${voucherToToggle.code}`,
       )
       setVoucherToToggle(null)
     }
@@ -272,7 +275,10 @@ export function DiscountList() {
 
   // Formatting helpers
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val)
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    }).format(val)
   }
 
   const formatVoucherValue = (type: string, value: number) => {
@@ -310,8 +316,10 @@ export function DiscountList() {
         const matchesSearch =
           v.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
           v.description.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesType = typeFilter === 'all' || v.discountType === typeFilter
-        const matchesStatus = statusFilter === 'all' || v.status === statusFilter
+        const matchesType =
+          typeFilter === 'all' || v.discountType === typeFilter
+        const matchesStatus =
+          statusFilter === 'all' || v.status === statusFilter
         return matchesSearch && matchesType && matchesStatus
       })
       .sort((a, b) => {
@@ -339,8 +347,13 @@ export function DiscountList() {
             <IconTicket size={24} />
           </div>
           <div>
-            <h1 className='text-2xl font-black text-slate-900 tracking-tight'>Khuyến mãi & Voucher</h1>
-            <p className='text-sm text-slate-400 font-medium'>Quản lý các chương trình ưu đãi, mã giảm giá và chiết khấu cửa hàng.</p>
+            <h1 className='text-2xl font-black text-slate-900 tracking-tight'>
+              Khuyến mãi & Voucher
+            </h1>
+            <p className='text-sm text-slate-400 font-medium'>
+              Quản lý các chương trình ưu đãi, mã giảm giá và chiết khấu cửa
+              hàng.
+            </p>
           </div>
         </div>
         <Button
@@ -356,8 +369,12 @@ export function DiscountList() {
         <Card className='rounded-3xl border border-slate-100/60 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all'>
           <CardContent className='p-6 flex items-center justify-between'>
             <div className='space-y-1.5'>
-              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>Tổng số mã</p>
-              <h3 className='text-3xl font-extrabold text-slate-900'>{stats.total}</h3>
+              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>
+                Tổng số mã
+              </p>
+              <h3 className='text-3xl font-extrabold text-slate-900'>
+                {stats.total}
+              </h3>
             </div>
             <div className='h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 group-hover:scale-105 transition-transform'>
               <IconTicket size={22} />
@@ -368,8 +385,12 @@ export function DiscountList() {
         <Card className='rounded-3xl border border-slate-100/60 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all'>
           <CardContent className='p-6 flex items-center justify-between'>
             <div className='space-y-1.5'>
-              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>Đang hoạt động</p>
-              <h3 className='text-3xl font-extrabold text-emerald-600'>{stats.active}</h3>
+              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>
+                Đang hoạt động
+              </p>
+              <h3 className='text-3xl font-extrabold text-emerald-600'>
+                {stats.active}
+              </h3>
             </div>
             <div className='h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-105 transition-transform'>
               <IconShieldCheck size={22} />
@@ -380,8 +401,12 @@ export function DiscountList() {
         <Card className='rounded-3xl border border-slate-100/60 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all'>
           <CardContent className='p-6 flex items-center justify-between'>
             <div className='space-y-1.5'>
-              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>Tạm ngưng</p>
-              <h3 className='text-3xl font-extrabold text-amber-500'>{stats.paused}</h3>
+              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>
+                Tạm ngưng
+              </p>
+              <h3 className='text-3xl font-extrabold text-amber-500'>
+                {stats.paused}
+              </h3>
             </div>
             <div className='h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 group-hover:scale-105 transition-transform'>
               <IconPlayerPause size={22} />
@@ -392,8 +417,12 @@ export function DiscountList() {
         <Card className='rounded-3xl border border-slate-100/60 shadow-sm bg-white overflow-hidden group hover:shadow-md transition-all'>
           <CardContent className='p-6 flex items-center justify-between'>
             <div className='space-y-1.5'>
-              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>Số lượt đã dùng</p>
-              <h3 className='text-3xl font-extrabold text-indigo-600'>{stats.totalUsed}</h3>
+              <p className='text-xs font-black text-slate-400 uppercase tracking-widest'>
+                Số lượt đã dùng
+              </p>
+              <h3 className='text-3xl font-extrabold text-indigo-600'>
+                {stats.totalUsed}
+              </h3>
             </div>
             <div className='h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500 group-hover:scale-105 transition-transform'>
               <IconUsers size={22} />
@@ -407,14 +436,22 @@ export function DiscountList() {
         <CardHeader className='pb-3 border-b border-slate-100/60 bg-slate-50/30'>
           <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'>
             <div>
-              <CardTitle className='text-lg font-bold text-slate-900'>Mã voucher & Khuyến mãi</CardTitle>
-              <CardDescription className='text-xs text-slate-400 font-medium'>Danh sách đầy đủ các ưu đãi đang được triển khai trên website thương mại.</CardDescription>
+              <CardTitle className='text-lg font-bold text-slate-900'>
+                Mã voucher & Khuyến mãi
+              </CardTitle>
+              <CardDescription className='text-xs text-slate-400 font-medium'>
+                Danh sách đầy đủ các ưu đãi đang được triển khai trên website
+                thương mại.
+              </CardDescription>
             </div>
 
             {/* Quick search and drawer filter toggle */}
             <div className='flex items-center gap-2 flex-wrap'>
               <div className='relative flex-1 sm:flex-none min-w-[240px]'>
-                <IconSearch size={16} className='absolute left-3.5 top-3.5 text-slate-400' />
+                <IconSearch
+                  size={16}
+                  className='absolute left-3.5 top-3.5 text-slate-400'
+                />
                 <Input
                   type='search'
                   placeholder='Tìm kiếm mã code, mô tả...'
@@ -423,7 +460,7 @@ export function DiscountList() {
                   className='pl-10 h-11 bg-white border-slate-200 rounded-xl text-sm font-semibold'
                 />
               </div>
-              
+
               <Button
                 variant={isFilterDrawerOpen ? 'default' : 'outline'}
                 onClick={() => setIsFilterDrawerOpen(!isFilterDrawerOpen)}
@@ -433,7 +470,9 @@ export function DiscountList() {
                 Bộ lọc nâng cao
               </Button>
 
-              {(searchTerm || typeFilter !== 'all' || statusFilter !== 'all') && (
+              {(searchTerm ||
+                typeFilter !== 'all' ||
+                statusFilter !== 'all') && (
                 <Button
                   variant='ghost'
                   onClick={() => {
@@ -455,8 +494,16 @@ export function DiscountList() {
             <div className='mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3 animate-in slide-in-from-top-4 duration-200'>
               {/* Type Filter */}
               <div className='flex flex-col gap-1'>
-                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>Phân loại ưu đãi</Label>
-                <Select value={typeFilter} onValueChange={(val) => { setTypeFilter(val); setCurrentPage(1); }}>
+                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>
+                  Phân loại ưu đãi
+                </Label>
+                <Select
+                  value={typeFilter}
+                  onValueChange={(val) => {
+                    setTypeFilter(val)
+                    setCurrentPage(1)
+                  }}
+                >
                   <SelectTrigger className='bg-white h-11 border-slate-200 rounded-xl text-xs font-semibold focus:ring-1 focus:ring-primary'>
                     <SelectValue placeholder='Chọn phân loại' />
                   </SelectTrigger>
@@ -465,7 +512,9 @@ export function DiscountList() {
                       <SelectItem value='all'>Tất cả phân loại</SelectItem>
                       <SelectItem value='PERCENT'>Phần trăm (%)</SelectItem>
                       <SelectItem value='FIXED'>Số tiền cố định (đ)</SelectItem>
-                      <SelectItem value='SHIPPING'>Hỗ trợ vận chuyển (đ)</SelectItem>
+                      <SelectItem value='SHIPPING'>
+                        Hỗ trợ vận chuyển (đ)
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -473,8 +522,16 @@ export function DiscountList() {
 
               {/* Status Filter */}
               <div className='flex flex-col gap-1'>
-                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>Trạng thái ưu đãi</Label>
-                <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}>
+                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>
+                  Trạng thái ưu đãi
+                </Label>
+                <Select
+                  value={statusFilter}
+                  onValueChange={(val) => {
+                    setStatusFilter(val)
+                    setCurrentPage(1)
+                  }}
+                >
                   <SelectTrigger className='bg-white h-11 border-slate-200 rounded-xl text-xs font-semibold focus:ring-1 focus:ring-primary'>
                     <SelectValue placeholder='Chọn trạng thái' />
                   </SelectTrigger>
@@ -482,8 +539,12 @@ export function DiscountList() {
                     <SelectGroup>
                       <SelectItem value='all'>Tất cả trạng thái</SelectItem>
                       <SelectItem value='ACTIVE'>Đang hoạt động</SelectItem>
-                      <SelectItem value='PAUSED'>Tạm ngưng hoạt động</SelectItem>
-                      <SelectItem value='EXPIRED'>Đã hết hạn sử dụng</SelectItem>
+                      <SelectItem value='PAUSED'>
+                        Tạm ngưng hoạt động
+                      </SelectItem>
+                      <SelectItem value='EXPIRED'>
+                        Đã hết hạn sử dụng
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -491,17 +552,31 @@ export function DiscountList() {
 
               {/* Sort Order */}
               <div className='flex flex-col gap-1'>
-                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>Sắp xếp danh sách</Label>
-                <Select value={sortOption} onValueChange={(val) => { setSortOption(val); setCurrentPage(1); }}>
+                <Label className='text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1 mb-1'>
+                  Sắp xếp danh sách
+                </Label>
+                <Select
+                  value={sortOption}
+                  onValueChange={(val) => {
+                    setSortOption(val)
+                    setCurrentPage(1)
+                  }}
+                >
                   <SelectTrigger className='bg-white h-11 border-slate-200 rounded-xl text-xs font-semibold focus:ring-1 focus:ring-primary'>
                     <SelectValue placeholder='Chọn sắp xếp' />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value='newest'>Mới cập nhật</SelectItem>
-                      <SelectItem value='value-desc'>Mức giảm: Cao đến thấp</SelectItem>
-                      <SelectItem value='value-asc'>Mức giảm: Thấp đến cao</SelectItem>
-                      <SelectItem value='limit-desc'>Số lượng giới hạn: Nhiều nhất</SelectItem>
+                      <SelectItem value='value-desc'>
+                        Mức giảm: Cao đến thấp
+                      </SelectItem>
+                      <SelectItem value='value-asc'>
+                        Mức giảm: Thấp đến cao
+                      </SelectItem>
+                      <SelectItem value='limit-desc'>
+                        Số lượng giới hạn: Nhiều nhất
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -515,15 +590,33 @@ export function DiscountList() {
               <table className='text-sm text-left w-full border-collapse whitespace-nowrap'>
                 <thead className='bg-slate-50 dark:bg-muted'>
                   <tr className='border-b border-slate-100/80'>
-                    <th className='p-4 font-bold text-slate-900 border-b w-[160px]'>Mã Voucher</th>
-                    <th className='p-4 font-bold text-slate-900 border-b max-w-[280px]'>Mô tả & Điều kiện</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Phân loại</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Mức giảm</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Đơn tối thiểu</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Trạng thái</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Đã dùng / Giới hạn</th>
-                    <th className='p-4 font-bold text-slate-900 border-b'>Hạn sử dụng</th>
-                    <th className='p-4 font-bold text-slate-900 border-b text-right'>Thao tác</th>
+                    <th className='p-4 font-bold text-slate-900 border-b w-[160px]'>
+                      Mã Voucher
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b max-w-[280px]'>
+                      Mô tả & Điều kiện
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Phân loại
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Mức giảm
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Đơn tối thiểu
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Trạng thái
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Đã dùng / Giới hạn
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b'>
+                      Hạn sử dụng
+                    </th>
+                    <th className='p-4 font-bold text-slate-900 border-b text-right'>
+                      Thao tác
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -532,7 +625,9 @@ export function DiscountList() {
                       <td colSpan={9} className='text-center py-20 bg-white'>
                         <div className='flex flex-col items-center gap-4 text-slate-400'>
                           <IconTicket size={48} className='opacity-20' />
-                          <p className='text-sm font-semibold'>Không tìm thấy mã giảm giá nào phù hợp</p>
+                          <p className='text-sm font-semibold'>
+                            Không tìm thấy mã giảm giá nào phù hợp
+                          </p>
                         </div>
                       </td>
                     </tr>
@@ -564,15 +659,24 @@ export function DiscountList() {
                         {/* Type */}
                         <td className='p-4 align-middle font-bold text-slate-500 text-xs'>
                           {voucher.discountType === 'PERCENT' ? (
-                            <Badge variant='outline' className='rounded-md border-indigo-100 bg-indigo-50/10 text-indigo-700 font-bold'>
+                            <Badge
+                              variant='outline'
+                              className='rounded-md border-indigo-100 bg-indigo-50/10 text-indigo-700 font-bold'
+                            >
                               Phần trăm (%)
                             </Badge>
                           ) : voucher.discountType === 'FIXED' ? (
-                            <Badge variant='outline' className='rounded-md border-emerald-100 bg-emerald-50/10 text-emerald-700 font-bold'>
+                            <Badge
+                              variant='outline'
+                              className='rounded-md border-emerald-100 bg-emerald-50/10 text-emerald-700 font-bold'
+                            >
                               Số tiền cố định (đ)
                             </Badge>
                           ) : (
-                            <Badge variant='outline' className='rounded-md border-sky-100 bg-sky-50/10 text-sky-700 font-bold'>
+                            <Badge
+                              variant='outline'
+                              className='rounded-md border-sky-100 bg-sky-50/10 text-sky-700 font-bold'
+                            >
                               Hỗ trợ ship (đ)
                             </Badge>
                           )}
@@ -580,13 +684,18 @@ export function DiscountList() {
 
                         {/* Value */}
                         <td className='p-4 align-middle font-extrabold text-slate-800 text-sm'>
-                          {formatVoucherValue(voucher.discountType, voucher.value)}
+                          {formatVoucherValue(
+                            voucher.discountType,
+                            voucher.value,
+                          )}
                         </td>
 
                         {/* Min Order Value */}
                         <td className='p-4 align-middle font-semibold text-slate-500 text-xs'>
                           {voucher.minOrderValue === 0 ? (
-                            <span className='text-slate-400 font-medium italic'>Không có</span>
+                            <span className='text-slate-400 font-medium italic'>
+                              Không có
+                            </span>
                           ) : (
                             formatCurrency(voucher.minOrderValue)
                           )}
@@ -610,7 +719,8 @@ export function DiscountList() {
                                 style={{
                                   width: `${Math.min(
                                     100,
-                                    (voucher.usedCount / voucher.usageLimit) * 100
+                                    (voucher.usedCount / voucher.usageLimit) *
+                                      100,
                                   )}%`,
                                 }}
                               />
@@ -621,7 +731,10 @@ export function DiscountList() {
                         {/* Valid until */}
                         <td className='p-4 align-middle text-xs font-bold text-slate-500'>
                           <div className='flex items-center gap-1.5'>
-                            <IconCalendarEvent size={16} className='text-slate-400' />
+                            <IconCalendarEvent
+                              size={16}
+                              className='text-slate-400'
+                            />
                             <span>{voucher.validUntil}</span>
                           </div>
                         </td>
@@ -640,7 +753,11 @@ export function DiscountList() {
                                     ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
                                     : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
                                 }`}
-                                title={voucher.status === 'ACTIVE' ? 'Tạm ngưng hoạt động' : 'Kích hoạt'}
+                                title={
+                                  voucher.status === 'ACTIVE'
+                                    ? 'Tạm ngưng hoạt động'
+                                    : 'Kích hoạt'
+                                }
                               >
                                 {voucher.status === 'ACTIVE' ? (
                                   <IconPlayerPause size={18} />
@@ -686,7 +803,8 @@ export function DiscountList() {
           {filteredVouchers.length > 0 && (
             <div className='flex items-center justify-between py-5 px-6 border-t border-slate-100/60 bg-slate-50/10'>
               <div className='text-xs font-bold text-slate-500'>
-                Hiển thị {paginatedVouchers.length} mã (Trang {currentPage}/{totalPages})
+                Hiển thị {paginatedVouchers.length} mã (Trang {currentPage}/
+                {totalPages})
               </div>
               <div className='flex items-center gap-1.5'>
                 <Button
@@ -701,7 +819,9 @@ export function DiscountList() {
                 <Button
                   variant='outline'
                   size='sm'
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className='bg-white shadow-sm rounded-xl font-bold text-xs h-9'
                 >
@@ -723,20 +843,30 @@ export function DiscountList() {
               </div>
               <div>
                 <DialogTitle className='text-xl font-extrabold text-slate-900'>
-                  {selectedVoucher ? 'Cập nhật mã giảm giá' : 'Tạo mới mã giảm giá'}
+                  {selectedVoucher
+                    ? 'Cập nhật mã giảm giá'
+                    : 'Tạo mới mã giảm giá'}
                 </DialogTitle>
                 <DialogDescription className='text-xs text-slate-400 font-medium'>
-                  {selectedVoucher ? `Mã ID: ${selectedVoucher.id}` : 'Thiết lập mã coupon và các điều kiện áp dụng.'}
+                  {selectedVoucher
+                    ? `Mã ID: ${selectedVoucher.id}`
+                    : 'Thiết lập mã coupon và các điều kiện áp dụng.'}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className='space-y-4 my-2 text-slate-700'>
+          <form
+            onSubmit={handleSubmit}
+            className='space-y-4 my-2 text-slate-700'
+          >
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               {/* Voucher Code */}
               <div className='flex flex-col gap-1.5'>
-                <Label htmlFor='voucherCode' className='text-xs font-bold text-slate-600 pl-1'>
+                <Label
+                  htmlFor='voucherCode'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
                   Mã Code giảm giá <span className='text-red-500'>*</span>
                 </Label>
                 <Input
@@ -751,7 +881,9 @@ export function DiscountList() {
 
               {/* Discount Type */}
               <div className='flex flex-col gap-1.5'>
-                <Label className='text-xs font-bold text-slate-600 pl-1'>Phân loại ưu đãi</Label>
+                <Label className='text-xs font-bold text-slate-600 pl-1'>
+                  Phân loại ưu đãi
+                </Label>
                 <Select
                   value={discountType}
                   onValueChange={(val) => {
@@ -764,9 +896,15 @@ export function DiscountList() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value='PERCENT'>Giảm giá theo Phần trăm (%)</SelectItem>
-                      <SelectItem value='FIXED'>Khấu trừ Số tiền cố định (đ)</SelectItem>
-                      <SelectItem value='SHIPPING'>Miễn phí / Hỗ trợ ship (đ)</SelectItem>
+                      <SelectItem value='PERCENT'>
+                        Giảm giá theo Phần trăm (%)
+                      </SelectItem>
+                      <SelectItem value='FIXED'>
+                        Khấu trừ Số tiền cố định (đ)
+                      </SelectItem>
+                      <SelectItem value='SHIPPING'>
+                        Miễn phí / Hỗ trợ ship (đ)
+                      </SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -775,7 +913,10 @@ export function DiscountList() {
 
             {/* Description */}
             <div className='flex flex-col gap-1.5'>
-              <Label htmlFor='voucherDesc' className='text-xs font-bold text-slate-600 pl-1'>
+              <Label
+                htmlFor='voucherDesc'
+                className='text-xs font-bold text-slate-600 pl-1'
+              >
                 Mô tả chi tiết voucher <span className='text-red-500'>*</span>
               </Label>
               <Input
@@ -791,16 +932,25 @@ export function DiscountList() {
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               {/* Discount Value */}
               <div className='flex flex-col gap-1.5'>
-                <Label htmlFor='voucherVal' className='text-xs font-bold text-slate-600 pl-1'>
+                <Label
+                  htmlFor='voucherVal'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
                   Mức giảm tối đa <span className='text-red-500'>*</span>
-                  {discountType === 'PERCENT' && <span className='text-slate-400 font-medium pl-1'>(Tối đa 100%)</span>}
+                  {discountType === 'PERCENT' && (
+                    <span className='text-slate-400 font-medium pl-1'>
+                      (Tối đa 100%)
+                    </span>
+                  )}
                 </Label>
                 <Input
                   id='voucherVal'
                   type='number'
                   value={value || ''}
                   onChange={(e) => setValue(Number(e.target.value))}
-                  placeholder={discountType === 'PERCENT' ? '20 (%)' : '50000 (đ)'}
+                  placeholder={
+                    discountType === 'PERCENT' ? '20 (%)' : '50000 (đ)'
+                  }
                   className='h-11 bg-slate-50/50 border-slate-200 rounded-xl text-sm font-bold focus:bg-white'
                   min={1}
                   max={discountType === 'PERCENT' ? 100 : undefined}
@@ -810,7 +960,10 @@ export function DiscountList() {
 
               {/* Min Order Value */}
               <div className='flex flex-col gap-1.5'>
-                <Label htmlFor='voucherMinOrder' className='text-xs font-bold text-slate-600 pl-1'>
+                <Label
+                  htmlFor='voucherMinOrder'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
                   Giá trị đơn hàng tối thiểu
                 </Label>
                 <Input
@@ -828,7 +981,10 @@ export function DiscountList() {
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               {/* Usage usageLimit */}
               <div className='flex flex-col gap-1.5'>
-                <Label htmlFor='voucherLimit' className='text-xs font-bold text-slate-600 pl-1'>
+                <Label
+                  htmlFor='voucherLimit'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
                   Giới hạn lượt sử dụng
                 </Label>
                 <Input
@@ -844,7 +1000,10 @@ export function DiscountList() {
 
               {/* End Date */}
               <div className='flex flex-col gap-1.5'>
-                <Label htmlFor='voucherValidUntil' className='text-xs font-bold text-slate-600 pl-1'>
+                <Label
+                  htmlFor='voucherValidUntil'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
                   Hạn sử dụng <span className='text-red-500'>*</span>
                 </Label>
                 <Input
@@ -861,7 +1020,9 @@ export function DiscountList() {
             {/* Status Switch (Only for Create or Edit) */}
             <div className='flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100/80 my-2'>
               <div className='flex flex-col gap-0.5'>
-                <span className='text-xs font-bold text-slate-800'>Trạng thái mã ngay khi lưu</span>
+                <span className='text-xs font-bold text-slate-800'>
+                  Trạng thái mã ngay khi lưu
+                </span>
                 <span className='text-[10px] text-slate-400 font-medium'>
                   {status === 'ACTIVE'
                     ? 'Kích hoạt và hiển thị cho người mua ngay.'
@@ -870,7 +1031,9 @@ export function DiscountList() {
               </div>
               <Switch
                 checked={status === 'ACTIVE'}
-                onCheckedChange={(checked) => setStatus(checked ? 'ACTIVE' : 'PAUSED')}
+                onCheckedChange={(checked) =>
+                  setStatus(checked ? 'ACTIVE' : 'PAUSED')
+                }
               />
             </div>
 
@@ -895,7 +1058,10 @@ export function DiscountList() {
       </Dialog>
 
       {/* 2. CUSTOM DELETE CONFIRMATION DIALOG */}
-      <Dialog open={!!voucherToDelete} onOpenChange={(open) => !open && setVoucherToDelete(null)}>
+      <Dialog
+        open={!!voucherToDelete}
+        onOpenChange={(open) => !open && setVoucherToDelete(null)}
+      >
         <DialogContent className='bg-white/95 backdrop-blur-xl border border-red-100 rounded-3xl max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200'>
           <DialogHeader>
             <div className='flex items-center gap-3 mb-2'>
@@ -917,18 +1083,28 @@ export function DiscountList() {
             <div className='bg-red-50/50 p-4 rounded-2xl border border-red-100/50 space-y-2 my-2 text-sm text-slate-700'>
               <div className='flex items-center gap-2'>
                 <span className='font-bold text-slate-900'>Mã Voucher:</span>
-                <span className='font-black text-rose-600 bg-rose-50 border border-rose-100 rounded px-2 py-0.5'>{voucherToDelete.code}</span>
+                <span className='font-black text-rose-600 bg-rose-50 border border-rose-100 rounded px-2 py-0.5'>
+                  {voucherToDelete.code}
+                </span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-bold text-slate-900'>Giá trị giảm:</span>
-                <span className='font-semibold'>{formatVoucherValue(voucherToDelete.discountType, voucherToDelete.value)}</span>
+                <span className='font-semibold'>
+                  {formatVoucherValue(
+                    voucherToDelete.discountType,
+                    voucherToDelete.value,
+                  )}
+                </span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-bold text-slate-900'>Hạn dùng:</span>
-                <span className='font-medium text-slate-500'>{voucherToDelete.validUntil}</span>
+                <span className='font-medium text-slate-500'>
+                  {voucherToDelete.validUntil}
+                </span>
               </div>
               <p className='text-xs text-red-600 font-semibold pt-2 border-t border-red-100/80 leading-relaxed'>
-                ⚠️ Lưu ý: Hành động này là phá hủy và không thể khôi phục. Voucher này sẽ biến mất khỏi giỏ hàng của khách hàng đã lưu.
+                ⚠️ Lưu ý: Hành động này là phá hủy và không thể khôi phục.
+                Voucher này sẽ biến mất khỏi giỏ hàng của khách hàng đã lưu.
               </p>
             </div>
           )}
@@ -952,7 +1128,10 @@ export function DiscountList() {
       </Dialog>
 
       {/* 3. CUSTOM STATUS CONFIRMATION DIALOG */}
-      <Dialog open={!!voucherToToggle} onOpenChange={(open) => !open && setVoucherToToggle(null)}>
+      <Dialog
+        open={!!voucherToToggle}
+        onOpenChange={(open) => !open && setVoucherToToggle(null)}
+      >
         <DialogContent className='bg-white/95 backdrop-blur-xl border border-blue-50 rounded-3xl max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200'>
           <DialogHeader>
             <div className='flex items-center gap-3 mb-2'>
@@ -975,18 +1154,31 @@ export function DiscountList() {
               <div className='bg-blue-50/50 p-4 rounded-2xl border border-blue-100/50 space-y-2'>
                 <div className='flex items-center gap-2'>
                   <span className='font-bold text-slate-900'>Mã voucher:</span>
-                  <span className='font-black text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-2 py-0.5'>{voucherToToggle.code}</span>
+                  <span className='font-black text-indigo-600 bg-indigo-50 border border-indigo-100 rounded px-2 py-0.5'>
+                    {voucherToToggle.code}
+                  </span>
                 </div>
                 <div className='flex items-center gap-3 pt-2 border-t border-blue-100/80'>
                   <div className='flex items-center gap-1'>
-                    <span className='text-xs font-semibold text-slate-400'>Hiện tại:</span>
-                    <Badge variant='outline' className='text-[10px] rounded-full px-2 py-0.5'>{voucherToToggle.status}</Badge>
+                    <span className='text-xs font-semibold text-slate-400'>
+                      Hiện tại:
+                    </span>
+                    <Badge
+                      variant='outline'
+                      className='text-[10px] rounded-full px-2 py-0.5'
+                    >
+                      {voucherToToggle.status}
+                    </Badge>
                   </div>
                   <span className='text-blue-500 font-bold'>➜</span>
                   <div className='flex items-center gap-1'>
-                    <span className='text-xs font-semibold text-slate-900'>Thay đổi:</span>
+                    <span className='text-xs font-semibold text-slate-900'>
+                      Thay đổi:
+                    </span>
                     <Badge className='text-[10px] bg-blue-600 text-white rounded-full px-2 py-0.5'>
-                      {voucherToToggle.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'}
+                      {voucherToToggle.status === 'ACTIVE'
+                        ? 'PAUSED'
+                        : 'ACTIVE'}
                     </Badge>
                   </div>
                 </div>
@@ -995,11 +1187,14 @@ export function DiscountList() {
               <div className='text-xs text-slate-500 leading-relaxed px-1 font-medium'>
                 {voucherToToggle.status === 'ACTIVE' ? (
                   <span className='text-amber-600'>
-                    ⛔ Khi tạm ngưng hoạt động (PAUSED), khách hàng sẽ KHÔNG THỂ áp dụng mã voucher này khi thực hiện thanh toán giỏ hàng.
+                    ⛔ Khi tạm ngưng hoạt động (PAUSED), khách hàng sẽ KHÔNG THỂ
+                    áp dụng mã voucher này khi thực hiện thanh toán giỏ hàng.
                   </span>
                 ) : (
                   <span className='text-emerald-600'>
-                    ✅ Khi tái kích hoạt (ACTIVE), mã giảm giá sẽ được mở khóa ngay lập tức và áp dụng bình thường cho các đơn hàng thỏa mãn điều kiện.
+                    ✅ Khi tái kích hoạt (ACTIVE), mã giảm giá sẽ được mở khóa
+                    ngay lập tức và áp dụng bình thường cho các đơn hàng thỏa
+                    mãn điều kiện.
                   </span>
                 )}
               </div>
@@ -1018,7 +1213,9 @@ export function DiscountList() {
               onClick={confirmToggleStatus}
               className='bg-blue-600 text-white hover:bg-blue-700 rounded-xl h-11 font-bold flex-1 gap-2 shadow-lg shadow-blue-600/20'
             >
-              {voucherToToggle?.status === 'ACTIVE' ? 'Tạm ngưng hoạt động' : 'Kích hoạt sử dụng'}
+              {voucherToToggle?.status === 'ACTIVE'
+                ? 'Tạm ngưng hoạt động'
+                : 'Kích hoạt sử dụng'}
             </Button>
           </DialogFooter>
         </DialogContent>
