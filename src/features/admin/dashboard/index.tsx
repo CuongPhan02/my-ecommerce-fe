@@ -14,6 +14,8 @@ import { AnalyticsTab } from './analytics-tab'
 import { ReportsTab } from './reports-tab'
 import { NotificationsTab } from './notifications-tab'
 
+import { CreditCard, ShoppingCart, ShoppingBag, Tag } from 'lucide-react'
+
 const DashboardPage = () => {
   return (
     <div className='flex-1 space-y-6'>
@@ -25,102 +27,55 @@ const DashboardPage = () => {
       </div>
       
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-            <Card>
+            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                 <CardTitle className='text-sm font-medium'>
                   Tổng doanh thu
                 </CardTitle>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  className='text-muted-foreground h-4 w-4'
-                >
-                  <path d='M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6' />
-                </svg>
+                <CreditCard className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>$45,231.89</div>
-                <p className='text-muted-foreground text-xs'>
-                  +20.1% so với tháng trước
+                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>184.230.000 ₫</div>
+                <p className='text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-1 mt-1'>
+                  <span>↑</span> +12.5% so với tháng trước
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>Đăng ký</CardTitle>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  className='text-muted-foreground h-4 w-4'
-                >
-                  <path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' />
-                  <circle cx='9' cy='7' r='4' />
-                  <path d='M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75' />
-                </svg>
+                <CardTitle className='text-sm font-medium'>Đơn hàng mới</CardTitle>
+                <ShoppingCart className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>+2350</div>
-                <p className='text-muted-foreground text-xs'>
-                  +180.1% so với tháng trước
+                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>+1,432 đơn</div>
+                <p className='text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-1 mt-1'>
+                  <span>↑</span> +8.2% so với tháng trước
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>Doanh số</CardTitle>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  className='text-muted-foreground h-4 w-4'
-                >
-                  <rect width='20' height='14' x='2' y='5' rx='2' />
-                  <path d='M2 10h20' />
-                </svg>
+                <CardTitle className='text-sm font-medium'>Tổng sản phẩm</CardTitle>
+                <ShoppingBag className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>+12,234</div>
-                <p className='text-muted-foreground text-xs'>
-                  +19% so với tháng trước
+                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>342 sản phẩm</div>
+                <p className='text-muted-foreground text-xs font-medium mt-1'>
+                  15 danh mục / 8 thương hiệu
                 </p>
               </CardContent>
             </Card>
-            <Card>
+            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
                 <CardTitle className='text-sm font-medium'>
-                  Đang hoạt động
+                  Voucher & Khuyến mãi
                 </CardTitle>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  className='text-muted-foreground h-4 w-4'
-                >
-                  <path d='M22 12h-4l-3 9L9 3l-3 9H2' />
-                </svg>
+                <Tag className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>+573</div>
-                <p className='text-muted-foreground text-xs'>
-                  +201 trong giờ qua
+                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>6 Voucher</div>
+                <p className='text-amber-600 dark:text-amber-400 text-xs font-medium mt-1'>
+                  3 chương trình sắp hết hạn
                 </p>
               </CardContent>
             </Card>
