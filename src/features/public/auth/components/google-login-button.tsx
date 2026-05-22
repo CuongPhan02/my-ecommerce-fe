@@ -4,7 +4,6 @@ import { useGoogleLogin } from '@react-oauth/google'
 import { useQueryClient } from '@tanstack/react-query'
 import { AUTH_QUERY } from '../auth.query'
 import { toast } from 'react-toastify'
-import { setAccessToken } from '~/config/https'
 import { useAuthStore } from '~/store/auth-store'
 import { useRouter } from 'next/navigation'
 import { SETTING_AUTH } from '~/constants'
@@ -31,8 +30,8 @@ export default function GoogleLoginButton() {
         {
           onSuccess: (data) => {
             toast.success('Đăng nhập thành công')
-            const { accessToken, user } = data.result
-            login(user, accessToken)
+            const { accessToken, refreshToken, user } = data.result
+            login(user, accessToken, refreshToken)
             const role = user.role
             if (
               role === ROLES.ADMIN ||

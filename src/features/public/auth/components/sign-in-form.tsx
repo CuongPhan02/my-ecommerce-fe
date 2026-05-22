@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { signInSchema, SignInSchemaType } from '../auth.validate'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { https, setAccessToken } from '~/config/https'
+import { https } from '~/config/https'
 import { AUTH_QUERY } from '../auth.query'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -43,8 +43,8 @@ const SignInForm = () => {
     loginMutation(data, {
       onSuccess: (data) => {
         toast.success('Đăng nhập thành công')
-        const { accessToken, user } = data.result
-        login(user, accessToken)
+        const { accessToken, refreshToken, user } = data.result
+        login(user, accessToken, refreshToken)
         const role = user.role
         if (
           role === ROLES.ADMIN ||
