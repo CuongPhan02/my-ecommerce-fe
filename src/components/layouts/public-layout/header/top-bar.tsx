@@ -2,52 +2,53 @@
 
 import React from 'react'
 import { Link } from 'next-view-transitions'
-import { ChevronDown } from 'lucide-react'
+import { Phone, ClipboardList, MapPin, Search } from 'lucide-react'
 
 const TopBar = () => {
   return (
-    <div className='w-full bg-[#3c3d41] text-white text-[10px] md:text-[11px] font-medium py-1.5 overflow-hidden border-b border-neutral-700/50 tracking-tight whitespace-nowrap min-h-[32px]'>
-      <div className='container-layout flex items-center justify-between px-4 md:px-8'>
-        {/* Left Side Branding Links */}
-        <div className='flex items-center gap-4 md:gap-6 opacity-90 uppercase'>
-          <Link href='#' className='hover:text-primary transition-colors font-bold'>
-            Về Coolmate
-          </Link>
-          <span className='w-[1px] h-3 bg-neutral-500'></span>
-          <Link href='#' className='hover:text-primary transition-colors font-bold'>
-            CXP BY COOLMATE
-          </Link>
-          <span className='w-[1px] h-3 bg-neutral-500'></span>
-          <Link href='#' className='hover:text-primary transition-colors font-bold'>
-            CARE&SHARE
-          </Link>
+    <div className='w-full bg-[#1e1f21] text-white text-[11px] md:text-[12.5px] font-semibold min-h-[38px] flex items-center border-b border-neutral-800 tracking-tight whitespace-nowrap overflow-hidden'>
+      <div className='w-full grid grid-cols-1 lg:grid-cols-12 h-full items-center'>
+        
+        {/* Left Side Accent block (Cyan) */}
+        <div className='lg:col-span-4 bg-[#00a2e8] flex items-center justify-center lg:justify-end px-4 xl:px-12 py-2.5 gap-2 text-white h-full'>
+          <Phone className='w-3.5 h-3.5 fill-white/20' />
+          <span>Hotline đặt hàng: 1800 6013</span>
         </div>
-
-        {/* Right Side Utility Links */}
-        <div className='hidden md:flex items-center gap-5 opacity-90'>
-          <Link href='#' className='flex items-center gap-1 hover:text-primary transition-colors'>
-            <span className='text-yellow-400'>★</span> Coolclub
-          </Link>
-          <Link href='#' className='hover:text-primary transition-colors'>
-            Cửa hàng
-          </Link>
-          <Link href='#' className='hover:text-primary transition-colors'>
-            Blog
-          </Link>
-          <Link href='#' className='hover:text-primary transition-colors'>
-            CSKH
-          </Link>
-          <Link href='/auth/sign-in' className='hover:text-primary transition-colors font-semibold'>
-            Đăng nhập
-          </Link>
-          <div className='flex items-center gap-1 cursor-pointer hover:text-primary transition-colors'>
-            <span className='w-4 h-3 bg-red-600 relative overflow-hidden flex items-center justify-center'>
-              <span className='text-[6px] text-yellow-400'>★</span>
-            </span>
-            <span>VN</span>
-            <ChevronDown className='w-3 h-3' />
+        
+        {/* Middle Utilities & Right Search (Dark Gray) */}
+        <div className='lg:col-span-8 bg-[#1e1f21] flex flex-col sm:flex-row items-center justify-between px-6 xl:px-12 py-2 gap-4 h-full'>
+          {/* Middle links */}
+          <div className='flex items-center gap-5 xl:gap-8'>
+            <Link 
+              href='/order/tracking' 
+              className='flex items-center gap-2 hover:text-[#00a2e8] transition-colors text-neutral-200'
+            >
+              <ClipboardList className='w-4 h-4' />
+              <span>Tra cứu tình trạng đơn hàng</span>
+            </Link>
+            <span className='h-3.5 w-[1px] bg-neutral-700' />
+            <Link 
+              href='/showrooms' 
+              className='flex items-center gap-2 hover:text-[#00a2e8] transition-colors text-neutral-200'
+            >
+              <MapPin className='w-4 h-4' />
+              <span>Hệ thống Showroom</span>
+            </Link>
+          </div>
+          
+          {/* Search bar inside top bar */}
+          <div className='relative w-full max-w-[240px] xl:max-w-[280px]'>
+            <input
+              type='text'
+              placeholder='Tìm kiếm sản phẩm...'
+              className='w-full bg-[#323437] rounded-full py-1.5 pl-4 pr-10 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#00a2e8]/40 transition-all border border-neutral-700/60 placeholder-neutral-400 font-medium'
+            />
+            <button className='absolute right-1 top-[3px] w-[26px] h-[26px] bg-white rounded-full flex items-center justify-center text-[#1e1f21] hover:bg-neutral-100 transition-colors shadow-sm'>
+              <Search className='w-3.5 h-3.5 text-neutral-800 stroke-[2.5]' />
+            </button>
           </div>
         </div>
+
       </div>
     </div>
   )

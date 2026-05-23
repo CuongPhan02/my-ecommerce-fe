@@ -1,4 +1,12 @@
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'CUSTOMER' | 'VENDOR'
+export type UserRole =
+  | 'CUSTOMER'
+  | 'ADMIN'
+  | 'SUPER_ADMIN'
+  | 'STAFF'
+  | 'VENDOR'
+  | 'SALES'
+  | 'EDITOR'
+  | 'INVENTORY'
 export type UserStatus = 'ACTIVE' | 'BLOCKED'
 
 export interface User {
@@ -11,6 +19,7 @@ export interface User {
   status: UserStatus
   createdAt: string
   lastLogin?: string
+  staffCode?: string | null
 }
 
 export interface UserParams {
@@ -19,7 +28,9 @@ export interface UserParams {
   search?: string | null
   role?: UserRole | null
   status?: UserStatus | null
-  sort?: string | null
+  sort?: 'asc' | 'desc' | null
+  sortBy?: 'createdAt' | 'name' | 'email' | 'staffCode' | 'lastLogin' | null
+  isSystem?: boolean | null
 }
 
 export type UserTableMeta = {

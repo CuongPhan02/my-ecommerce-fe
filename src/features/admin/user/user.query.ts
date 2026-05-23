@@ -90,4 +90,20 @@ export const _userService = {
       },
     })
   },
+
+  useBulkDeleteUsers: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _userApi.bulkDeleteUsers,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+        toast.success('Xóa danh sách người dùng thành công')
+      },
+      onError: (error: any) => {
+        toast.error(
+          error?.response?.data?.message || 'Xóa danh sách người dùng thất bại',
+        )
+      },
+    })
+  },
 }

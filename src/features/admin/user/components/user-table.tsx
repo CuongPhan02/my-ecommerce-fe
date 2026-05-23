@@ -12,7 +12,16 @@ import {
 import { useMemo, useState, useEffect } from 'react'
 import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
 import { columns } from './user-list/columns'
-import { ArrowDown, ArrowUp, ChevronsUpDown, SearchIcon } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronsUpDown,
+  SearchIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react'
 import { Button } from '~/components/ui/core/button'
 import { User, UserParams, UserTableMeta, UserStatus, UserRole } from '../types'
 import { TableToolbar } from './user-list/table-toolbar'
@@ -73,6 +82,7 @@ const UserTable = () => {
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<UserRole>('CUSTOMER')
   const [status, setStatus] = useState<UserStatus>('ACTIVE')
+  const [password, setPassword] = useState('')
 
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -87,6 +97,12 @@ const UserTable = () => {
   const debouncedSearch =
     (columnFilters.find((f) => f.id === 'search')?.value as string) || ''
 
+  const sortActive = sorting[0]
+  const allowedSortKeys = ['createdAt', 'name', 'email', 'staffCode', 'lastLogin']
+  const targetId = sortActive ? (sortActive.id === 'fullName' ? 'name' : sortActive.id) : 'createdAt'
+  const sortByVal = allowedSortKeys.includes(targetId) ? targetId : 'createdAt'
+  const sortVal = sortActive ? (sortActive.desc ? 'desc' : 'asc') : 'desc'
+
   const params: UserParams = {
     page: pageIndex + 1,
     limit: pageSize,
@@ -96,8 +112,8 @@ const UserTable = () => {
     status:
       (columnFilters.find((f) => f.id === 'status')?.value as UserStatus) ||
       null,
-    sort:
-      (columnFilters.find((f) => f.id === 'sort')?.value as string) || 'newest',
+    sort: sortVal as any,
+    sortBy: sortByVal as any,
   }
 
   const { data: usersData, isLoading } = _userService.useUsers(params)
@@ -107,9 +123,11 @@ const UserTable = () => {
   const deleteUserMutation = _userService.useDeleteUser()
   const createUserMutation = _userService.useCreateUser()
   const updateUserMutation = _userService.useUpdateUser()
+  const bulkDeleteMutation = _userService.useBulkDeleteUsers()
 
   const data = (usersData?.result as any)?.data || []
   const pageCount = (usersData?.result as any)?.meta?.totalPages || 0
+  const totalItems = (usersData?.result as any)?.meta?.total || 0
 
   // Effect to populate form when edit or add is triggered
   useEffect(() => {
@@ -119,12 +137,14 @@ const UserTable = () => {
       setPhone(selectedUser.phone || '')
       setRole(selectedUser.role)
       setStatus(selectedUser.status)
+      setPassword('')
     } else {
       setFullName('')
       setEmail('')
       setPhone('')
       setRole('CUSTOMER')
       setStatus('ACTIVE')
+      setPassword('')
     }
   }, [selectedUser, isModalOpen])
 
@@ -185,6 +205,11 @@ const UserTable = () => {
       return
     }
 
+    if (!selectedUser && !password) {
+      toast.error('Vui lòng nhập mật khẩu cho tài khoản mới!')
+      return
+    }
+
     try {
       if (selectedUser) {
         await updateUserMutation.mutateAsync({
@@ -202,7 +227,8 @@ const UserTable = () => {
           phone: phone.trim() || undefined,
           role,
           status,
-        })
+          password: password,
+        } as any)
       }
       setIsModalOpen(false)
     } catch (err) {
@@ -262,14 +288,16 @@ const UserTable = () => {
           }}
           selectedRows={selectedRows}
           onDelete={async () => {
-            // Bulk delete simulator
             if (selectedRows.length > 0) {
               const confirmMsg = `Bạn có chắc chắn muốn xóa ${selectedRows.length} người dùng đã chọn?`
               if (window.confirm(confirmMsg)) {
-                for (const row of selectedRows) {
-                  await deleteUserMutation.mutateAsync(row.original.id)
+                const ids = selectedRows.map((row) => row.original.id)
+                try {
+                  await bulkDeleteMutation.mutateAsync(ids)
+                  table.resetRowSelection()
+                } catch (err) {
+                  // Handled by toast
                 }
-                table.resetRowSelection()
               }
             }
           }}
@@ -364,29 +392,123 @@ const UserTable = () => {
           <ScrollBar orientation='horizontal' />
         </ScrollArea>
 
-        <div className='flex items-center justify-between py-6 px-2'>
-          <div className='text-sm font-medium text-slate-500'>
-            Hiển thị {data.length} người dùng (Trang {pageIndex + 1}/{pageCount}
-            )
+        <div className='flex items-center justify-between py-6 px-2 flex-wrap gap-4 border-t border-slate-100 bg-white rounded-b-2xl mt-0.5 shadow-sm'>
+          <div className='flex items-center gap-4 flex-wrap'>
+            <div className='text-sm font-medium text-slate-500'>
+              Hiển thị từ {totalItems === 0 ? 0 : pageIndex * pageSize + 1} đến{' '}
+              {Math.min((pageIndex + 1) * pageSize, totalItems)} trong tổng số{' '}
+              <span className='font-bold text-slate-700'>{totalItems}</span> người dùng
+            </div>
+
+            <div className='flex items-center gap-2'>
+              <span className='text-xs font-semibold text-slate-400'>Số dòng:</span>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(val) => {
+                  table.setPageSize(Number(val))
+                }}
+              >
+                <SelectTrigger className='h-8 w-[70px] bg-slate-50 border-gray-200 text-xs font-bold rounded-lg focus:ring-0 focus:ring-offset-0 focus:bg-white'>
+                  <SelectValue placeholder={String(pageSize)} />
+                </SelectTrigger>
+                <SelectContent className='bg-white'>
+                  <SelectItem value='5'>5</SelectItem>
+                  <SelectItem value='10'>10</SelectItem>
+                  <SelectItem value='20'>20</SelectItem>
+                  <SelectItem value='50'>50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className='flex items-center gap-2'>
+
+          <div className='flex items-center gap-1.5'>
+            {/* First Page Button */}
             <Button
               variant='outline'
-              size='sm'
+              size='icon'
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              className='h-8 w-8 rounded-lg bg-white border-gray-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm'
+              title='Trang đầu'
+            >
+              <ChevronsLeft size={16} />
+            </Button>
+
+            {/* Previous Page Button */}
+            <Button
+              variant='outline'
+              size='icon'
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className='bg-white shadow-sm rounded-xl'
+              className='h-8 w-8 rounded-lg bg-white border-gray-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm'
+              title='Trang trước'
             >
-              Trước
+              <ChevronLeft size={16} />
             </Button>
+
+            {/* Numeric Page Buttons */}
+            {Array.from({ length: pageCount }).map((_, index) => {
+              const isFirst = index === 0
+              const isLast = index === pageCount - 1
+              const isNear = Math.abs(index - pageIndex) <= 1
+
+              if (isFirst || isLast || isNear) {
+                return (
+                  <Button
+                    key={index}
+                    variant={pageIndex === index ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => table.setPageIndex(index)}
+                    className={`h-8 w-8 rounded-lg text-xs font-black ${
+                      pageIndex === index
+                        ? 'bg-primary text-white hover:bg-primary/95 shadow-md shadow-primary/20'
+                        : 'bg-white hover:bg-slate-50 border-gray-200 text-slate-600 shadow-sm'
+                    }`}
+                  >
+                    {index + 1}
+                  </Button>
+                )
+              }
+
+              if (
+                (index === 1 && pageIndex > 2) ||
+                (index === pageCount - 2 && pageIndex < pageCount - 3)
+              ) {
+                return (
+                  <span
+                    key={index}
+                    className='text-slate-400 text-xs px-1 select-none font-bold'
+                  >
+                    ...
+                  </span>
+                )
+              }
+
+              return null
+            })}
+
+            {/* Next Page Button */}
             <Button
               variant='outline'
-              size='sm'
+              size='icon'
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              className='bg-white shadow-sm rounded-xl'
+              className='h-8 w-8 rounded-lg bg-white border-gray-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm'
+              title='Trang sau'
             >
-              Sau
+              <ChevronRight size={16} />
+            </Button>
+
+            {/* Last Page Button */}
+            <Button
+              variant='outline'
+              size='icon'
+              onClick={() => table.setPageIndex(pageCount - 1)}
+              disabled={!table.getCanNextPage()}
+              className='h-8 w-8 rounded-lg bg-white border-gray-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm'
+              title='Trang cuối'
+            >
+              <ChevronsRight size={16} />
             </Button>
           </div>
         </div>
@@ -488,6 +610,33 @@ const UserTable = () => {
               </div>
             </div>
 
+            {/* Password (Only when adding new user) */}
+            {!selectedUser && (
+              <div className='flex flex-col gap-1.5'>
+                <Label
+                  htmlFor='password'
+                  className='text-xs font-bold text-slate-600 pl-1'
+                >
+                  Mật khẩu đăng nhập <span className='text-red-500'>*</span>
+                </Label>
+                <div className='relative'>
+                  <IconShield
+                    size={16}
+                    className='absolute left-3.5 top-3.5 text-slate-400'
+                  />
+                  <Input
+                    id='password'
+                    type='password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder='Nhập mật khẩu (tối thiểu 6 ký tự)'
+                    className='pl-10 h-11 bg-slate-50/50 border-gray-200 rounded-xl text-sm font-medium focus:bg-white'
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               {/* Vai trò */}
               <div className='flex flex-col gap-1.5'>
@@ -505,16 +654,28 @@ const UserTable = () => {
                     <SelectGroup>
                       <SelectLabel>Phân quyền</SelectLabel>
                       <SelectItem value='CUSTOMER'>
-                        Customer (Khách hàng)
+                        Khách hàng (CUSTOMER)
+                      </SelectItem>
+                      <SelectItem value='STAFF'>
+                        Nhân viên (STAFF)
                       </SelectItem>
                       <SelectItem value='VENDOR'>
-                        Vendor (Nhà bán hàng)
+                        Đối tác (VENDOR)
+                      </SelectItem>
+                      <SelectItem value='SALES'>
+                        Kinh doanh (SALES)
+                      </SelectItem>
+                      <SelectItem value='EDITOR'>
+                        Biên tập (EDITOR)
+                      </SelectItem>
+                      <SelectItem value='INVENTORY'>
+                        Thủ kho (INVENTORY)
                       </SelectItem>
                       <SelectItem value='ADMIN'>
-                        Admin (Quản trị viên)
+                        Quản trị viên (ADMIN)
                       </SelectItem>
                       <SelectItem value='SUPER_ADMIN'>
-                        Super Admin (Tối cao)
+                        Super Admin (SUPER_ADMIN)
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>

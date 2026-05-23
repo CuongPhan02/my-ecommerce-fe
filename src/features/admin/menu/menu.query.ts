@@ -4,10 +4,11 @@ import { MenuInput } from './types'
 import { toast } from 'react-toastify'
 
 export const _menuService = {
-  useMenus: () => {
+  useMenus: (initialData?: any) => {
     return useQuery({
       queryKey: ['menus'],
       queryFn: () => _menuApi.fetchMenus(),
+      initialData,
     })
   },
 

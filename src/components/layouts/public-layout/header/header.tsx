@@ -12,11 +12,12 @@ import { AvatarDropdown } from './avatar'
 import { Link } from 'next-view-transitions'
 
 import PromotionBar from './promotion-bar'
-import { User, Search as SearchIcon } from 'lucide-react'
+import { User, Heart } from 'lucide-react'
+import { Menu as DbMenu } from '~/features/admin/menu/types'
 import { _menuService } from '~/features/admin/menu/menu.query'
 import { useMemo } from 'react'
 
-const Header = () => {
+const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
   const [isLogin, setIsLogin] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -26,7 +27,11 @@ const Header = () => {
     setIsScrolled(latest > 40)
   })
 
-  const { data: menusData } = _menuService.useMenus()
+  const { data: menusData } = _menuService.useMenus(
+    initialMenus
+      ? { success: true, message: 'Success', result: initialMenus }
+      : undefined,
+  )
 
   const navigationTree = useMemo(() => {
     return menusData?.result || []
@@ -69,24 +74,29 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation - Centered */}
-            <nav className='hidden lg:flex items-center space-x-1 xl:space-x-4 text-[13px] xl:text-[14px] font-bold tracking-tight'>
-              {navigationTree.map((item) => (
-                <div key={item.id} className='group h-full flex items-center relative'>
+            <nav className='hidden lg:flex items-center space-x-1 xl:space-x-6 text-[13.5px] xl:text-[14.5px] font-bold tracking-wider'>
+              {navigationTree.map((item: any) => (
+                <div
+                  key={item.id}
+                  className={`group h-full flex items-center ${item.isMegaMenu ? '' : 'relative'}`}
+                >
                   <Link
                     href={item.href || '#'}
-                    className={`hover:text-primary transition-colors uppercase px-3 py-4 flex items-center gap-1 ${
-                      item.label.toLowerCase() === 'sale' ? 'text-red-500' : 'text-[#231f20]'
+                    className={`hover:text-primary transition-all duration-300 uppercase px-4 py-6 flex items-center gap-1 relative after:content-[""] after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[3px] after:bg-primary after:transform after:scale-x-0 after:transition-transform after:duration-300 group-hover:after:scale-x-100 ${
+                      item.label.toLowerCase() === 'sale'
+                        ? 'text-red-500 font-extrabold'
+                        : 'text-[#231f20]'
                     }`}
                   >
                     {item.label}
                     {item.label.toLowerCase() === 'sale' && (
-                      <span className='text-[8px] bg-red-500 text-white px-1 rounded-sm ml-0.5 leading-tight'>
+                      <span className='text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-md ml-1 animate-pulse leading-none'>
                         -50%
                       </span>
                     )}
                   </Link>
                   {item.isMegaMenu && (
-                    <div className='absolute left-0 top-full w-screen -ml-[40vw] invisible group-hover:visible z-50 transition-all duration-300 opacity-0 group-hover:opacity-100'>
+                    <div className='absolute left-0 right-0 w-full top-full invisible group-hover:visible z-50 transition-all duration-300 opacity-0 transform translate-y-2 group-hover:translate-y-0 group-hover:opacity-100'>
                       <ShopDropdown config={item.megaMenu} />
                     </div>
                   )}
@@ -95,36 +105,28 @@ const Header = () => {
             </nav>
 
             {/* Right Actions */}
-            <div className='flex items-center gap-2 md:gap-5'>
-              {/* Search Bar */}
-              <div className='hidden md:flex items-center relative group max-w-[200px] xl:max-w-[280px]'>
-                <input
-                  type='text'
-                  placeholder='Tìm kiếm...'
-                  className='w-full bg-[#f1f1f1] rounded-full py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all'
-                />
-                <SearchIcon className='w-4 h-4 absolute right-4 text-neutral-500 group-hover:text-primary transition-colors cursor-pointer' />
-              </div>
+            <div className='flex items-center gap-3 sm:gap-4 md:gap-6 text-[#231f20]'>
+              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
+                <User className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+              </button>
 
-              <div className='flex items-center gap-4 text-[#231f20]'>
-                <button className='hover:text-primary transition-colors relative'>
-                  <User className='w-6 h-6' />
-                </button>
+              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
+                <Heart className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+              </button>
 
-                <button className='hover:text-primary transition-colors relative'>
-                  <ShoppingBag className='w-6 h-6' />
-                  <span className='absolute -top-1 -right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold'>
-                    0
-                  </span>
-                </button>
+              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
+                <ShoppingBag className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+                <span className='absolute top-1.5 right-1.5 bg-primary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold scale-90 border border-white'>
+                  0
+                </span>
+              </button>
 
-                <button
-                  className='lg:hidden hover:text-primary p-1'
-                  onClick={() => setIsMobileMenuOpen(true)}
-                >
-                  <Menu className='w-7 h-7' />
-                </button>
-              </div>
+              <button
+                className='lg:hidden hover:text-primary p-1.5 hover:scale-105 duration-200'
+                onClick={() => setIsMobileMenuOpen(true)}
+              >
+                <Menu className='w-6 h-6 stroke-[1.8]' />
+              </button>
             </div>
           </div>
         </motion.header>

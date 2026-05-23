@@ -91,10 +91,14 @@ export function TableToolbar({
                 <SelectGroup>
                   <SelectLabel>Vai trò</SelectLabel>
                   <SelectItem value='all'>Tất cả vai trò</SelectItem>
-                  <SelectItem value='SUPER_ADMIN'>Super Admin</SelectItem>
-                  <SelectItem value='ADMIN'>Admin</SelectItem>
-                  <SelectItem value='VENDOR'>Vendor</SelectItem>
-                  <SelectItem value='CUSTOMER'>Customer</SelectItem>
+                  <SelectItem value='CUSTOMER'>Khách hàng (CUSTOMER)</SelectItem>
+                  <SelectItem value='STAFF'>Nhân viên (STAFF)</SelectItem>
+                  <SelectItem value='VENDOR'>Đối tác (VENDOR)</SelectItem>
+                  <SelectItem value='SALES'>Kinh doanh (SALES)</SelectItem>
+                  <SelectItem value='EDITOR'>Biên tập (EDITOR)</SelectItem>
+                  <SelectItem value='INVENTORY'>Thủ kho (INVENTORY)</SelectItem>
+                  <SelectItem value='ADMIN'>Admin (ADMIN)</SelectItem>
+                  <SelectItem value='SUPER_ADMIN'>Super Admin (SUPER_ADMIN)</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

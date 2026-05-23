@@ -52,21 +52,24 @@ const CollectionSection = () => {
               className='w-full'
             >
               <CarouselContent className='-ml-4'>
-                {collection.products?.map((product, idx) => (
-                  <CarouselItem
-                    key={product.id}
-                    className='pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4'
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.1 }}
+                {collection.products?.map((item, idx) => {
+                  const product = (item as any).product || item
+                  return (
+                    <CarouselItem
+                      key={product.id || idx}
+                      className='pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4'
                     >
-                      <ProductCard product={product} />
-                    </motion.div>
-                  </CarouselItem>
-                ))}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: idx * 0.1 }}
+                      >
+                        <ProductCard product={product} />
+                      </motion.div>
+                    </CarouselItem>
+                  )
+                })}
               </CarouselContent>
               <div className='hidden md:block'>
                 <CarouselPrevious className='-left-12 hover:bg-primary hover:text-white border-none shadow-xl' />

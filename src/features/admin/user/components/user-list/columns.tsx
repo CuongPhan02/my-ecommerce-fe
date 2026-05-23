@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { User, UserTableMeta } from '../../types'
+import { User, UserTableMeta, UserRole } from '../../types'
 import { Checkbox } from '~/components/ui/core/checkbox'
 import { IconEdit, IconTrash, IconUserShield, IconUser } from '@tabler/icons-react'
 import { Badge } from '~/components/ui/core/badge'
@@ -57,12 +57,32 @@ export const columns: ColumnDef<User>[] = [
     header: 'Vai trò',
     cell: ({ row }) => {
       const role = row.original.role
+      const roleLabelMap: Record<UserRole, string> = {
+        SUPER_ADMIN: 'Super Admin',
+        ADMIN: 'Admin',
+        CUSTOMER: 'Khách hàng',
+        STAFF: 'Nhân viên',
+        VENDOR: 'Đối tác',
+        SALES: 'Kinh doanh',
+        EDITOR: 'Biên tập viên',
+        INVENTORY: 'Quản lý kho',
+      }
+      const roleVariantMap: Record<UserRole, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+        SUPER_ADMIN: 'destructive',
+        ADMIN: 'default',
+        CUSTOMER: 'secondary',
+        STAFF: 'default',
+        VENDOR: 'outline',
+        SALES: 'outline',
+        EDITOR: 'secondary',
+        INVENTORY: 'secondary',
+      }
       return (
         <Badge
-          variant={role === 'SUPER_ADMIN' ? 'destructive' : role === 'ADMIN' ? 'warning' : 'secondary'}
+          variant={roleVariantMap[role] || 'secondary'}
           className='text-[10px] uppercase font-black tracking-widest px-2 py-0.5 rounded-full'
         >
-          {role}
+          {roleLabelMap[role] || role}
         </Badge>
       )
     },
