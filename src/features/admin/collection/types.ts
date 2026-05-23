@@ -7,6 +7,7 @@ export interface Collection {
   description?: string | null
   imageUrl?: string | null
   isActive: boolean
+  isHomeActive: boolean
   createdAt: string
   updatedAt: string
   products?: Product[]

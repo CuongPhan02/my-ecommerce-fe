@@ -46,7 +46,7 @@ export const CollectionProducts = ({
               </tr>
             </thead>
             <tbody className='divide-y '>
-              {products.map((product: Collection) => (
+              {products.map((product: Product) => (
                 <tr
                   key={product.id}
                   className='group hover:bg-white/[0.02] transition-colors'
@@ -54,18 +54,16 @@ export const CollectionProducts = ({
                   <td className='p-5'>
                     <div className='flex items-center gap-4'>
                       <div className='relative h-14 w-14 flex-shrink-0 group-hover:scale-110 transition-transform duration-500'>
-                        {product.imageUrl ? (
+                        {product.thumbnail?.url ? (
                           <img
-                            src={product.imageUrl}
+                            src={product.thumbnail.url}
                             alt={product.name}
                             className='h-full w-full rounded-2xl object-cover border shadow-2xl'
                           />
                         ) : (
-                          <>
-                            <div className='h-full w-full rounded-2xl object-cover border shadow-2xl'>
-                              <Package size={24} className='text-slate-600' />
-                            </div>
-                          </>
+                          <div className='h-full w-full rounded-2xl flex items-center justify-center border bg-slate-100 dark:bg-slate-800 shadow-inner'>
+                            <Package size={24} className='text-slate-400' />
+                          </div>
                         )}
                         <div className='absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10' />
                       </div>
@@ -82,19 +80,19 @@ export const CollectionProducts = ({
                   <td className='p-5 font-mono text-slate-500 text-xs italic'>
                     {product.slug}
                   </td>
-                  {/* <td className='p-5'>
+                  <td className='p-5'>
                     <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border'>
                       <div
                         className={cn(
                           'h-1.5 w-1.5 rounded-full',
-                          product.stock > 0 ? 'bg-green-500' : 'bg-red-500',
+                          (product.stock || 0) > 0 ? 'bg-green-500' : 'bg-red-500',
                         )}
                       />
-                      <span className='text-xs font-bold text-slate-300'>
-                        {product.stock} in stock
+                      <span className='text-xs font-bold text-slate-500'>
+                        {product.stock || 0} trong kho
                       </span>
                     </div>
-                  </td> */}
+                  </td>
                   <td className='p-5 text-right'>
                     <Button
                       variant='ghost'

@@ -1,9 +1,8 @@
-import { IconEdit, IconTrash } from '@tabler/icons-react'
+import { IconClock, IconEdit, IconTrash } from '@tabler/icons-react'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '~/components/ui/core/checkbox'
 import { CollectionItem, Product, TableMeta, Variant } from '../../types'
 import { Switch } from '~/components/ui/core/switch'
-
 export const columns: ColumnDef<Product>[] = [
   {
     id: 'select',
@@ -155,8 +154,20 @@ export const columns: ColumnDef<Product>[] = [
           <div
             className='border bg-primary p-2 text-white rounded-xl cursor-pointer hover:opacity-90'
             onClick={() => meta.onEdit(row.original.id)}
+            title='Chỉnh sửa sản phẩm'
           >
             <IconEdit size={18} />
+          </div>
+          <div
+            className={`border p-2 rounded-xl cursor-pointer transition-colors ${
+              row.original.discountValue && row.original.discountStartDate && row.original.discountEndDate
+                ? 'bg-amber-500 border-amber-500 text-white hover:bg-amber-600'
+                : 'border-amber-500 text-amber-500 hover:bg-amber-50'
+            }`}
+            onClick={() => meta.onSaleTimer(row.original)}
+            title='Thiết lập Sale Timer'
+          >
+            <IconClock size={18} />
           </div>
         </div>
       )

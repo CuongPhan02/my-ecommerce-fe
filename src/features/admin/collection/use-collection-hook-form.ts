@@ -12,6 +12,7 @@ export const useCollectionHookForm = () => {
       description: null,
       imageUrl: null,
       isActive: true,
+      isHomeActive: false,
     },
   })
 }

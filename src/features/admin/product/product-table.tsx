@@ -21,10 +21,13 @@ import HeadingSectionAdmin from '~/components/shared/heading-section-admin'
 import { logger } from '~/lib/logger'
 import { TableSkeletonLoading } from '~/components/shared/table-skeleton-loading'
 import ProductFormAction from './product-form-action'
+import ProductSaleTimerModal from './components/product-sale-timer-modal'
 
 const ProductTable = () => {
   const [editId, setEditId] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedProductForSaleTimer, setSelectedProductForSaleTimer] = useState<Product | null>(null)
+  const [isSaleTimerModalOpen, setIsSaleTimerModalOpen] = useState(false)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -85,6 +88,11 @@ const ProductTable = () => {
     setIsModalOpen(true)
   }
 
+  const handleSaleTimer = (product: Product) => {
+    setSelectedProductForSaleTimer(product)
+    setIsSaleTimerModalOpen(true)
+  }
+
   const handleDelete = async (id: string) => {
     if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?')) {
       await deleteProductMutation.mutateAsync(id)
@@ -107,6 +115,7 @@ const ProductTable = () => {
       updateProductStatus,
       onEdit: handleEdit,
       onDelete: handleDelete,
+      onSaleTimer: handleSaleTimer,
     } as TableMeta,
     state: {
       columnFilters,
@@ -306,6 +315,12 @@ const ProductTable = () => {
           setIsModalOpen(false)
           setEditId(null)
         }}
+      />
+
+      <ProductSaleTimerModal
+        product={selectedProductForSaleTimer}
+        open={isSaleTimerModalOpen}
+        onOpenChange={setIsSaleTimerModalOpen}
       />
     </>
   )

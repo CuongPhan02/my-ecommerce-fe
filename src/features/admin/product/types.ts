@@ -146,6 +146,7 @@ export type ProductParams = {
 export type TableMeta = {
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  onSaleTimer: (product: Product) => void
   updateProductStatus: (
     productId: string,
     columnId: 'isActive' | 'isFeatured',

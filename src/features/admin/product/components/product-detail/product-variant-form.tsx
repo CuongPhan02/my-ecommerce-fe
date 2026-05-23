@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/core/select'
+import { CreateAttributeDialog } from './create-attribute-dialog'
 
 interface Variation {
   id: string | number
@@ -85,6 +86,7 @@ const ProductVariantForm = () => {
   const [variations, setVariations] = useState<Variation[]>([
     { id: Date.now(), name: '', values: [] },
   ])
+  const [isOpenCreateAttribute, setIsOpenCreateAttribute] = useState(false)
 
   // Map API data to options format for MultipleSelector
   const attributeOptionsMap = useMemo(() => {
@@ -310,81 +312,116 @@ const ProductVariantForm = () => {
       {productType === 'VARIANT' && (
         <>
           <Card className='bg-muted shadow-none'>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4 border-b'>
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-4 border-b gap-4 flex-wrap'>
               <CardTitle>Biến thể sản phẩm</CardTitle>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={addVariation}
-                className='bg-white'
-              >
-                <Plus className='h-4 w-4 mr-2' />
-                Thêm biến thể
-              </Button>
+              <div className='flex items-center gap-2'>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={() => setIsOpenCreateAttribute(true)}
+                  className='bg-white border-dashed text-primary hover:text-primary-hover border-primary/40'
+                  type='button'
+                >
+                  <Plus className='h-4 w-4 mr-2' />
+                  Tạo thuộc tính
+                </Button>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={addVariation}
+                  className='bg-white'
+                  type='button'
+                >
+                  <Plus className='h-4 w-4 mr-2' />
+                  Thêm biến thể
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className='space-y-6 pt-6'>
-              {variations.map((variation) => (
-                <div
-                  key={variation.id}
-                  className='grid grid-cols-1 md:grid-cols-[200px_1fr_auto] items-start gap-4 p-4 rounded-lg  border'
-                >
-                  <div className='space-y-2'>
-                    <Label>Tên thuộc tính</Label>
-                    <Select
-                      value={variation.name || undefined}
-                      onValueChange={(value) =>
-                        handleVariationNameChange(variation.id, value)
-                      }
-                    >
-                      <SelectTrigger className='bg-muted'>
-                        <SelectValue placeholder='Chọn thuộc tính' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isLoadingAttributes ? (
-                          <div className='flex items-center justify-center p-2'>
-                            <Loader2 className='h-4 w-4 animate-spin' />
-                          </div>
-                        ) : (
-                          attributesData?.result?.map((attr) => (
-                            <SelectItem key={attr.id} value={attr.name}>
-                              {attr.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+              {!isLoadingAttributes && (!attributesData?.result || attributesData.result.length === 0) ? (
+                <div className='flex flex-col items-center justify-center py-10 px-4 border border-dashed rounded-lg bg-background/30 space-y-4 text-center'>
+                  <div className='p-3 bg-primary/10 text-primary rounded-full'>
+                    <Plus className='h-6 w-6' />
                   </div>
-
-                  <div className='space-y-2'>
-                    <Label>Giá trị thuộc tính</Label>
-                    <MultipleSelector
-                      className='bg-muted'
-                      value={variation.values}
-                      onChange={(options) =>
-                        handleVariationValuesChange(variation.id, options)
-                      }
-                      options={attributeOptionsMap[variation.name] || []}
-                      placeholder='Chọn hoặc nhập giá trị...'
-                      creatable
-                      emptyIndicator={
-                        <p className='text-center text-sm'>Không tìm thấy kết quả</p>
-                      }
-                    />
+                  <div className='space-y-1'>
+                    <h4 className='font-semibold text-sm'>Chưa có thuộc tính nào được tạo</h4>
+                    <p className='text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed'>
+                      Sản phẩm có biến thể yêu cầu ít nhất một thuộc tính (ví dụ: Màu sắc, Kích thước) để cấu hình các phân loại hàng bán.
+                    </p>
                   </div>
-
-                  <div className='pt-8'>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={() => removeVariation(variation.id)}
-                      disabled={variations.length <= 1}
-                      className='text-red-500 hover:text-red-700 hover:bg-red-50'
-                    >
-                      <Trash2 className='h-5 w-5' />
-                    </Button>
-                  </div>
+                  <Button 
+                    type='button' 
+                    size='sm' 
+                    onClick={() => setIsOpenCreateAttribute(true)}
+                  >
+                    Tạo thuộc tính đầu tiên
+                  </Button>
                 </div>
-              ))}
+              ) : (
+                variations.map((variation) => (
+                  <div
+                    key={variation.id}
+                    className='grid grid-cols-1 md:grid-cols-[200px_1fr_auto] items-start gap-4 p-4 rounded-lg  border'
+                  >
+                    <div className='space-y-2'>
+                      <Label>Tên thuộc tính</Label>
+                      <Select
+                        value={variation.name || undefined}
+                        onValueChange={(value) =>
+                          handleVariationNameChange(variation.id, value)
+                        }
+                      >
+                        <SelectTrigger className='bg-muted'>
+                          <SelectValue placeholder='Chọn thuộc tính' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoadingAttributes ? (
+                            <div className='flex items-center justify-center p-2'>
+                              <Loader2 className='h-4 w-4 animate-spin' />
+                            </div>
+                          ) : (
+                            attributesData?.result?.map((attr) => (
+                              <SelectItem key={attr.id} value={attr.name}>
+                                {attr.name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className='space-y-2'>
+                      <Label>Giá trị thuộc tính</Label>
+                      <MultipleSelector
+                        className='bg-muted'
+                        value={variation.values}
+                        onChange={(options) =>
+                          handleVariationValuesChange(variation.id, options)
+                        }
+                        options={attributeOptionsMap[variation.name] || []}
+                        placeholder='Chọn hoặc nhập giá trị...'
+                        creatable
+                        emptyIndicator={
+                          <p className='text-center text-sm'>Không tìm thấy kết quả</p>
+                        }
+                      />
+                    </div>
+
+                    <div className='pt-8'>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        type='button'
+                        onClick={() => removeVariation(variation.id)}
+                        disabled={variations.length <= 1}
+                        className='text-red-500 hover:text-red-700 hover:bg-red-50'
+                      >
+                        <Trash2 className='h-5 w-5' />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
         </>
@@ -458,6 +495,30 @@ const ProductVariantForm = () => {
           </CardContent>
         </Card>
       )}
+
+      <CreateAttributeDialog
+        open={isOpenCreateAttribute}
+        onOpenChange={setIsOpenCreateAttribute}
+        onSuccess={(newName) => {
+          // Auto select the new attribute in the variation list!
+          const updatedVariations = [...variations]
+          const emptyIndex = updatedVariations.findIndex((v) => !v.name)
+          if (emptyIndex !== -1) {
+            updatedVariations[emptyIndex] = {
+              ...updatedVariations[emptyIndex],
+              name: newName,
+              values: [],
+            }
+          } else {
+            updatedVariations.push({
+              id: Date.now(),
+              name: newName,
+              values: [],
+            })
+          }
+          setVariations(updatedVariations)
+        }}
+      />
     </div>
   )
 }

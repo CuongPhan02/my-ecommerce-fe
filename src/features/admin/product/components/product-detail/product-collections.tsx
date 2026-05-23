@@ -33,19 +33,25 @@ const ProductCollections = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
 
+  const [collectionLimit, setCollectionLimit] = useState(20)
+
   // 1. Lấy danh sách collection từ API
   const {
     data: collectionsRes,
     isLoading,
+    isFetching,
     refetch,
-  } = _collectionService.useCollections({ page: 1, limit: 100 })
+  } = _collectionService.useCollections({ page: 1, limit: collectionLimit })
   const createCollectionMutation = _collectionService.useCreateCollection()
 
   const [collectionOptions, setCollectionOptions] = useState<Option[]>([])
 
+  const collections = (collectionsRes?.result as any)?.data || []
+  const hasMoreCollections = collections.length < ((collectionsRes?.result as any)?.meta?.totalItems || 0)
+
   useEffect(() => {
     const collectionOptions: Option[] =
-      (collectionsRes?.result as any)?.data?.map((c: any) => ({
+      collections.map((c: any) => ({
         label: c.name,
         value: c.id,
       })) || []
@@ -161,6 +167,30 @@ const ProductCollections = () => {
                   <p className='text-center text-sm text-slate-500 py-2'>
                     {isLoading ? 'Đang lấy dữ liệu...' : 'Không tìm thấy bộ sưu tập.'}
                   </p>
+                }
+                listFooter={
+                  hasMoreCollections && (
+                    <div className='p-1 border-t'>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        className='w-full text-xs text-primary font-bold hover:bg-primary/10 py-1.5 h-auto rounded-none justify-center'
+                        onPointerDown={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          setCollectionLimit((prev) => prev + 20)
+                        }}
+                        disabled={isFetching}
+                      >
+                        {isFetching ? 'Đang tải...' : 'Xem thêm'}
+                      </Button>
+                    </div>
+                  )
                 }
               />
             )}

@@ -44,14 +44,20 @@ const ProductInfoForm = () => {
     }
   }, [name, setValue, randomId])
 
-  const { data: categoriesData, isLoading: isLoadingCategories } =
-    _categoryService.useCategories()
+  const [categoryLimit, setCategoryLimit] = React.useState(20)
+  const [brandLimit, setBrandLimit] = React.useState(20)
 
-  const { data: brandsData, isLoading: isLoadingBrands } =
-    _brandService.useBrands()
+  const { data: categoriesData, isLoading: isLoadingCategories, isFetching: isFetchingCategories } =
+    _categoryService.useCategories({ page: 1, limit: categoryLimit })
+
+  const { data: brandsData, isLoading: isLoadingBrands, isFetching: isFetchingBrands } =
+    _brandService.useBrands({ page: 1, limit: brandLimit })
 
   const categories = categoriesData?.result || []
   const brands = brandsData?.result || []
+
+  const hasMoreCategories = categories?.data?.length < (categoriesData?.result?.meta?.totalItems || 0)
+  const hasMoreBrands = brands?.data?.length < (brandsData?.result?.meta?.totalItems || 0)
 
   const PRODUCT_TAG_OPTIONS: Option[] = [
     { value: 'sale', label: 'Khuyến mãi' },
@@ -131,7 +137,7 @@ const ProductInfoForm = () => {
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px]">
                       <SelectGroup>
                         <SelectLabel>Danh mục</SelectLabel>
                         {categories?.data?.map((category: any) => (
@@ -139,6 +145,28 @@ const ProductInfoForm = () => {
                             {category.name}
                           </SelectItem>
                         ))}
+                        {hasMoreCategories && (
+                          <div className='p-1 border-t'>
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='sm'
+                              className='w-full text-xs text-primary font-bold hover:bg-primary/10 py-1.5 h-auto rounded-none justify-center'
+                              onPointerDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setCategoryLimit((prev) => prev + 20)
+                              }}
+                              disabled={isFetchingCategories}
+                            >
+                              {isFetchingCategories ? 'Đang tải...' : 'Xem thêm'}
+                            </Button>
+                          </div>
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
@@ -194,7 +222,7 @@ const ProductInfoForm = () => {
                         }
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px]">
                       <SelectGroup>
                         <SelectLabel>Thương hiệu</SelectLabel>
                         {brands?.data?.map((brand: any) => (
@@ -202,6 +230,28 @@ const ProductInfoForm = () => {
                             {brand.name}
                           </SelectItem>
                         ))}
+                        {hasMoreBrands && (
+                          <div className='p-1 border-t'>
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='sm'
+                              className='w-full text-xs text-primary font-bold hover:bg-primary/10 py-1.5 h-auto rounded-none justify-center'
+                              onPointerDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setBrandLimit((prev) => prev + 20)
+                              }}
+                              disabled={isFetchingBrands}
+                            >
+                              {isFetchingBrands ? 'Đang tải...' : 'Xem thêm'}
+                            </Button>
+                          </div>
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>

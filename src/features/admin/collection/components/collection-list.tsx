@@ -75,8 +75,20 @@ export const CollectionList = ({
                     : 'hover:bg-muted/30 border border-transparent hover:border',
                 )}
               >
-                <div className='font-bold truncate relative z-10'>
-                  {item.name}
+                <div className='flex items-center justify-between relative z-10 gap-2'>
+                  <div className='font-bold truncate'>
+                    {item.name}
+                  </div>
+                  {item.isHomeActive && (
+                    <span className={cn(
+                      "text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wider shrink-0",
+                      selectedId === item.id 
+                        ? "bg-white/20 text-white" 
+                        : "bg-primary/10 text-primary"
+                    )}>
+                      Trang chủ
+                    </span>
+                  )}
                 </div>
                 <div
                   className={cn(

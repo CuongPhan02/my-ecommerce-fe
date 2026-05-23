@@ -56,6 +56,7 @@ export const CollectionDetailForm = ({
         description: collection.description || '',
         imageUrl: collection.imageUrl || '',
         isActive: collection.isActive,
+        isHomeActive: collection.isHomeActive || false,
       })
     } else {
       form.reset({
@@ -64,6 +65,7 @@ export const CollectionDetailForm = ({
         description: '',
         imageUrl: '',
         isActive: true,
+        isHomeActive: false,
       })
     }
   }, [collection, form])
@@ -187,26 +189,49 @@ export const CollectionDetailForm = ({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='isActive'
-              render={({ field }) => (
-                <FormItem className='flex items-center justify-between rounded-lg border p-4'>
-                  <div className='space-y-0.5'>
-                    <FormLabel className='text-base'>Trạng thái hoạt động</FormLabel>
-                    <div className='text-sm text-muted-foreground'>
-                      Hiển thị bộ sưu tập này trên trang web công cộng.
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <FormField
+                control={form.control}
+                name='isActive'
+                render={({ field }) => (
+                  <FormItem className='flex items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>Trạng thái hoạt động</FormLabel>
+                      <div className='text-sm text-muted-foreground'>
+                        Hiển thị bộ sưu tập này trên trang web công cộng.
+                      </div>
                     </div>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='isHomeActive'
+                render={({ field }) => (
+                  <FormItem className='flex items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>Hiển thị trang chủ</FormLabel>
+                      <div className='text-sm text-muted-foreground'>
+                        Hiển thị bộ sưu tập này thành các câu chuyện/danh sách ở trang chủ.
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
           </CardContent>
         </Card>
 

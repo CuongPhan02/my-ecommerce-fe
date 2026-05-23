@@ -81,6 +81,8 @@ interface MultipleSelectorProps {
   >
   /** hide the clear all button. */
   hideClearAllButton?: boolean
+  /** custom footer for the dropdown list */
+  listFooter?: React.ReactNode
 }
 
 export interface MultipleSelectorRef {
@@ -190,6 +192,7 @@ const MultipleSelector = ({
   commandProps,
   inputProps,
   hideClearAllButton = false,
+  listFooter,
 }: MultipleSelectorProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [open, setOpen] = React.useState(false)
@@ -604,6 +607,7 @@ const MultipleSelector = ({
                       </>
                     </CommandGroup>
                   ))}
+                  {listFooter}
                 </>
               )}
             </CommandList>

@@ -47,4 +47,17 @@ export const _productApi = {
     })
     return res.data
   },
+
+  setSaleTimer: async (
+    id: string,
+    data: {
+      discountType: 'PERCENTAGE' | 'FIXED'
+      discountValue: number
+      discountStartDate: string | null
+      discountEndDate: string | null
+    },
+  ) => {
+    const res = await https.put<ApiResponse<Product>>(`/products/${id}/sale-timer`, data)
+    return res.data
+  },
 }

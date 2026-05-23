@@ -136,6 +136,15 @@ export default function CollectionWorkspace() {
                   <p className='text-xs bg-muted px-3 py-1 rounded-full border'>
                     SLUG: {collection.slug}
                   </p>
+                  {collection.isHomeActive ? (
+                    <p className='text-xs bg-primary/20 text-primary border border-primary/30 px-3 py-1 rounded-full font-bold uppercase tracking-wider'>
+                      Hiện Trang Chủ
+                    </p>
+                  ) : (
+                    <p className='text-xs bg-muted text-slate-400 px-3 py-1 rounded-full border'>
+                      Không hiện trang chủ
+                    </p>
+                  )}
                 </div>
               </div>
 

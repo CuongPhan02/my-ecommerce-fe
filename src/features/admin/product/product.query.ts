@@ -90,4 +90,20 @@ export const _productService = {
       },
     })
   },
+
+  useSetSaleTimer: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: ({ id, data }: { id: string; data: any }) =>
+        _productApi.setSaleTimer(id, data),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['products'] })
+        queryClient.invalidateQueries({ queryKey: ['product'] })
+        toast.success('Thiết lập sale timer thành công')
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Thiết lập sale timer thất bại')
+      },
+    })
+  },
 }

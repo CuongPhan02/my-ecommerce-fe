@@ -17,24 +17,58 @@ const FlashSaleSection = () => {
   const { data: flashSalesData, isLoading } = _homeService.useFlashSales()
   const products = flashSalesData?.result?.data || []
 
-  // Mock countdown timer
+  // Get earliest ending discountEndDate among products that has active sale in the future
+  const activeFlashSales = products.filter(
+    (p) => p.discountEndDate && new Date(p.discountEndDate).getTime() > Date.now()
+  )
+
+  const earliestEndDate = activeFlashSales.length > 0
+    ? new Date(
+        Math.min(
+          ...activeFlashSales.map((p) => new Date(p.discountEndDate!).getTime())
+        )
+      )
+    : null
+
   const [timeLeft, setTimeLeft] = useState({
-    hours: 2,
-    minutes: 45,
-    seconds: 30
+    hours: 0,
+    minutes: 0,
+    seconds: 0
   })
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 }
-        if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 }
-        return prev
-      })
-    }, 1000)
+    // If no product has a discountEndDate in the future, fallback to a mock 2h countdown or 00:00:00
+    if (!earliestEndDate) {
+      setTimeLeft({ hours: 2, minutes: 0, seconds: 0 })
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 }
+          if (prev.minutes > 0) return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
+          if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 }
+          return prev
+        })
+      }, 1000)
+      return () => clearInterval(timer)
+    }
+
+    const updateTimer = () => {
+      const diffMs = earliestEndDate.getTime() - Date.now()
+      if (diffMs <= 0) {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 })
+        return
+      }
+
+      const hours = Math.floor(diffMs / (1000 * 60 * 60))
+      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000)
+
+      setTimeLeft({ hours, minutes, seconds })
+    }
+
+    updateTimer()
+    const timer = setInterval(updateTimer, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [earliestEndDate])
 
   if (isLoading || products.length === 0) return null
 

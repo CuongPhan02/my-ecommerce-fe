@@ -6,6 +6,7 @@ export const collectionSchema = z.object({
   description: z.string().nullable().optional(),
   imageUrl: z.string().nullable().optional(),
   isActive: z.boolean(),
+  isHomeActive: z.boolean().optional(),
 })
 
 export type CollectionSchemaType = z.infer<typeof collectionSchema>
