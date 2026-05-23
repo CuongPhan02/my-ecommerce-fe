@@ -30,8 +30,8 @@ export const _mediaApi = {
   },
   fetchFolderUpdate: async (payload: FolderUpdateType) => {
     const response: ApiResponse<FolderType> = await https.put(
-      '/media/folders',
-      payload,
+      `/media/folders/${payload.id}`,
+      { name: payload.name, id: payload.id },
     )
     return response
   },
@@ -85,8 +85,38 @@ export const _mediaApi = {
 
     return response
   },
+  fetchMediaUploadMultiple: async (
+    files: File[], // FilePond provides raw File objects
+    folderId: string | undefined,
+    onProgress?: (percent: number) => void,
+  ) => {
+    const formData = new FormData()
+
+    files.forEach((file) => {
+      formData.append('files', file)
+    })
+
+    const response: ApiResponse<any> = await https.post(
+      '/media/upload/multiple',
+      formData,
+      {
+        params: { ...(folderId ? { folderId } : {}) },
+        onUploadProgress: (event: any) => {
+          if (event.total) {
+            const percent = Math.round((event.loaded * 100) / event.total)
+            if (onProgress) onProgress(percent)
+          }
+        },
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    )
+
+    return response
+  },
   fetchMediaDeleteSingle: async (id: string) => {
-    const response: ApiResponse<any> = await https.post(`/media`, { id: id })
+    const response: ApiResponse<any> = await https.post(`/media/delete-many`, {
+      ids: [id],
+    })
     return response
   },
   fetchMediaDeleteMutiple: async (payload: MediaFileDelete) => {

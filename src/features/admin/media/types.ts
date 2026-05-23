@@ -71,4 +71,5 @@ export type DisplayItem = {
   url?: string
   id?: string
   mediaType?: FileType
+  size?: string
 }

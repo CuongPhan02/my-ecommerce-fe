@@ -171,6 +171,23 @@ export const _mediaService = {
       },
     })
   },
+  useMediaUploadMultipleFiles: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: ({
+        files,
+        folderId,
+        onProgress,
+      }: {
+        files: File[]
+        folderId?: string
+        onProgress?: (percent: number) => void
+      }) => _mediaApi.fetchMediaUploadMultiple(files, folderId, onProgress),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['MEDIA', 'FILE_LIST'] })
+      },
+    })
+  },
   useMediaDeleteSingle: () => {
     const queryClient = useQueryClient()
     return useMutation({
