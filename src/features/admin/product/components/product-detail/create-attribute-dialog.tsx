@@ -27,24 +27,25 @@ export function CreateAttributeDialog({
   onSuccess,
 }: CreateAttributeDialogProps) {
   const [name, setName] = useState('')
+  const [nameInput, setNameInput] = useState('')
   const [valueInput, setValueInput] = useState('')
-  const [values, setValues] = useState<string[]>([])
+  const [values, setValues] = useState<{ value: string; name?: string }[]>([])
   
   const createMutation = _attributeService.useCreateAttribute()
 
   const handleAddValue = () => {
-    const trimmed = valueInput.trim()
-    if (!trimmed) return
+    const trimmedName = nameInput.trim()
+    const trimmedValue = valueInput.trim()
+    if (!trimmedValue) return
     
-    // Support bulk adding using comma, semicolon or newline
-    const newVals = trimmed
-      .split(/[,\n;]+/)
-      .map((v) => v.trim())
-      .filter((v) => v.length > 0 && !values.includes(v))
+    const finalName = trimmedName || trimmedValue
 
-    if (newVals.length > 0) {
-      setValues([...values, ...newVals])
+    if (values.some((v) => v.value.toLowerCase() === trimmedValue.toLowerCase())) {
+      return
     }
+
+    setValues([...values, { value: trimmedValue, name: finalName }])
+    setNameInput('')
     setValueInput('')
   }
 
@@ -56,7 +57,7 @@ export function CreateAttributeDialog({
   }
 
   const handleRemoveValue = (valToRemove: string) => {
-    setValues(values.filter((v) => v !== valToRemove))
+    setValues(values.filter((v) => v.value !== valToRemove))
   }
 
   const handleSave = async () => {
@@ -73,6 +74,7 @@ export function CreateAttributeDialog({
       // Reset form fields
       setName('')
       setValues([])
+      setNameInput('')
       setValueInput('')
     } catch (err) {
       console.error('Failed to create attribute:', err)
@@ -106,30 +108,40 @@ export function CreateAttributeDialog({
 
           {/* Nhập các giá trị */}
           <div className="space-y-2">
-            <Label htmlFor="attr-values" className="text-sm font-semibold">
+            <Label className="text-sm font-semibold">
               Giá trị thuộc tính <span className="text-red-500">*</span>
             </Label>
-            <div className="flex gap-2">
-              <Input
-                id="attr-values"
-                placeholder="Nhập giá trị và nhấn Enter (hoặc phân tách bằng dấu phẩy)..."
-                value={valueInput}
-                onChange={(e) => setValueInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full bg-white dark:bg-muted/50"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddValue}
-                className="shrink-0 px-3 bg-white"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-500">Tên hiển thị (Tên)</span>
+                <Input
+                  placeholder="Ví dụ: Đỏ, Size XL..."
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  className="w-full bg-white dark:bg-muted/50"
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[11px] font-medium text-slate-500">Giá trị thực tế <span className="text-red-500">*</span></span>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Ví dụ: #ff0000, XL..."
+                    value={valueInput}
+                    onChange={(e) => setValueInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full bg-white dark:bg-muted/50 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddValue}
+                    className="shrink-0 px-3 bg-white"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Gợi ý: Bạn có thể nhập nhiều giá trị phân tách bằng dấu phẩy, dấu chấm phẩy hoặc phím Enter.
-            </p>
           </div>
 
           {/* Danh sách các giá trị đã thêm */}
@@ -138,17 +150,22 @@ export function CreateAttributeDialog({
               <Label className="text-xs text-muted-foreground font-semibold">
                 Các giá trị đã thêm ({values.length}):
               </Label>
-              <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto p-3 rounded-lg border bg-muted/40 custom-scrollbar">
-                {values.map((val) => (
+              <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto p-3 rounded-lg border bg-muted/40 custom-scrollbar animate-in fade-in slide-in-from-top-1 duration-200">
+                {values.map((val, idx) => (
                   <Badge
-                    key={val}
+                    key={idx}
                     variant="secondary"
                     className="flex items-center gap-1.5 py-1 px-2.5 text-xs bg-white border font-medium shadow-xs"
                   >
-                    <span>{val}</span>
+                    <span>
+                      {val.name || val.value}{' '}
+                      {val.name !== val.value && (
+                        <span className="text-[10px] text-muted-foreground">({val.value})</span>
+                      )}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => handleRemoveValue(val)}
+                      onClick={() => handleRemoveValue(val.value)}
                       className="text-muted-foreground hover:text-red-500 rounded-full transition-colors"
                     >
                       <X className="h-3.5 w-3.5" />

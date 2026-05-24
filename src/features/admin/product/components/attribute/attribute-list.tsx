@@ -252,17 +252,17 @@ const AttributeList = () => {
                           </td>
                           <td className='p-5 align-middle max-w-md'>
                             <div className='flex flex-wrap gap-1.5 items-center'>
-                              {attr.values.slice(0, 5).map((v) => (
+                              {attr?.values?.slice(0, 5)?.map((v) => (
                                 <Badge
                                   key={v.id}
                                   variant='outline'
                                   size='xs'
-                                  className='rounded-lg bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-100'
+                                  className='rounded-lg bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-100 font-medium'
                                 >
-                                  {v.value}
+                                  {v.name && v.name !== v.value ? `${v.name} (${v.value})` : v.value}
                                 </Badge>
                               ))}
-                              {attr.values.length > 5 && (
+                              {attr?.values && attr.values.length > 5 && (
                                 <Badge
                                   variant='outline'
                                   size='xs'

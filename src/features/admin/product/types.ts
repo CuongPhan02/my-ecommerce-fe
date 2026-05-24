@@ -23,6 +23,7 @@ export type Variant = {
 export type AttributeValue = {
   id: string
   value: string
+  name: string | null
   attributeId: string
 }
 
@@ -36,7 +37,11 @@ export type ProductAttribute = {
 
 export type ProductAttributeInput = {
   name: string
-  values: string[]
+  values: {
+    id?: string
+    value: string
+    name?: string
+  }[]
 }
 
 export type CollectionItem = {

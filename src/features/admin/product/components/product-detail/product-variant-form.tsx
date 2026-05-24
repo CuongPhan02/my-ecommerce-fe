@@ -3,6 +3,7 @@ import { Trash2, Loader2, Plus } from 'lucide-react'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { Button } from '~/components/ui/core/button'
+import { Badge } from '~/components/ui/core/badge'
 import {
   Card,
   CardContent,
@@ -93,7 +94,7 @@ const ProductVariantForm = () => {
     const map: Record<string, Option[]> = {}
     attributesData?.result?.forEach((attr) => {
       map[attr.name] = attr.values.map((v) => ({
-        label: v.value,
+        label: v.name && v.name !== v.value ? `${v.name} (${v.value})` : v.value,
         value: v.value,
       }))
     })
@@ -141,7 +142,8 @@ const ProductVariantForm = () => {
 
         const newVariants = combinations.map((combo) => {
           const comboAttributes = combo.split(' | ').map((part) => {
-            const [name, value] = part.split(':')
+            const [name, ...valueParts] = part.split(':')
+            const value = valueParts.join(':')
             return { name, value }
           })
 
@@ -427,73 +429,109 @@ const ProductVariantForm = () => {
         </>
       )}
 
-      {/* --- Bảng biến thể được tạo tự động --- */}
+      {/* --- Các tổ hợp biến thể được tạo tự động dưới dạng Card riêng biệt --- */}
       {variants.length > 0 && productType === 'VARIANT' && (
-        <Card className='bg-muted shadow-none'>
-          <CardHeader className='border-b'>
-            <CardTitle>Các tổ hợp biến thể</CardTitle>
-          </CardHeader>
-          <CardContent className='p-0'>
-            <Table>
-              <TableHeader>
-                <TableRow className='bg-transparent'>
-                  <TableHead className='w-[250px] font-bold'>Biến thể</TableHead>
-                  <TableHead className='font-bold'>Giá nhập hàng</TableHead>
-                  <TableHead className='font-bold'>Giá bán</TableHead>
-                  <TableHead className='font-bold'>Mã SKU</TableHead>
-                  <TableHead className='font-bold'>Số lượng</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {variants.map((field, index) => {
-                  const combination = field.attributes
-                    ?.map((attr) => `${attr.name}:${attr.value}`)
-                    .join(' | ')
-                  return (
-                    <TableRow key={field.id} className='bg-transparent'>
-                      <TableCell className='font-medium text-primary'>
-                        {combination}
-                      </TableCell>
-                      <TableCell>
+        <div className='space-y-4'>
+          <div className='flex items-center justify-between'>
+            <Label className='text-base font-bold text-slate-800 dark:text-slate-200'>
+              Danh sách các tổ hợp biến thể ({variants.length})
+            </Label>
+          </div>
+          <div className='grid grid-cols-1 gap-4'>
+            {variants.map((field, index) => {
+              const comboAttributes = field.attributes || []
+              return (
+                <Card key={field.id} className='bg-white dark:bg-slate-900 border shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden'>
+                  {/* Tiêu đề tổ hợp hiển thị dạng Badge chuyên nghiệp */}
+                  <div className='bg-slate-50/80 dark:bg-slate-800/40 px-4 py-3 border-b flex flex-wrap items-center gap-2'>
+                    <span className='text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-550 uppercase mr-1'>
+                      Tổ hợp #{index + 1}:
+                    </span>
+                    {comboAttributes.map((attr, idx) => {
+                      const displayAttr = attributesData?.result?.find((a) => a.name === attr.name)
+                      const displayVal = displayAttr?.values?.find((v) => v.value === attr.value)
+                      const displayLabel = displayVal?.name && displayVal.name !== displayVal.value 
+                        ? `${displayVal.name} (${displayVal.value})` 
+                        : attr.value
+                      return (
+                        <Badge 
+                          key={idx} 
+                          variant="outline" 
+                          className="bg-orange-50/50 border-orange-100 hover:bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:border-orange-900/50 dark:text-orange-400 font-medium py-0.5 px-2 rounded-md text-xs"
+                        >
+                          <span className="text-slate-400 dark:text-slate-500 font-normal mr-1">{attr.name}:</span>
+                          {displayLabel}
+                        </Badge>
+                      )
+                    })}
+                  </div>
+
+                  {/* Form nhập liệu của từng biến thể */}
+                  <CardContent className='p-4 bg-white/50 dark:bg-transparent'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+                      {/* Giá nhập hàng */}
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
+                          Giá nhập hàng
+                        </Label>
                         <Input
                           type='number'
+                          placeholder='0'
                           {...register(`variants.${index}.purchasePrice`, {
                             valueAsNumber: true,
                           })}
-                          className='bg-white h-9'
+                          className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
-                      </TableCell>
-                      <TableCell>
+                      </div>
+
+                      {/* Giá bán */}
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
+                          Giá bán <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                           type='number'
+                          placeholder='0'
                           {...register(`variants.${index}.price`, {
                             valueAsNumber: true,
                           })}
-                          className='bg-white h-9'
+                          className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
-                      </TableCell>
-                      <TableCell>
+                      </div>
+
+                      {/* Mã SKU */}
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
+                          Mã SKU
+                        </Label>
                         <Input
+                          placeholder='Nhập mã SKU...'
                           {...register(`variants.${index}.sku`)}
-                          className='bg-white h-9'
+                          className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
-                      </TableCell>
-                      <TableCell>
+                      </div>
+
+                      {/* Số lượng */}
+                      <div className='space-y-1.5'>
+                        <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
+                          Số lượng tồn kho <span className="text-red-500">*</span>
+                        </Label>
                         <Input
                           type='number'
+                          placeholder='0'
                           {...register(`variants.${index}.stock`, {
                             valueAsNumber: true,
                           })}
-                          className='bg-white h-9'
+                          className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       <CreateAttributeDialog

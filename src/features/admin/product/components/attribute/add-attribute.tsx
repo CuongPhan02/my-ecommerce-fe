@@ -31,7 +31,8 @@ const AddAttributeModal = ({
   attributeId,
 }: AddAttributeModalProps) => {
   const isEdit = !!attributeId
-  const [inputValue, setInputValue] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [valueInput, setValueInput] = useState('')
 
   const {
     register,
@@ -62,30 +63,44 @@ const AddAttributeModal = ({
       const { name, values: attrValues } = attributeDetail.result
       reset({
         name,
-        values: attrValues.map((v) => v.value),
+        values: attrValues
+          ? attrValues.map((v: any) => ({
+              id: v.id,
+              value: v.value,
+              name: v.name || '',
+            }))
+          : [],
       })
     } else if (!open) {
       reset({
         name: '',
         values: [],
       })
-      setInputValue('')
+      setNameInput('')
+      setValueInput('')
     }
   }, [attributeDetail, reset, open])
 
   // Handle adding custom value tags
   const handleAddValue = (e?: React.FormEvent) => {
     e?.preventDefault()
-    const trimmed = inputValue.trim()
-    if (!trimmed) return
+    const trimmedName = nameInput.trim()
+    const trimmedValue = valueInput.trim()
+    if (!trimmedValue) return
 
-    if (values.includes(trimmed)) {
+    // Default name to match value if display name is left empty
+    const finalName = trimmedName || trimmedValue
+
+    if (values.some((v) => v.value.toLowerCase() === trimmedValue.toLowerCase())) {
       toast.warn('Giá trị này đã tồn tại!')
       return
     }
 
-    setValue('values', [...values, trimmed], { shouldValidate: true })
-    setInputValue('')
+    setValue('values', [...values, { value: trimmedValue, name: finalName }], {
+      shouldValidate: true,
+    })
+    setNameInput('')
+    setValueInput('')
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -152,26 +167,40 @@ const AddAttributeModal = ({
             )}
           </div>
 
-          {/* Add Values (Tags) */}
+          {/* Add Values (Name and Value inputs) */}
           <div className='grid gap-2'>
             <Label className='text-sm font-bold text-slate-700 dark:text-slate-300'>
               Các giá trị thuộc tính
             </Label>
-            <div className='flex gap-2'>
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder='Nhập giá trị và nhấn Enter...'
-                className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium py-5 flex-1'
-              />
-              <Button
-                type='button'
-                onClick={() => handleAddValue()}
-                className='rounded-xl h-auto px-4 font-bold flex gap-1.5'
-              >
-                <Plus className='h-4 w-4' /> Thêm
-              </Button>
+            <div className='grid grid-cols-2 gap-3.5'>
+              <div className='space-y-1.5'>
+                <span className='text-[11px] font-semibold text-slate-500'>Tên hiển thị (Tên)</span>
+                <Input
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder='Ví dụ: Đỏ, Size L...'
+                  className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium'
+                />
+              </div>
+              <div className='space-y-1.5'>
+                <span className='text-[11px] font-semibold text-slate-500'>Giá trị thực tế <span className='text-red-500'>*</span></span>
+                <div className='flex gap-2'>
+                  <Input
+                    value={valueInput}
+                    onChange={(e) => setValueInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder='Ví dụ: #ff0000, L...'
+                    className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium flex-1'
+                  />
+                  <Button
+                    type='button'
+                    onClick={() => handleAddValue()}
+                    className='rounded-xl px-3 font-bold shrink-0'
+                  >
+                    <Plus className='h-4 w-4' />
+                  </Button>
+                </div>
+              </div>
             </div>
             {errors.values && (
               <p className='text-xs text-red-500 font-medium mt-0.5'>
@@ -188,12 +217,17 @@ const AddAttributeModal = ({
               ) : (
                 values.map((val, idx) => (
                   <Badge
-                    key={`${val}-${idx}`}
+                    key={idx}
                     variant='secondary'
                     size='sm'
                     className='rounded-lg bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 py-1 pl-2.5 pr-1 gap-1 border-none shadow-sm flex items-center'
                   >
-                    <span>{val}</span>
+                    <span>
+                      {val.name || val.value}{' '}
+                      {val.name !== val.value && (
+                        <span className='text-[10px] text-muted-foreground'>({val.value})</span>
+                      )}
+                    </span>
                     <button
                       type='button'
                       onClick={() => handleRemoveValue(idx)}
