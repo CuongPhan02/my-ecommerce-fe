@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+const preprocessNumber = z.preprocess(
+  (val) => {
+    if (val === '' || val === undefined || val === null) return 0
+    const parsed = Number(val)
+    return isNaN(parsed) ? 0 : parsed
+  },
+  z.number().default(0)
+)
+
 export const ProductValidate = z.object({
   name: z.string().min(2, {
     message: 'Tên sản phẩm phải có ít nhất 2 ký tự.',
@@ -27,15 +36,12 @@ export const ProductValidate = z.object({
   isRefunded: z.boolean().default(false),
   hasWarranty: z.boolean().default(false),
   disableShipping: z.boolean().default(false),
-  stock: z.number().default(0).optional(),
+  stock: preprocessNumber.optional(),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaImageId: z.string().nullable().optional(),
   discountType: z.enum(['PERCENTAGE', 'FIXED']).default('PERCENTAGE'),
-  discountValue: z.number().default(0).optional(),
-  // .refine((value) => value > 0, {
-  //   message: 'Discount value must be greater than 0',
-  // }),
+  discountValue: preprocessNumber.optional(),
   discountStartDate: z.string().nullable().optional(),
   discountEndDate: z.string().nullable().optional(),
   mediaIds: z.array(z.string()).optional(),
@@ -57,9 +63,9 @@ export const ProductValidate = z.object({
       z.object({
         id: z.string().optional(),
         sku: z.string(),
-        price: z.number().default(0),
-        stock: z.number().default(0),
-        purchasePrice: z.number().default(0),
+        price: preprocessNumber,
+        stock: preprocessNumber,
+        purchasePrice: preprocessNumber,
         attributes: z.array(
           z.object({
             name: z.string(),

@@ -5,6 +5,7 @@ import HeadingSectionAdmin from '~/components/shared/heading-section-admin'
 import { Card, CardContent, CardHeader } from '~/components/ui/core/card'
 import { Button } from '~/components/ui/core/button'
 import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 import {
   ProductCollections,
   ProductDescription,
@@ -226,6 +227,7 @@ const ActionForm = ({
 }) => {
   const {
     handleSubmit,
+    reset,
     formState: { isSubmitting },
   } = useFormContext()
 
@@ -248,16 +250,52 @@ const ActionForm = ({
               id: productId,
               data: submitData,
             })
+            toast.success('Cập nhật sản phẩm thành công!')
+            reset(data)
           } else {
             await createMutation.mutateAsync(submitData as any)
+            toast.success('Thêm sản phẩm mới thành công!')
+            reset({
+              name: '',
+              description: '',
+              slug: '',
+              categoryId: '',
+              brandId: '',
+              type: 'SINGLE',
+              summary: '',
+              tags: [],
+              thumbnailId: null,
+              isFeatured: false,
+              isRefunded: false,
+              hasWarranty: false,
+              disableShipping: false,
+              stock: 0,
+              metaTitle: '',
+              metaDescription: '',
+              metaImageId: null,
+              discountType: 'PERCENTAGE',
+              discountValue: 0,
+              discountStartDate: null,
+              discountEndDate: null,
+              mediaIds: [],
+              collectionIds: [],
+              options: [],
+              variants: [],
+            })
           }
           onSuccess?.()
         } catch (error) {
           console.error('Form submission failed:', error)
+          toast.error(
+            productId
+              ? 'Cập nhật sản phẩm thất bại!'
+              : 'Thêm sản phẩm mới thất bại!'
+          )
         }
       },
       (errors) => {
         console.log('Form validation errors:', errors)
+        toast.error('Vui lòng kiểm tra lại các thông tin bắt buộc trong biểu mẫu!')
       },
     )()
   }
