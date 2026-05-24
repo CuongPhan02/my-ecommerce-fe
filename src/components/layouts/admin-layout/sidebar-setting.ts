@@ -79,6 +79,10 @@ export const sidebarData: SidebarData = {
               title: 'Thương hiệu',
               url: '/admin/brand',
             },
+            {
+              title: 'Thuộc tính',
+              url: '/admin/product/attribute',
+            },
           ],
         },
         {
