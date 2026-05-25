@@ -83,8 +83,9 @@ export const columns: ColumnDef<Product>[] = [
 
       if (collections.length === 0) return 'Không có bộ sưu tập'
       return collections
-        .map((c: CollectionItem) => c.collection.name)
-        .join(', ')
+        .map((c: any) => c?.collection?.name || c?.name || '')
+        .filter(Boolean)
+        .join(', ') || 'Không có bộ sưu tập'
     },
   },
   {
