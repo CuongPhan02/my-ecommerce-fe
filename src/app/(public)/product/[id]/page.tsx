@@ -91,7 +91,7 @@ export default function ProductDetailPage() {
       </section>
 
       {/* Reviews Section */}
-      <ProductReviews />
+      <ProductReviews product={product} />
 
       {/* Suggested Products - For now keep as is or implement if there's an API */}
       {/* <section className="py-24 bg-white">
