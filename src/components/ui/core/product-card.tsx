@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'motion/react'
-import { Star, ShoppingCart } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '~/lib/utils'
 
 import { Product } from '~/features/admin/product/types'
@@ -33,16 +33,17 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
   const sizes = ['S', 'M', 'L', 'XL', '2XL']
   
-  const isDbProduct = 'variants' in product && Array.isArray(product.variants)
+  const isDbProduct = 'slug' in product
 
   // 1. Price
-  const price = isDbProduct 
+  const price = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
     ? (product as Product).variants?.[0]?.price || 0 
-    : (product as SimpleProduct).price || 0
+    : (product as any).price || 0
 
-  const priceFormatted = isDbProduct
+  const priceFormatted = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
     ? ((product as Product).variants?.[0] as any)?.priceFormatted || (product as any)?.priceFormatted
     : (product as any)?.priceFormatted
 
@@ -59,7 +60,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         : undefined)
     : (product as SimpleProduct).originalPrice
 
-  const originalPriceFormatted = isDbProduct
+  const originalPriceFormatted = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
     ? ((product as Product).variants?.[0] as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
     : (product as any)?.originalPriceFormatted
 
@@ -77,98 +78,246 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? (product as Product).tags?.[0] 
     : (product as SimpleProduct).badge
 
-  // 7. Image URL
-  const imageUrl = isDbProduct
-    ? (product as Product).thumbnail?.url || '/placeholder-product.png'
-    : ((product as SimpleProduct).colors?.[0]?.image || (product as SimpleProduct).thumbnail?.url || '/placeholder-product.png')
+  // 7. Extract all images for the slider
+  const allImages = useMemo(() => {
+    const urls: string[] = []
+    
+    if (isDbProduct) {
+      const dbProduct = product as Product
+      if (dbProduct.thumbnail?.url) {
+        urls.push(dbProduct.thumbnail.url)
+      }
+      if (Array.isArray(dbProduct.images)) {
+        dbProduct.images.forEach(img => {
+          const u = img.url || img.media?.url
+          if (u && !urls.includes(u)) {
+            urls.push(u)
+          }
+        })
+      }
+    } else {
+      const simpleProduct = product as SimpleProduct
+      if (simpleProduct.thumbnail?.url) {
+        urls.push(simpleProduct.thumbnail.url)
+      }
+      if (Array.isArray(simpleProduct.colors)) {
+        simpleProduct.colors.forEach(c => {
+          if (c.image && !urls.includes(c.image)) {
+            urls.push(c.image)
+          }
+        })
+      }
+    }
+    
+    if (urls.length === 0) {
+      urls.push('/placeholder-product.png')
+    }
+    
+    return urls
+  }, [product, isDbProduct])
+
+  // Get current active image URL
+  const currentImageUrl = allImages[activeImageIndex] || '/placeholder-product.png'
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setActiveImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length)
+  }
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setActiveImageIndex((prev) => (prev + 1) % allImages.length)
+  }
+
+  const handleQuickAdd = (e: React.MouseEvent, size: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    // Perform quick cart add action
+    console.log(`Quick add size ${size} for product ${product.id}`)
+  }
 
   return (
-    <div
-      className="group flex flex-col h-full bg-white rounded-2xl transition-all duration-300"
+    <motion.div
+      className="group relative flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-[0_24px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:border-gray-200/60 transition-all duration-500 overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false)
+        setActiveImageIndex(0) // Reset to first image on mouse leave for consistent experience
+      }}
     >
-      {/* Image Container */}
-      <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4">
-        <Link href={`/product/${product.id}`} className="absolute inset-0 z-0">
-          <Image
-            src={imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
+      {/* Image Container & Carousel */}
+      <div className="relative aspect-[3/4] overflow-hidden bg-slate-50 w-full select-none">
+        <Link href={`/product/${product.id}`} className="absolute inset-0 z-0 block w-full h-full">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeImageIndex}
+              initial={{ opacity: 0.75, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0.75 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="relative w-full h-full"
+            >
+              <Image
+                src={currentImageUrl}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-cover"
+                priority={activeImageIndex === 0}
+              />
+            </motion.div>
+          </AnimatePresence>
         </Link>
         
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 pointer-events-none">
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
           {badge && (
-            <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[9px] font-black tracking-widest px-2.5 py-1 rounded-full uppercase shadow-md shadow-indigo-200/50">
               {badge}
             </span>
           )}
           {discount > 0 && (
-            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">
+            <span className="bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 text-white text-[9px] font-black tracking-wider px-2.5 py-1 rounded-full uppercase shadow-md shadow-red-200/50">
               -{discount}%
             </span>
           )}
         </div>
 
-        {/* Quick Size Selection */}
+        {/* Floating Quick Action Buttons */}
         <div className={cn(
-          "absolute inset-0 bg-black/5 flex flex-col items-center justify-center transition-all duration-300 pointer-events-none z-20",
-          isHovered ? "opacity-100" : "opacity-0"
+          "absolute top-3 right-3 flex flex-col gap-2 z-10 transition-all duration-300",
+          isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-3 pointer-events-none"
         )}>
-          <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl w-[90%] shadow-2xl transform transition-transform duration-300 scale-95 group-hover:scale-100 pointer-events-auto">
-             <p className="text-[10px] font-bold text-center mb-3 text-gray-500 uppercase tracking-widest">Thêm nhanh vào giỏ hàng</p>
-             <div className="grid grid-cols-3 gap-2">
-               {sizes.map((size) => (
-                 <button 
-                   key={size}
-                   className="py-2 border border-gray-100 rounded-lg text-[10px] font-bold hover:bg-black hover:text-white transition-all"
-                 >
-                   {size}
-                 </button>
-               ))}
-             </div>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+            className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn"
+            title="Thêm vào giỏ hàng"
+          >
+            <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+          </button>
+        </div>
+
+        {/* Dynamic Image Carousel Chevrons */}
+        {allImages.length > 1 && (
+          <div className={cn(
+            "absolute inset-x-3 top-1/2 -translate-y-1/2 flex items-center justify-between z-10 pointer-events-none transition-opacity duration-300",
+            isHovered ? "opacity-100" : "opacity-0"
+          )}>
+            <button
+              onClick={handlePrevImage}
+              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Stories-Style Image Progress Indicators */}
+        {allImages.length > 1 && (
+          <div className="absolute bottom-3 inset-x-4 flex items-center gap-1 z-10 pointer-events-auto transition-opacity duration-300">
+            {allImages.map((_, i) => (
+              <button
+                key={i}
+                onMouseEnter={() => setActiveImageIndex(i)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setActiveImageIndex(i)
+                }}
+                className="flex-1 h-1 rounded-full transition-all duration-300 relative group/indicator"
+              >
+                <div className={cn(
+                  "absolute inset-0 rounded-full transition-all duration-300",
+                  i === activeImageIndex 
+                    ? "bg-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] scale-y-125" 
+                    : "bg-white/40 hover:bg-white/70"
+                )} />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Quick Size Selection Panel */}
+        <div className={cn(
+          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 z-20 flex flex-col items-center justify-end transition-all duration-500",
+          isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+        )}>
+          <p className="text-[9px] font-black text-center mb-2.5 text-white/80 uppercase tracking-widest">
+            Chọn size nhanh
+          </p>
+          <div className="grid grid-cols-5 gap-1.5 w-full">
+            {sizes.map((size) => (
+              <button 
+                key={size}
+                onClick={(e) => handleQuickAdd(e, size)}
+                className="py-1.5 border border-white/20 rounded bg-white/10 hover:bg-white text-white hover:text-slate-900 text-[10px] font-black transition-all duration-300 backdrop-blur-sm active:scale-95 shadow-sm uppercase tracking-wider"
+              >
+                {size}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Product Info */}
-      <div className="flex flex-col flex-grow px-1">
+      <div className="flex flex-col flex-grow p-4 bg-white">
+        {/* Brand/Category Label */}
+        {isDbProduct && (product as Product).brand?.name && (
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+            {(product as Product).brand.name}
+          </span>
+        )}
+        
         <Link href={`/product/${product.id}`}>
-          <h3 className="font-bold text-sm text-gray-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors">
+          <h3 className="font-bold text-sm text-slate-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors duration-300 tracking-tight leading-snug">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex items-center gap-3 mb-2">
-          <span className="font-black text-base text-gray-900">
-            {priceFormatted || `${price.toLocaleString('vi-VN')} ₫`}
-          </span>
-          {originalPrice && originalPrice > price && (
-            <span className="text-gray-400 text-sm line-through decoration-red-400">
-              {originalPriceFormatted || `${Math.round(originalPrice).toLocaleString('vi-VN')} ₫`}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 mt-auto">
+        {/* Rating Stars & Count */}
+        <div className="flex items-center gap-1.5 mb-3">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
                 className={cn(
-                  "w-3 h-3",
-                  i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-200"
+                  "w-3.5 h-3.5 transition-transform duration-300 hover:scale-110",
+                  i < Math.floor(rating) 
+                    ? "fill-amber-400 text-amber-400" 
+                    : "fill-slate-100 text-slate-200"
                 )}
               />
             ))}
           </div>
-          <span className="text-[10px] text-gray-400">({reviews})</span>
+          <span className="text-[11px] font-bold text-slate-400">({reviews})</span>
+        </div>
+
+        {/* Price Tag with Gradient or Sleek Text */}
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-50">
+          <div className="flex items-baseline gap-2">
+            <span className="font-black text-base text-slate-900 tracking-tight">
+              {priceFormatted || `${price.toLocaleString('vi-VN')} ₫`}
+            </span>
+            {originalPrice && originalPrice > price && (
+              <span className="text-slate-400 text-xs line-through decoration-rose-500/60 font-semibold">
+                {originalPriceFormatted || `${Math.round(originalPrice).toLocaleString('vi-VN')} ₫`}
+              </span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

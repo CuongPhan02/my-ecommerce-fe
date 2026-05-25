@@ -70,7 +70,47 @@ const FlashSaleSection = () => {
     return () => clearInterval(timer)
   }, [earliestEndDate])
 
-  if (isLoading || products.length === 0) return null
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-black overflow-hidden">
+        <div className="main-container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+            <div className="flex items-center gap-4 animate-pulse">
+              <div className="bg-neutral-800 w-12 h-12 rounded-2xl" />
+              <div className="h-10 bg-neutral-800 w-48 rounded-xl" />
+            </div>
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className="h-4 bg-neutral-800 w-24 rounded" />
+              <div className="bg-neutral-800 w-12 h-12 rounded-2xl" />
+              <div className="bg-neutral-800 w-12 h-12 rounded-2xl" />
+              <div className="bg-neutral-800 w-12 h-12 rounded-2xl" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col h-full bg-neutral-900 rounded-2xl p-2 animate-pulse border border-white/5"
+              >
+                <div className="aspect-[3/4] rounded-2xl bg-neutral-800 mb-4 w-full" />
+                <div className="flex flex-col px-1 gap-2">
+                  <div className="h-4 bg-neutral-800 rounded w-5/6" />
+                  <div className="h-4 bg-neutral-800 rounded w-2/3" />
+                  <div className="flex gap-2 items-center mt-2">
+                    <div className="h-5 bg-neutral-800 rounded w-1/3" />
+                    <div className="h-4 bg-neutral-800 rounded w-1/4" />
+                  </div>
+                  <div className="h-3 bg-neutral-800 rounded w-1/4 mt-3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (products.length === 0) return null
 
   return (
     <section className="py-20 bg-black overflow-hidden">
@@ -123,10 +163,12 @@ const FlashSaleSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="hidden md:block">
-            <CarouselPrevious className="-left-12 bg-neutral-900 text-white hover:bg-primary border-white/10" />
-            <CarouselNext className="-right-12 bg-neutral-900 text-white hover:bg-primary border-white/10" />
-          </div>
+          {products.length > 4 && (
+            <div className="hidden md:block">
+              <CarouselPrevious className="-left-12 bg-neutral-900 text-white hover:bg-primary border-white/10" />
+              <CarouselNext className="-right-12 bg-neutral-900 text-white hover:bg-primary border-white/10" />
+            </div>
+          )}
         </Carousel>
       </div>
     </section>

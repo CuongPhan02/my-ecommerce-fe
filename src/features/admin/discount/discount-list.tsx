@@ -25,7 +25,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectLabel,
 } from '~/components/ui/core/select'
 import { Label } from '~/components/ui/core/label'
 import { Switch } from '~/components/ui/core/switch'
@@ -47,92 +46,10 @@ import {
   IconInfoCircle,
   IconFilterOff,
 } from '@tabler/icons-react'
-
-// Voucher interface definition
-interface Voucher {
-  id: string
-  code: string
-  description: string
-  discountType: 'PERCENT' | 'FIXED' | 'SHIPPING'
-  value: number // 20 for PERCENT (20%), 50000 for FIXED (50k)
-  minOrderValue: number
-  usageLimit: number
-  usedCount: number
-  status: 'ACTIVE' | 'PAUSED' | 'EXPIRED'
-  validUntil: string
-}
-
-// Initial mock dataset
-const INITIAL_DISCOUNTS: Voucher[] = [
-  {
-    id: 'DISC-001',
-    code: 'SUMMER24',
-    description:
-      'Giảm 20% cho toàn bộ các đơn hàng mua sắm trong dịp mùa hè năng động',
-    discountType: 'PERCENT',
-    value: 20,
-    minOrderValue: 200000,
-    usageLimit: 500,
-    usedCount: 150,
-    status: 'ACTIVE',
-    validUntil: '2026-08-31',
-  },
-  {
-    id: 'DISC-002',
-    code: 'FREESHIP100K',
-    description:
-      'Miễn phí chi phí vận chuyển tối đa 30k áp dụng cho các đơn hàng từ 100k',
-    discountType: 'SHIPPING',
-    value: 30000,
-    minOrderValue: 100000,
-    usageLimit: 1000,
-    usedCount: 89,
-    status: 'ACTIVE',
-    validUntil: '2026-12-31',
-  },
-  {
-    id: 'DISC-003',
-    code: 'WELCOME50',
-    description:
-      'Tặng voucher giảm ngay 50.000đ dành riêng cho tài khoản đăng ký mới',
-    discountType: 'FIXED',
-    value: 50000,
-    minOrderValue: 0,
-    usageLimit: 1000,
-    usedCount: 1000,
-    status: 'EXPIRED',
-    validUntil: '2025-12-31',
-  },
-  {
-    id: 'DISC-004',
-    code: 'KHAITRUONG100',
-    description:
-      'Ưu đãi cực khủng tri ân khai trương giảm trực tiếp 100.000đ vào đơn hàng',
-    discountType: 'FIXED',
-    value: 100000,
-    minOrderValue: 500000,
-    usageLimit: 200,
-    usedCount: 45,
-    status: 'ACTIVE',
-    validUntil: '2026-06-30',
-  },
-  {
-    id: 'DISC-005',
-    code: 'MIDYEARSALE',
-    description: 'Giảm giá giữa năm lên tới 15% cho mọi sản phẩm thời trang',
-    discountType: 'PERCENT',
-    value: 15,
-    minOrderValue: 150000,
-    usageLimit: 300,
-    usedCount: 0,
-    status: 'PAUSED',
-    validUntil: '2026-07-15',
-  },
-]
+import { _voucherService } from './discount.query'
+import { Voucher } from './types'
 
 export function DiscountList() {
-  const [vouchers, setVouchers] = useState<Voucher[]>(INITIAL_DISCOUNTS)
-
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -149,9 +66,7 @@ export function DiscountList() {
   // Form Field States
   const [code, setCode] = useState('')
   const [description, setDescription] = useState('')
-  const [discountType, setDiscountType] = useState<
-    'PERCENT' | 'FIXED' | 'SHIPPING'
-  >('PERCENT')
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING'>('PERCENTAGE')
   const [value, setValue] = useState<number>(0)
   const [minOrderValue, setMinOrderValue] = useState<number>(0)
   const [usageLimit, setUsageLimit] = useState<number>(0)
@@ -162,14 +77,77 @@ export function DiscountList() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
 
-  // KPI statistics calculation
+  // Fetch Vouchers list from API
+  const { data: apiResponse, isLoading } = _voucherService.useVouchers({
+    page: currentPage,
+    limit: itemsPerPage,
+    search: searchTerm || undefined,
+    type: typeFilter !== 'all' ? (typeFilter as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING') : undefined,
+    isActive: statusFilter === 'ACTIVE' ? true : statusFilter === 'PAUSED' ? false : undefined,
+  })
+
+  // Large set query for statistics computation (up to 100 vouchers)
+  const { data: statsResponse } = _voucherService.useVouchers({
+    page: 1,
+    limit: 100,
+  })
+
+  const createMutation = _voucherService.useVoucherCreate()
+  const updateMutation = _voucherService.useVoucherUpdate()
+  const toggleMutation = _voucherService.useVoucherToggleStatus()
+  const deleteMutation = _voucherService.useVoucherDelete()
+
+  const rawList = useMemo(() => {
+    const r = apiResponse?.result
+    if (!r) return []
+    if (Array.isArray(r.vouchers)) return r.vouchers
+    if (Array.isArray(r.data)) return r.data
+    if (Array.isArray(r)) return r
+    return []
+  }, [apiResponse])
+
+  const totalItems = apiResponse?.result?.total ?? apiResponse?.result?.meta?.totalItems ?? rawList.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1
+
+  const getVoucherStatus = (v: Voucher): 'ACTIVE' | 'PAUSED' | 'EXPIRED' => {
+    if (new Date(v.expirationDate) < new Date()) return 'EXPIRED'
+    if (!v.isActive) return 'PAUSED'
+    return 'ACTIVE'
+  }
+
+  // Calculate dynamic sorting locally
+  const sortedVouchers = useMemo(() => {
+    const list = [...rawList]
+    return list.sort((a: Voucher, b: Voucher) => {
+      if (sortOption === 'newest') {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return dateB - dateA
+      }
+      if (sortOption === 'value-desc') return b.discountValue - a.discountValue
+      if (sortOption === 'value-asc') return a.discountValue - b.discountValue
+      if (sortOption === 'limit-desc') return b.usageLimit - a.usageLimit
+      return 0
+    })
+  }, [rawList, sortOption])
+
+  // KPI statistics calculation from up to 100 fetched records
+  const statsList = useMemo(() => {
+    const r = statsResponse?.result
+    if (!r) return []
+    if (Array.isArray(r.vouchers)) return r.vouchers
+    if (Array.isArray(r.data)) return r.data
+    if (Array.isArray(r)) return r
+    return []
+  }, [statsResponse])
+
   const stats = useMemo(() => {
-    const total = vouchers.length
-    const active = vouchers.filter((v) => v.status === 'ACTIVE').length
-    const paused = vouchers.filter((v) => v.status === 'PAUSED').length
-    const totalUsed = vouchers.reduce((acc, curr) => acc + curr.usedCount, 0)
+    const total = statsList.length
+    const active = statsList.filter((v: Voucher) => v.isActive && new Date(v.expirationDate) >= new Date()).length
+    const paused = statsList.filter((v: Voucher) => !v.isActive).length
+    const totalUsed = statsList.reduce((acc: number, curr: Voucher) => acc + (curr.usedCount || 0), 0)
     return { total, active, paused, totalUsed }
-  }, [vouchers])
+  }, [statsList])
 
   // Populate form fields for Edit or Create
   const handleOpenForm = (voucher?: Voucher) => {
@@ -177,17 +155,17 @@ export function DiscountList() {
       setSelectedVoucher(voucher)
       setCode(voucher.code)
       setDescription(voucher.description)
-      setDiscountType(voucher.discountType)
-      setValue(voucher.value)
+      setDiscountType(voucher.type)
+      setValue(voucher.discountValue)
       setMinOrderValue(voucher.minOrderValue)
       setUsageLimit(voucher.usageLimit)
-      setValidUntil(voucher.validUntil)
-      setStatus(voucher.status === 'EXPIRED' ? 'ACTIVE' : voucher.status)
+      setValidUntil(voucher.expirationDate ? voucher.expirationDate.substring(0, 10) : '')
+      setStatus(voucher.isActive ? 'ACTIVE' : 'PAUSED')
     } else {
       setSelectedVoucher(null)
       setCode('')
       setDescription('')
-      setDiscountType('PERCENT')
+      setDiscountType('PERCENTAGE')
       setValue(0)
       setMinOrderValue(0)
       setUsageLimit(0)
@@ -198,78 +176,71 @@ export function DiscountList() {
   }
 
   // Handle Form Submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!code.trim() || !description.trim() || value <= 0) {
+    if (!code.trim() || !description.trim() || value <= 0 || !validUntil) {
       toast.error('Vui lòng điền đầy đủ và đúng định dạng các trường bắt buộc!')
       return
     }
 
-    if (selectedVoucher) {
-      // Update
-      setVouchers((prev) =>
-        prev.map((v) =>
-          v.id === selectedVoucher.id
-            ? {
-                ...v,
-                code: code.trim().toUpperCase(),
-                description: description.trim(),
-                discountType,
-                value,
-                minOrderValue,
-                usageLimit,
-                validUntil,
-                status: v.status === 'EXPIRED' ? 'ACTIVE' : status,
-              }
-            : v,
-        ),
-      )
-      toast.success('Cập nhật mã giảm giá thành công!')
-    } else {
-      // Create new
-      const newVoucher: Voucher = {
-        id: `DISC-${Math.floor(100 + Math.random() * 900)}`,
-        code: code.trim().toUpperCase(),
-        description: description.trim(),
-        discountType,
-        value,
-        minOrderValue,
-        usageLimit,
-        usedCount: 0,
-        status: status,
-        validUntil,
-      }
-      setVouchers((prev) => [newVoucher, ...prev])
-      toast.success('Thêm mã giảm giá mới thành công!')
+    const payload = {
+      code: code.trim().toUpperCase(),
+      description: description.trim(),
+      type: discountType,
+      discountValue: value,
+      minOrderValue,
+      usageLimit,
+      isActive: status === 'ACTIVE',
+      expirationDate: new Date(validUntil).toISOString(),
     }
-    setIsFormOpen(false)
+
+    try {
+      if (selectedVoucher) {
+        await updateMutation.mutateAsync({
+          id: selectedVoucher.id,
+          payload,
+        })
+        toast.success('Cập nhật mã giảm giá thành công!')
+      } else {
+        await createMutation.mutateAsync(payload)
+        toast.success('Thêm mã giảm giá mới thành công!')
+      }
+      setIsFormOpen(false)
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi lưu mã giảm giá!')
+    }
   }
 
   // Handle Deletion Confirmation
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (voucherToDelete) {
-      setVouchers((prev) => prev.filter((v) => v.id !== voucherToDelete.id))
-      toast.success(`Đã xóa thành công mã giảm giá ${voucherToDelete.code}`)
-      setVoucherToDelete(null)
+      try {
+        await deleteMutation.mutateAsync(voucherToDelete.id)
+        toast.success(`Đã xóa thành công mã giảm giá ${voucherToDelete.code}`)
+        setVoucherToDelete(null)
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Không thể xóa mã giảm giá này!')
+      }
     }
   }
 
   // Handle Pause/Resume status toggle
-  const confirmToggleStatus = () => {
+  const confirmToggleStatus = async () => {
     if (voucherToToggle) {
-      const nextStatus =
-        voucherToToggle.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
-      setVouchers((prev) =>
-        prev.map((v) =>
-          v.id === voucherToToggle.id ? { ...v, status: nextStatus } : v,
-        ),
-      )
-      toast.success(
-        nextStatus === 'ACTIVE'
-          ? `Kích hoạt thành công mã ${voucherToToggle.code}`
-          : `Đã tạm ngưng hoạt động mã ${voucherToToggle.code}`,
-      )
-      setVoucherToToggle(null)
+      try {
+        await toggleMutation.mutateAsync({
+          id: voucherToToggle.id,
+          isActive: !voucherToToggle.isActive,
+        })
+        toast.success(
+          voucherToToggle.isActive
+            ? `Đã tạm ngưng hoạt động mã ${voucherToToggle.code}`
+            : `Kích hoạt thành công mã ${voucherToToggle.code}`
+        )
+        setVoucherToToggle(null)
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Không thể thay đổi trạng thái!')
+      }
     }
   }
 
@@ -281,13 +252,14 @@ export function DiscountList() {
     }).format(val)
   }
 
-  const formatVoucherValue = (type: string, value: number) => {
-    if (type === 'PERCENT') return `${value}%`
-    return formatCurrency(value)
+  const formatVoucherValue = (type: 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING', val: number) => {
+    if (type === 'PERCENTAGE') return `${val}%`
+    if (type === 'FREE_SHIPPING') return 'Miễn phí vận chuyển'
+    return formatCurrency(val)
   }
 
-  const getStatusBadge = (status: 'ACTIVE' | 'PAUSED' | 'EXPIRED') => {
-    switch (status) {
+  const getStatusBadge = (statusVal: 'ACTIVE' | 'PAUSED' | 'EXPIRED') => {
+    switch (statusVal) {
       case 'ACTIVE':
         return (
           <Badge className='bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 gap-1 rounded-full px-3 py-1 font-bold'>
@@ -308,35 +280,6 @@ export function DiscountList() {
         )
     }
   }
-
-  // Filtered and Sorted list
-  const filteredVouchers = useMemo(() => {
-    return vouchers
-      .filter((v) => {
-        const matchesSearch =
-          v.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          v.description.toLowerCase().includes(searchTerm.toLowerCase())
-        const matchesType =
-          typeFilter === 'all' || v.discountType === typeFilter
-        const matchesStatus =
-          statusFilter === 'all' || v.status === statusFilter
-        return matchesSearch && matchesType && matchesStatus
-      })
-      .sort((a, b) => {
-        if (sortOption === 'newest') return b.id.localeCompare(a.id)
-        if (sortOption === 'value-desc') return b.value - a.value
-        if (sortOption === 'value-asc') return a.value - b.value
-        if (sortOption === 'limit-desc') return b.usageLimit - a.usageLimit
-        return 0
-      })
-  }, [vouchers, searchTerm, typeFilter, statusFilter, sortOption])
-
-  // Pagination calculation
-  const totalPages = Math.ceil(filteredVouchers.length / itemsPerPage) || 1
-  const paginatedVouchers = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage
-    return filteredVouchers.slice(start, start + itemsPerPage)
-  }, [filteredVouchers, currentPage])
 
   return (
     <div className='flex flex-col gap-6 w-full max-w-[1400px] mx-auto p-4 md:p-6'>
@@ -510,11 +453,9 @@ export function DiscountList() {
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value='all'>Tất cả phân loại</SelectItem>
-                      <SelectItem value='PERCENT'>Phần trăm (%)</SelectItem>
+                      <SelectItem value='PERCENTAGE'>Phần trăm (%)</SelectItem>
                       <SelectItem value='FIXED'>Số tiền cố định (đ)</SelectItem>
-                      <SelectItem value='SHIPPING'>
-                        Hỗ trợ vận chuyển (đ)
-                      </SelectItem>
+                      <SelectItem value='FREE_SHIPPING'>Miễn phí vận chuyển</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -541,9 +482,6 @@ export function DiscountList() {
                       <SelectItem value='ACTIVE'>Đang hoạt động</SelectItem>
                       <SelectItem value='PAUSED'>
                         Tạm ngưng hoạt động
-                      </SelectItem>
-                      <SelectItem value='EXPIRED'>
-                        Đã hết hạn sử dụng
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -620,7 +558,16 @@ export function DiscountList() {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedVouchers.length === 0 ? (
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={9} className='text-center py-20 bg-white'>
+                        <div className='flex flex-col items-center justify-center gap-4 text-slate-400'>
+                          <div className='w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin' />
+                          <p className='text-sm font-semibold'>Đang tải danh sách voucher...</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : sortedVouchers.length === 0 ? (
                     <tr>
                       <td colSpan={9} className='text-center py-20 bg-white'>
                         <div className='flex flex-col items-center gap-4 text-slate-400'>
@@ -632,166 +579,172 @@ export function DiscountList() {
                       </td>
                     </tr>
                   ) : (
-                    paginatedVouchers.map((voucher) => (
-                      <tr
-                        key={voucher.id}
-                        className='border-b border-slate-100/60 hover:bg-slate-50/50 transition-colors'
-                      >
-                        {/* Code */}
-                        <td className='p-4 align-middle'>
-                          <div className='flex items-center gap-2'>
-                            <div className='h-8 w-8 rounded-lg bg-indigo-50/80 flex items-center justify-center text-primary font-black text-xs border border-indigo-100/40'>
-                              %
+                    sortedVouchers.map((voucher: Voucher) => {
+                      const currentStatus = getVoucherStatus(voucher)
+                      return (
+                        <tr
+                          key={voucher.id}
+                          className='border-b border-slate-100/60 hover:bg-slate-50/50 transition-colors'
+                        >
+                          {/* Code */}
+                          <td className='p-4 align-middle'>
+                            <div className='flex items-center gap-2'>
+                              <div className='h-8 w-8 rounded-lg bg-indigo-50/80 flex items-center justify-center text-primary font-black text-xs border border-indigo-100/40'>
+                                %
+                              </div>
+                              <span className='font-black text-indigo-600 text-sm tracking-wide bg-indigo-50/40 border border-indigo-100/40 rounded-lg px-2.5 py-1'>
+                                {voucher.code}
+                              </span>
                             </div>
-                            <span className='font-black text-indigo-600 text-sm tracking-wide bg-indigo-50/40 border border-indigo-100/40 rounded-lg px-2.5 py-1'>
-                              {voucher.code}
+                          </td>
+
+                          {/* Description */}
+                          <td className='p-4 align-middle max-w-[280px] break-words whitespace-normal'>
+                            <span className='text-xs font-semibold text-slate-600 leading-relaxed block'>
+                              {voucher.description}
                             </span>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Description */}
-                        <td className='p-4 align-middle max-w-[280px] break-words whitespace-normal'>
-                          <span className='text-xs font-semibold text-slate-600 leading-relaxed block'>
-                            {voucher.description}
-                          </span>
-                        </td>
+                          {/* Type */}
+                          <td className='p-4 align-middle font-bold text-slate-500 text-xs'>
+                            {voucher.type === 'PERCENTAGE' ? (
+                              <Badge
+                                variant='outline'
+                                className='rounded-md border-indigo-100 bg-indigo-50/10 text-indigo-700 font-bold'
+                              >
+                                Phần trăm (%)
+                              </Badge>
+                            ) : voucher.type === 'FREE_SHIPPING' ? (
+                              <Badge
+                                variant='outline'
+                                className='rounded-md border-amber-100 bg-amber-50/10 text-amber-700 font-bold'
+                              >
+                                Miễn phí vận chuyển
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant='outline'
+                                className='rounded-md border-emerald-100 bg-emerald-50/10 text-emerald-700 font-bold'
+                              >
+                                Số tiền cố định (đ)
+                              </Badge>
+                            )}
+                          </td>
 
-                        {/* Type */}
-                        <td className='p-4 align-middle font-bold text-slate-500 text-xs'>
-                          {voucher.discountType === 'PERCENT' ? (
-                            <Badge
-                              variant='outline'
-                              className='rounded-md border-indigo-100 bg-indigo-50/10 text-indigo-700 font-bold'
-                            >
-                              Phần trăm (%)
-                            </Badge>
-                          ) : voucher.discountType === 'FIXED' ? (
-                            <Badge
-                              variant='outline'
-                              className='rounded-md border-emerald-100 bg-emerald-50/10 text-emerald-700 font-bold'
-                            >
-                              Số tiền cố định (đ)
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant='outline'
-                              className='rounded-md border-sky-100 bg-sky-50/10 text-sky-700 font-bold'
-                            >
-                              Hỗ trợ ship (đ)
-                            </Badge>
-                          )}
-                        </td>
+                          {/* Value */}
+                          <td className='p-4 align-middle font-extrabold text-slate-800 text-sm'>
+                            {formatVoucherValue(
+                              voucher.type,
+                              voucher.discountValue
+                            )}
+                          </td>
 
-                        {/* Value */}
-                        <td className='p-4 align-middle font-extrabold text-slate-800 text-sm'>
-                          {formatVoucherValue(
-                            voucher.discountType,
-                            voucher.value,
-                          )}
-                        </td>
+                          {/* Min Order Value */}
+                          <td className='p-4 align-middle font-semibold text-slate-500 text-xs'>
+                            {voucher.minOrderValue === 0 ? (
+                              <span className='text-slate-400 font-medium italic'>
+                                Không có
+                              </span>
+                            ) : (
+                              formatCurrency(voucher.minOrderValue)
+                            )}
+                          </td>
 
-                        {/* Min Order Value */}
-                        <td className='p-4 align-middle font-semibold text-slate-500 text-xs'>
-                          {voucher.minOrderValue === 0 ? (
-                            <span className='text-slate-400 font-medium italic'>
-                              Không có
-                            </span>
-                          ) : (
-                            formatCurrency(voucher.minOrderValue)
-                          )}
-                        </td>
+                          {/* Status */}
+                          <td className='p-4 align-middle text-xs'>
+                            {getStatusBadge(currentStatus)}
+                          </td>
 
-                        {/* Status */}
-                        <td className='p-4 align-middle text-xs'>
-                          {getStatusBadge(voucher.status)}
-                        </td>
-
-                        {/* Usage usageLimit */}
-                        <td className='p-4 align-middle text-xs font-semibold text-slate-600'>
-                          <div className='flex flex-col gap-1 w-[120px]'>
-                            <div className='flex justify-between text-[10px] text-slate-400'>
-                              <span>{voucher.usedCount} lượt dùng</span>
-                              <span>{voucher.usageLimit} tối đa</span>
-                            </div>
-                            <div className='w-full bg-slate-100 h-1.5 rounded-full overflow-hidden'>
-                              <div
-                                className='bg-primary h-full transition-all'
-                                style={{
-                                  width: `${Math.min(
-                                    100,
-                                    (voucher.usedCount / voucher.usageLimit) *
+                          {/* Usage limit */}
+                          <td className='p-4 align-middle text-xs font-semibold text-slate-600'>
+                            <div className='flex flex-col gap-1 w-[120px]'>
+                              <div className='flex justify-between text-[10px] text-slate-400'>
+                                <span>{voucher.usedCount || 0} lượt dùng</span>
+                                <span>{voucher.usageLimit} tối đa</span>
+                              </div>
+                              <div className='w-full bg-slate-100 h-1.5 rounded-full overflow-hidden'>
+                                <div
+                                  className='bg-primary h-full transition-all'
+                                  style={{
+                                    width: `${Math.min(
                                       100,
-                                  )}%`,
-                                }}
-                              />
+                                      ((voucher.usedCount || 0) / voucher.usageLimit) * 100
+                                    )}%`,
+                                  }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* Valid until */}
-                        <td className='p-4 align-middle text-xs font-bold text-slate-500'>
-                          <div className='flex items-center gap-1.5'>
-                            <IconCalendarEvent
-                              size={16}
-                              className='text-slate-400'
-                            />
-                            <span>{voucher.validUntil}</span>
-                          </div>
-                        </td>
+                          {/* Valid until */}
+                          <td className='p-4 align-middle text-xs font-bold text-slate-500'>
+                            <div className='flex items-center gap-1.5'>
+                              <IconCalendarEvent
+                                size={16}
+                                className='text-slate-400'
+                              />
+                              <span>
+                                {voucher.expirationDate
+                                  ? voucher.expirationDate.substring(0, 10)
+                                  : 'N/A'}
+                              </span>
+                            </div>
+                          </td>
 
-                        {/* Actions */}
-                        <td className='p-4 align-middle text-right'>
-                          <div className='flex justify-end items-center gap-1'>
-                            {/* Toggle status: Pause / Play */}
-                            {voucher.status !== 'EXPIRED' && (
+                          {/* Actions */}
+                          <td className='p-4 align-middle text-right'>
+                            <div className='flex justify-end items-center gap-1'>
+                              {/* Toggle status: Pause / Play */}
+                              {currentStatus !== 'EXPIRED' && (
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  onClick={() => setVoucherToToggle(voucher)}
+                                  className={`rounded-xl hover:bg-slate-100 ${
+                                    voucher.isActive
+                                      ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
+                                      : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
+                                  }`}
+                                  title={
+                                    voucher.isActive
+                                      ? 'Tạm ngưng hoạt động'
+                                      : 'Kích hoạt'
+                                  }
+                                >
+                                  {voucher.isActive ? (
+                                    <IconPlayerPause size={18} />
+                                  ) : (
+                                    <IconPlayerPlay size={18} />
+                                  )}
+                                </Button>
+                              )}
+
+                              {/* Edit */}
                               <Button
                                 variant='ghost'
                                 size='icon'
-                                onClick={() => setVoucherToToggle(voucher)}
-                                className={`rounded-xl hover:bg-slate-100 ${
-                                  voucher.status === 'ACTIVE'
-                                    ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50'
-                                    : 'text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50'
-                                }`}
-                                title={
-                                  voucher.status === 'ACTIVE'
-                                    ? 'Tạm ngưng hoạt động'
-                                    : 'Kích hoạt'
-                                }
+                                onClick={() => handleOpenForm(voucher)}
+                                className='rounded-xl hover:bg-slate-100 text-blue-500 hover:text-blue-600 hover:bg-blue-50'
+                                title='Chỉnh sửa thông tin'
                               >
-                                {voucher.status === 'ACTIVE' ? (
-                                  <IconPlayerPause size={18} />
-                                ) : (
-                                  <IconPlayerPlay size={18} />
-                                )}
+                                <IconEdit size={18} />
                               </Button>
-                            )}
 
-                            {/* Edit */}
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={() => handleOpenForm(voucher)}
-                              className='rounded-xl hover:bg-slate-100 text-blue-500 hover:text-blue-600 hover:bg-blue-50'
-                              title='Chỉnh sửa thông tin'
-                            >
-                              <IconEdit size={18} />
-                            </Button>
-
-                            {/* Delete */}
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={() => setVoucherToDelete(voucher)}
-                              className='rounded-xl hover:bg-slate-100 text-rose-500 hover:text-rose-600 hover:bg-rose-50'
-                              title='Xóa vĩnh viễn'
-                            >
-                              <IconTrash size={18} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                              {/* Delete */}
+                              <Button
+                                variant='ghost'
+                                size='icon'
+                                onClick={() => setVoucherToDelete(voucher)}
+                                className='rounded-xl hover:bg-slate-100 text-rose-500 hover:text-rose-600 hover:bg-rose-50'
+                                title='Xóa vĩnh viễn'
+                              >
+                                <IconTrash size={18} />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })
                   )}
                 </tbody>
               </table>
@@ -800,11 +753,10 @@ export function DiscountList() {
           </ScrollArea>
 
           {/* Table pagination block */}
-          {filteredVouchers.length > 0 && (
+          {!isLoading && rawList.length > 0 && (
             <div className='flex items-center justify-between py-5 px-6 border-t border-slate-100/60 bg-slate-50/10'>
               <div className='text-xs font-bold text-slate-500'>
-                Hiển thị {paginatedVouchers.length} mã (Trang {currentPage}/
-                {totalPages})
+                Hiển thị {rawList.length} mã (Trang {currentPage}/{totalPages})
               </div>
               <div className='flex items-center gap-1.5'>
                 <Button
@@ -887,7 +839,7 @@ export function DiscountList() {
                 <Select
                   value={discountType}
                   onValueChange={(val) => {
-                    setDiscountType(val as any)
+                    setDiscountType(val as 'PERCENTAGE' | 'FIXED' | 'FREE_SHIPPING')
                     setValue(0)
                   }}
                 >
@@ -896,14 +848,14 @@ export function DiscountList() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value='PERCENT'>
+                      <SelectItem value='PERCENTAGE'>
                         Giảm giá theo Phần trăm (%)
                       </SelectItem>
                       <SelectItem value='FIXED'>
                         Khấu trừ Số tiền cố định (đ)
                       </SelectItem>
-                      <SelectItem value='SHIPPING'>
-                        Miễn phí / Hỗ trợ ship (đ)
+                      <SelectItem value='FREE_SHIPPING'>
+                        Miễn phí vận chuyển
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -937,9 +889,14 @@ export function DiscountList() {
                   className='text-xs font-bold text-slate-600 pl-1'
                 >
                   Mức giảm tối đa <span className='text-red-500'>*</span>
-                  {discountType === 'PERCENT' && (
+                  {discountType === 'PERCENTAGE' && (
                     <span className='text-slate-400 font-medium pl-1'>
                       (Tối đa 100%)
+                    </span>
+                  )}
+                  {discountType === 'FREE_SHIPPING' && (
+                    <span className='text-slate-400 font-medium pl-1'>
+                      (Giá trị giảm)
                     </span>
                   )}
                 </Label>
@@ -949,11 +906,15 @@ export function DiscountList() {
                   value={value || ''}
                   onChange={(e) => setValue(Number(e.target.value))}
                   placeholder={
-                    discountType === 'PERCENT' ? '20 (%)' : '50000 (đ)'
+                    discountType === 'PERCENTAGE'
+                      ? '20 (%)'
+                      : discountType === 'FREE_SHIPPING'
+                      ? '0 (Miễn phí)'
+                      : '50000 (đ)'
                   }
                   className='h-11 bg-slate-50/50 border-slate-200 rounded-xl text-sm font-bold focus:bg-white'
-                  min={1}
-                  max={discountType === 'PERCENT' ? 100 : undefined}
+                  min={discountType === 'FREE_SHIPPING' ? 0 : 1}
+                  max={discountType === 'PERCENTAGE' ? 100 : undefined}
                   required
                 />
               </div>
@@ -979,7 +940,7 @@ export function DiscountList() {
             </div>
 
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              {/* Usage usageLimit */}
+              {/* Usage Limit */}
               <div className='flex flex-col gap-1.5'>
                 <Label
                   htmlFor='voucherLimit'
@@ -1048,7 +1009,8 @@ export function DiscountList() {
               </Button>
               <Button
                 type='submit'
-                className='gap-2 rounded-xl h-11 font-bold bg-primary hover:opacity-90 shadow-lg shadow-primary/20'
+                disabled={createMutation.isPending || updateMutation.isPending}
+                className='gap-2 rounded-xl h-11 font-bold bg-primary hover:opacity-90 shadow-lg shadow-primary/20 disabled:opacity-50'
               >
                 Lưu ưu đãi
               </Button>
@@ -1091,15 +1053,15 @@ export function DiscountList() {
                 <span className='font-bold text-slate-900'>Giá trị giảm:</span>
                 <span className='font-semibold'>
                   {formatVoucherValue(
-                    voucherToDelete.discountType,
-                    voucherToDelete.value,
+                    voucherToDelete.type,
+                    voucherToDelete.discountValue
                   )}
                 </span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-bold text-slate-900'>Hạn dùng:</span>
                 <span className='font-medium text-slate-500'>
-                  {voucherToDelete.validUntil}
+                  {voucherToDelete.expirationDate ? voucherToDelete.expirationDate.substring(0, 10) : ''}
                 </span>
               </div>
               <p className='text-xs text-red-600 font-semibold pt-2 border-t border-red-100/80 leading-relaxed'>
@@ -1119,7 +1081,8 @@ export function DiscountList() {
             </Button>
             <Button
               onClick={confirmDelete}
-              className='bg-red-500 text-white hover:bg-red-600 rounded-xl h-11 font-bold flex-1 gap-2 shadow-lg shadow-red-500/20'
+              disabled={deleteMutation.isPending}
+              className='bg-red-500 text-white hover:bg-red-600 rounded-xl h-11 font-bold flex-1 gap-2 shadow-lg shadow-red-500/20 disabled:opacity-50'
             >
               Đồng ý xóa
             </Button>
@@ -1167,7 +1130,7 @@ export function DiscountList() {
                       variant='outline'
                       className='text-[10px] rounded-full px-2 py-0.5'
                     >
-                      {voucherToToggle.status}
+                      {voucherToToggle.isActive ? 'ACTIVE' : 'PAUSED'}
                     </Badge>
                   </div>
                   <span className='text-blue-500 font-bold'>➜</span>
@@ -1176,16 +1139,14 @@ export function DiscountList() {
                       Thay đổi:
                     </span>
                     <Badge className='text-[10px] bg-blue-600 text-white rounded-full px-2 py-0.5'>
-                      {voucherToToggle.status === 'ACTIVE'
-                        ? 'PAUSED'
-                        : 'ACTIVE'}
+                      {!voucherToToggle.isActive ? 'ACTIVE' : 'PAUSED'}
                     </Badge>
                   </div>
                 </div>
               </div>
 
               <div className='text-xs text-slate-500 leading-relaxed px-1 font-medium'>
-                {voucherToToggle.status === 'ACTIVE' ? (
+                {voucherToToggle.isActive ? (
                   <span className='text-amber-600'>
                     ⛔ Khi tạm ngưng hoạt động (PAUSED), khách hàng sẽ KHÔNG THỂ
                     áp dụng mã voucher này khi thực hiện thanh toán giỏ hàng.
@@ -1211,9 +1172,10 @@ export function DiscountList() {
             </Button>
             <Button
               onClick={confirmToggleStatus}
-              className='bg-blue-600 text-white hover:bg-blue-700 rounded-xl h-11 font-bold flex-1 gap-2 shadow-lg shadow-blue-600/20'
+              disabled={toggleMutation.isPending}
+              className='bg-blue-600 text-white hover:bg-blue-700 rounded-xl h-11 font-bold flex-1 gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50'
             >
-              {voucherToToggle?.status === 'ACTIVE'
+              {voucherToToggle?.isActive
                 ? 'Tạm ngưng hoạt động'
                 : 'Kích hoạt sử dụng'}
             </Button>

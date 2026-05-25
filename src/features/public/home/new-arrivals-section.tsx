@@ -17,7 +17,42 @@ const NewArrivalsSection = () => {
   const { data: newArrivalsData, isLoading } = _homeService.useNewArrivals()
   const products = newArrivalsData?.result?.data || []
 
-  if (isLoading || products.length === 0) return null
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="main-container mx-auto px-4">
+          <div className="flex items-end justify-between mb-12 animate-pulse">
+            <div>
+              <div className="h-12 bg-slate-100 w-64 rounded-xl mb-4" />
+              <div className="h-6 bg-slate-100 w-40 rounded" />
+            </div>
+            <div className="h-10 bg-slate-100 w-32 rounded-full" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col h-full bg-white rounded-2xl p-2 animate-pulse"
+              >
+                <div className="aspect-[3/4] rounded-2xl bg-slate-100 mb-4 w-full" />
+                <div className="flex flex-col px-1 gap-2">
+                  <div className="h-4 bg-slate-100 rounded w-5/6" />
+                  <div className="h-4 bg-slate-100 rounded w-2/3" />
+                  <div className="flex gap-2 items-center mt-2">
+                    <div className="h-5 bg-slate-100 rounded w-1/3" />
+                    <div className="h-4 bg-slate-100 rounded w-1/4" />
+                  </div>
+                  <div className="h-3 bg-slate-100 rounded w-1/4 mt-3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (products.length === 0) return null
 
   return (
     <section className="py-20 bg-white">
@@ -65,10 +100,12 @@ const NewArrivalsSection = () => {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <div className="hidden md:block">
-            <CarouselPrevious className="-left-12 hover:bg-primary hover:text-white border-none shadow-xl" />
-            <CarouselNext className="-right-12 hover:bg-primary hover:text-white border-none shadow-xl" />
-          </div>
+          {products.length > 4 && (
+            <div className="hidden md:block">
+              <CarouselPrevious className="-left-12 hover:bg-primary hover:text-white border-none shadow-xl" />
+              <CarouselNext className="-right-12 hover:bg-primary hover:text-white border-none shadow-xl" />
+            </div>
+          )}
         </Carousel>
       </div>
     </section>

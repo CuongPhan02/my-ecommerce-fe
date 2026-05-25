@@ -25,7 +25,7 @@ const ProductSection = ({ title, banner, products }: ProductSectionProps) => {
         {title && (
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tight">{title}</h2>
-            <Link href="#" className="text-sm font-bold text-gray-500 hover:text-black transition-colors underline underline-offset-4">
+            <Link href="/shop" className="text-sm font-bold text-gray-500 hover:text-black transition-colors underline underline-offset-4">
               Xem tất cả
             </Link>
           </div>
