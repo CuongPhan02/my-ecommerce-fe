@@ -60,11 +60,11 @@ const CartSummary = ({ subtotal }: { subtotal: number }) => {
          <div className="flex flex-col gap-4 text-sm">
             <div className="flex justify-between font-medium text-gray-500">
                <span>Tạm tính</span>
-               <span className="font-bold text-black">{subtotal.toLocaleString()}đ</span>
+               <span className="font-bold text-black">{subtotal.toLocaleString('vi-VN')} ₫</span>
             </div>
             <div className="flex justify-between font-medium text-gray-500">
                <span>Voucher giảm giá</span>
-               <span className="font-bold text-green-600">0đ</span>
+               <span className="font-bold text-green-600">0 ₫</span>
             </div>
             <div className="flex justify-between font-medium text-gray-500">
                <span>Phí giao hàng</span>
@@ -74,7 +74,7 @@ const CartSummary = ({ subtotal }: { subtotal: number }) => {
 
          <div className="pt-6 border-t border-gray-200 flex justify-between items-center">
             <span className="text-lg font-black uppercase tracking-tight">Thành tiền</span>
-            <span className="text-2xl font-black text-black">{subtotal.toLocaleString()}đ</span>
+            <span className="text-2xl font-black text-black">{subtotal.toLocaleString('vi-VN')} ₫</span>
          </div>
 
          <button className="w-full py-5 bg-black text-white rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-primary transition-all shadow-xl shadow-black/10 mt-4">

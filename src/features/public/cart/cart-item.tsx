@@ -32,7 +32,7 @@ const CartItem = ({ name, price, color, size, quantity, image }: CartItemProps) 
       <div className="flex-1 flex flex-col gap-4">
         <div className="flex justify-between items-start gap-4">
            <h3 className="font-bold text-sm leading-tight hover:text-blue-600 transition-colors cursor-pointer">{name}</h3>
-           <span className="font-black text-sm">{price.toLocaleString()}đ</span>
+           <span className="font-black text-sm">{price.toLocaleString('vi-VN')} ₫</span>
         </div>
 
         <div className="flex flex-wrap gap-3">

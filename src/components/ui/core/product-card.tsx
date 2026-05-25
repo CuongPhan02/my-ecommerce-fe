@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion } from 'motion/react'
 import { Star, ShoppingCart } from 'lucide-react'
 import { cn } from '~/lib/utils'
@@ -41,6 +42,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? (product as Product).variants?.[0]?.price || 0 
     : (product as SimpleProduct).price || 0
 
+  const priceFormatted = isDbProduct
+    ? ((product as Product).variants?.[0] as any)?.priceFormatted || (product as any)?.priceFormatted
+    : (product as any)?.priceFormatted
+
   // 2. Discount Value
   const discountValue = isDbProduct ? (product as Product).discountValue : null
   const discountType = isDbProduct ? (product as Product).discountType : null
@@ -53,6 +58,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
             : price + (discountValue || 0))
         : undefined)
     : (product as SimpleProduct).originalPrice
+
+  const originalPriceFormatted = isDbProduct
+    ? ((product as Product).variants?.[0] as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
+    : (product as any)?.originalPriceFormatted
 
   // 4. Discount label percentage
   const discount = isDbProduct
@@ -81,15 +90,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       {/* Image Container */}
       <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 mb-4">
-        <Image
-          src={imageUrl}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        <Link href={`/product/${product.id}`} className="absolute inset-0 z-0">
+          <Image
+            src={imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        </Link>
         
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 pointer-events-none">
           {badge && (
             <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase">
               {badge}
@@ -104,10 +115,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Quick Size Selection */}
         <div className={cn(
-          "absolute inset-0 bg-black/5 flex flex-col items-center justify-center transition-all duration-300",
-          isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+          "absolute inset-0 bg-black/5 flex flex-col items-center justify-center transition-all duration-300 pointer-events-none z-20",
+          isHovered ? "opacity-100" : "opacity-0"
         )}>
-          <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl w-[90%] shadow-2xl transform transition-transform duration-300 scale-95 group-hover:scale-100">
+          <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl w-[90%] shadow-2xl transform transition-transform duration-300 scale-95 group-hover:scale-100 pointer-events-auto">
              <p className="text-[10px] font-bold text-center mb-3 text-gray-500 uppercase tracking-widest">Thêm nhanh vào giỏ hàng</p>
              <div className="grid grid-cols-3 gap-2">
                {sizes.map((size) => (
@@ -125,17 +136,19 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
       {/* Product Info */}
       <div className="flex flex-col flex-grow px-1">
-        <h3 className="font-bold text-sm text-gray-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors">
-          {product.name}
-        </h3>
+        <Link href={`/product/${product.id}`}>
+          <h3 className="font-bold text-sm text-gray-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
         <div className="flex items-center gap-3 mb-2">
           <span className="font-black text-base text-gray-900">
-            {price.toLocaleString('vi-VN')}đ
+            {priceFormatted || `${price.toLocaleString('vi-VN')} ₫`}
           </span>
           {originalPrice && originalPrice > price && (
             <span className="text-gray-400 text-sm line-through decoration-red-400">
-              {Math.round(originalPrice).toLocaleString('vi-VN')}đ
+              {originalPriceFormatted || `${Math.round(originalPrice).toLocaleString('vi-VN')} ₫`}
             </span>
           )}
         </div>

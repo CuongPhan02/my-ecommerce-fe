@@ -39,7 +39,7 @@ const ShopDropdown = ({ config }: ShopDropdownProps) => {
                   <div key={parent.id} className='flex flex-col space-y-4 group/item'>
                     {/* Parent Category Title */}
                     <Link
-                      href={`/category/${parent.slug}`}
+                      href={`/shop?categoryId=${parent.id}`}
                       className='font-black text-[13.5px] uppercase tracking-widest text-neutral-900 border-b border-neutral-100 pb-2 flex items-center justify-between group-hover/item:text-primary transition-colors'
                     >
                       <span>{parent.name}</span>
@@ -52,7 +52,7 @@ const ShopDropdown = ({ config }: ShopDropdownProps) => {
                         {subCats.map((sub) => (
                           <Link
                             key={sub.id}
-                            href={`/category/${sub.slug}`}
+                            href={`/shop?categoryId=${sub.id}`}
                             className='text-[13.5px] text-neutral-500 hover:text-primary transition-all duration-200 hover:pl-2 flex items-center font-medium group/sub'
                           >
                             <span className='h-1 w-1 rounded-full bg-neutral-300 mr-2 group-hover/sub:bg-primary group-hover/sub:scale-125 transition-all' />
@@ -83,7 +83,7 @@ const ShopDropdown = ({ config }: ShopDropdownProps) => {
                 {featuredCollections.map((col) => (
                   <Link
                     key={col.id}
-                    href={`/collection/${col.slug}`}
+                    href={`/shop?collectionId=${col.id}`}
                     className='relative group/card w-full h-[130px] rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-neutral-100 transition-all duration-300 flex'
                   >
                     {/* Left overlay info */}
@@ -126,12 +126,13 @@ const ShopDropdown = ({ config }: ShopDropdownProps) => {
             </span>
             <div className='flex flex-wrap gap-2'>
               {config.attributes.map((attr) => (
-                <span
+                <Link
                   key={attr.id}
+                  href={`/shop`}
                   className='px-3.5 py-1.5 bg-neutral-50 hover:bg-primary/[0.04] text-neutral-600 hover:text-primary border border-neutral-100 rounded-full text-xs font-semibold transition-all duration-300 cursor-pointer hover:border-primary/20'
                 >
                   {attr.name}
-                </span>
+                </Link>
               ))}
             </div>
           </div>

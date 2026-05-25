@@ -40,12 +40,14 @@ const StorySection = () => {
               const prod = item.product || item
               if (!prod || !prod.id) return null
               const price = prod.variants?.[0]?.price || 299000
+              const priceFormatted = prod.variants?.[0]?.priceFormatted || prod.priceFormatted
               const url = prod.thumbnail?.url || '/placeholder-product.png'
               return {
                 id: prod.id,
                 name: prod.name,
                 slug: prod.slug,
                 price,
+                priceFormatted,
                 imageUrl: url,
                 storyBg: url,
               }
@@ -384,7 +386,7 @@ const StorySection = () => {
                           Xem sản phẩm
                         </span>
                         <span className='text-[14px] font-black text-neutral-900 leading-none'>
-                          {activeProduct.price.toLocaleString('vi-VN')} đ
+                          {activeProduct.priceFormatted || `${activeProduct.price.toLocaleString('vi-VN')} ₫`}
                         </span>
                       </div>
                     </div>

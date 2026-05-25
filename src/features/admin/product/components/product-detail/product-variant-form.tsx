@@ -33,6 +33,58 @@ import {
 } from '~/components/ui/core/select'
 import { CreateAttributeDialog } from './create-attribute-dialog'
 
+interface CurrencyInputProps {
+  name: string
+  placeholder?: string
+  className?: string
+  disabled?: boolean
+}
+
+const CurrencyInput = ({
+  name,
+  placeholder = '0',
+  className,
+  disabled,
+}: CurrencyInputProps) => {
+  const { control } = useFormContext()
+
+  const formatValue = (val: any) => {
+    if (val === undefined || val === null || val === '') return ''
+    const num = Number(val)
+    if (isNaN(num)) return ''
+    return num.toLocaleString('vi-VN')
+  }
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field: { onChange, value } }) => {
+        const displayValue =
+          value === 0 || value === undefined || value === null
+            ? ''
+            : formatValue(value)
+
+        return (
+          <Input
+            type='text'
+            placeholder={placeholder}
+            value={displayValue}
+            onChange={(e) => {
+              const cleanVal = e.target.value.replace(/[^0-9]/g, '')
+              const numVal = cleanVal === '' ? 0 : Number(cleanVal)
+              onChange(numVal)
+            }}
+            disabled={disabled}
+            className={className}
+          />
+        )
+      }}
+    />
+  )
+}
+
+
 interface Variation {
   id: string | number
   name: string
@@ -274,19 +326,15 @@ const ProductVariantForm = () => {
           <CardContent className='space-y-4'>
             <div className='grid grid-cols-1 md:grid-cols-[150px_1fr] items-center gap-4'>
               <Label>Giá nhập hàng</Label>
-              <Input
-                type='number'
-                {...register(`variants.${0}.purchasePrice`, {
-                  valueAsNumber: true,
-                })}
+              <CurrencyInput
+                name={`variants.${0}.purchasePrice`}
                 className='bg-white'
               />
             </div>
             <div className='grid grid-cols-1 md:grid-cols-[150px_1fr] items-center gap-4'>
               <Label>Giá bán</Label>
-              <Input
-                type='number'
-                {...register(`variants.${0}.price`, { valueAsNumber: true })}
+              <CurrencyInput
+                name={`variants.${0}.price`}
                 className='bg-white'
               />
             </div>
@@ -474,12 +522,8 @@ const ProductVariantForm = () => {
                         <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
                           Giá nhập hàng
                         </Label>
-                        <Input
-                          type='number'
-                          placeholder='0'
-                          {...register(`variants.${index}.purchasePrice`, {
-                            valueAsNumber: true,
-                          })}
+                        <CurrencyInput
+                          name={`variants.${index}.purchasePrice`}
                           className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
                       </div>
@@ -489,12 +533,8 @@ const ProductVariantForm = () => {
                         <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
                           Giá bán <span className="text-red-500">*</span>
                         </Label>
-                        <Input
-                          type='number'
-                          placeholder='0'
-                          {...register(`variants.${index}.price`, {
-                            valueAsNumber: true,
-                          })}
+                        <CurrencyInput
+                          name={`variants.${index}.price`}
                           className='bg-white dark:bg-muted/30 h-9 text-sm focus-visible:ring-orange-500'
                         />
                       </div>

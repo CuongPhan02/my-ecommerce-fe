@@ -47,7 +47,7 @@ const StickyCheckoutBar = ({ total }: StickyCheckoutBarProps) => {
         <div className='flex-1 flex flex-col items-center lg:items-end lg:pr-12'>
           <div className='flex items-center gap-2'>
             <span className='text-2xl font-black text-blue-600'>
-              {total.toLocaleString()}đ
+              {total.toLocaleString('vi-VN')} ₫
             </span>
             <button className='text-blue-300 hover:text-blue-600 transition-colors'>
               <Info className='w-4 h-4' />

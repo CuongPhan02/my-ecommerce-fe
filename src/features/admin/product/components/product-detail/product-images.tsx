@@ -79,11 +79,18 @@ const ProductImages = () => {
           <div className='flex flex-col items-start gap-3'>
             {thumbnailImage ? (
               <div className='relative w-40 h-40 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden group hover:border-primary transition-colors'>
-                <img
-                  src={thumbnailImage.url}
-                  alt={thumbnailImage.altText || 'Thumbnail'}
-                  className='w-full h-full object-cover'
-                />
+                {thumbnailImage.fileType === 'VIDEO' ? (
+                  <video
+                    src={thumbnailImage.url}
+                    className='w-full h-full object-cover'
+                  />
+                ) : (
+                  <img
+                    src={thumbnailImage.url}
+                    alt={thumbnailImage.altText || 'Thumbnail'}
+                    className='w-full h-full object-cover'
+                  />
+                )}
                 <Button
                   variant='ghost'
                   size='icon'
@@ -134,11 +141,18 @@ const ProductImages = () => {
                 key={image.id}
                 className='relative w-32 h-32 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden group hover:border-primary transition-all'
               >
-                <img
-                  src={image.url}
-                  alt={image.altText || 'Gallery Image'}
-                  className='w-full h-full object-cover'
-                />
+                {image.fileType === 'VIDEO' ? (
+                  <video
+                    src={image.url}
+                    className='w-full h-full object-cover'
+                  />
+                ) : (
+                  <img
+                    src={image.url}
+                    alt={image.altText || 'Gallery Image'}
+                    className='w-full h-full object-cover'
+                  />
+                )}
                 <Button
                   variant='ghost'
                   size='icon'

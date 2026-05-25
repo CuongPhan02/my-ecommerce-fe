@@ -92,14 +92,28 @@ export const MediaGrid = ({
                   className='size-full rounded-[inherit] object-cover transition-transform duration-500 group-hover/item:scale-105'
                 />
               ) : item.mediaType === 'VIDEO' ? (
-                <div className='size-full rounded-[inherit] object-cover flex flex-col items-center justify-center bg-muted/65 dark:bg-muted/20 break-all text-center p-4'>
-                  <Film className='size-10 text-primary mb-2.5 animate-pulse' />
-                  <span
-                    className='text-xs text-muted-foreground font-semibold line-clamp-2 px-2'
-                    title={item.altText || item.fileId}
-                  >
-                    {item.altText || item.fileId}
-                  </span>
+                <div className='size-full rounded-[inherit] object-cover relative group/video'>
+                  <video
+                    src={item.preview || item.url || ''}
+                    className='size-full object-cover rounded-[inherit] opacity-70 group-hover/video:opacity-100 transition-opacity duration-300'
+                    muted
+                    loop
+                    onMouseOver={(e) => (e.target as HTMLVideoElement).play()}
+                    onMouseOut={(e) => {
+                      const video = e.target as HTMLVideoElement;
+                      video.pause();
+                      video.currentTime = 0;
+                    }}
+                  />
+                  <div className='absolute inset-0 flex flex-col items-center justify-center pointer-events-none opacity-100 group-hover/video:opacity-0 transition-opacity duration-300'>
+                    <Film className='size-10 text-white/80 drop-shadow-md mb-2.5' />
+                    <span
+                      className='text-xs text-white font-semibold line-clamp-2 px-2 drop-shadow-md'
+                      title={item.altText || item.fileId}
+                    >
+                      {item.altText || item.fileId}
+                    </span>
+                  </div>
                 </div>
               ) : item.mediaType === 'DOCUMENT' ? (
                 <div className='size-full rounded-[inherit] object-cover flex flex-col items-center justify-center bg-muted/65 dark:bg-muted/20 break-all text-center p-4'>

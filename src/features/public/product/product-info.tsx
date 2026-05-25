@@ -13,12 +13,15 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const variant = product.variants?.[selectedVariantIndex]
   const price = variant?.price || 0
+  const priceFormatted = (variant as any)?.priceFormatted || (product as any)?.priceFormatted
 
   const originalPrice = product.discountValue
     ? product.discountType === 'PERCENTAGE'
       ? price / (1 - product.discountValue / 100)
       : price + product.discountValue
     : undefined
+
+  const originalPriceFormatted = (variant as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
 
   const discount =
     product.discountType === 'PERCENTAGE' ? product.discountValue : 0
@@ -59,12 +62,12 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       <div className='flex flex-col gap-2'>
         <div className='flex items-center gap-4'>
           <span className='text-3xl font-black text-black'>
-            {price.toLocaleString('vi-VN')}đ
+            {priceFormatted || `${price.toLocaleString('vi-VN')} ₫`}
           </span>
           {originalPrice && originalPrice > price && (
             <>
               <span className='text-xl text-gray-400 line-through'>
-                {Math.round(originalPrice).toLocaleString('vi-VN')}đ
+                {originalPriceFormatted || `${Math.round(originalPrice).toLocaleString('vi-VN')} ₫`}
               </span>
               <span className='bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full'>
                 -{discount}%
