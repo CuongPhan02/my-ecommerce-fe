@@ -20,7 +20,7 @@ const LogoUi = ({ className }: { className?: string }) => {
         height={200}
         className='max-w-12 h-auto object-cover'
       />
-      AKR-SHOP
+      TMC STYLE
     </div>
   )
 }
