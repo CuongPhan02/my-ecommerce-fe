@@ -10,25 +10,25 @@ import CollectionSection from '~/features/public/home/collection-section'
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden">
+    <main className='overflow-x-hidden'>
       <HeroSection />
-      
+
       {/* Flash Sale Section - High Urgency */}
       <FlashSaleSection />
 
       <StorySection />
-      
+
       {/* Dynamic New Arrivals */}
       <NewArrivalsSection />
 
-      <CategoryGrid />
-      
+      {/* <CategoryGrid /> */}
+
       {/* Dynamic Collections Grid */}
       <CollectionSection />
 
       <PromoBanners />
       <PickleballBanner />
-      
+
       <SocialGrid />
     </main>
   )

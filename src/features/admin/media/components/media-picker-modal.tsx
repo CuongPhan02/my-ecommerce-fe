@@ -94,33 +94,39 @@ const MediaPickerModal = ({
           <DialogTitle>Chọn phương tiện</DialogTitle>
         </DialogHeader>
 
-        <div className='flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-0 p-6'>
-          <ListFolderUi />
-
-          <div className='flex-1 my-4'>
-            {isLoading ? (
-              <LoadingUiMediaList count={10} />
-            ) : (
-              <MediaGrid
-                items={displayItems}
-                selectedIds={selectedItems.map((x) => x.id)}
-                uploadProgress={{}}
-                onSelect={handleSelect}
-                onRemove={() => {}}
-                selectableMode={true}
-              />
-            )}
+        <div className='flex-1 flex flex-col md:flex-row gap-6 p-6 min-h-0 overflow-y-auto md:overflow-hidden'>
+          {/* Cột trái: Thư mục */}
+          <div className='w-full md:w-64 lg:w-72 shrink-0 flex flex-col min-h-0'>
+            <ListFolderUi className='h-full min-h-0' scrollAreaClassName='flex-1 w-full min-h-0' />
           </div>
 
-          {!isLoading && displayItems.length > 0 && (
-            <div className='mt-2 pb-12 relative h-12 shrink-0'>
-              <Pagination
-                meta={metadata}
-                variant='numbers'
-                className='justify-center absolute bottom-0 left-1/2 -translate-x-1/2 bg-accent p-2 rounded-md w-full'
-              />
+          {/* Cột phải: Danh sách phương tiện */}
+          <div className='flex-1 flex flex-col gap-4 min-h-0 md:overflow-hidden'>
+            <div className='flex-1 overflow-y-auto custom-scrollbar pr-2 min-h-0'>
+              {isLoading ? (
+                <LoadingUiMediaList count={10} />
+              ) : (
+                <MediaGrid
+                  items={displayItems}
+                  selectedIds={selectedItems.map((x) => x.id)}
+                  uploadProgress={{}}
+                  onSelect={handleSelect}
+                  onRemove={() => {}}
+                  selectableMode={true}
+                />
+              )}
             </div>
-          )}
+
+            {!isLoading && displayItems.length > 0 && (
+              <div className='shrink-0 pt-2 border-t mt-auto'>
+                <Pagination
+                  meta={metadata}
+                  variant='numbers'
+                  className='justify-center bg-accent p-2 rounded-md w-full'
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter className='border-t p-6 sm:justify-between flex-row items-center shrink-0'>
@@ -139,7 +145,6 @@ const MediaPickerModal = ({
             </Button>
           </div>
         </DialogFooter>
-
       </DialogContent>
     </Dialog>
   )

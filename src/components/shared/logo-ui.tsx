@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { cn } from '~/lib/utils'
 import { useTransitionRouter } from 'next-view-transitions'
 
-const LogoUi = ({ className }: { className?: string }) => {
+const LogoUi = ({ className, logoUrl, logoAlt }: { className?: string; logoUrl?: string | null; logoAlt?: string | null }) => {
   const router = useTransitionRouter()
   return (
     <div
@@ -14,13 +14,13 @@ const LogoUi = ({ className }: { className?: string }) => {
       )}
     >
       <Image
-        src={'/logo-app.png'}
-        alt='Logo'
+        src={logoUrl || '/logo-app.png'}
+        alt={logoAlt || 'Logo'}
         width={200}
         height={200}
         className='max-w-12 h-auto object-cover'
       />
-      AKR-SHOP
+      {logoAlt || 'AKR-SHOP'}
     </div>
   )
 }

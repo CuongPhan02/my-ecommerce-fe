@@ -13,7 +13,14 @@ import { _mediaService } from '../media.query'
 import { DEFAULT_FOLDER_MEDIA } from '~/constants'
 import { LoadingUiFolder } from './loading-ui-list'
 
-const ListFolderUi = () => {
+import { cn } from '~/lib/utils'
+
+export type ListFolderUiProps = {
+  className?: string
+  scrollAreaClassName?: string
+}
+
+const ListFolderUi = ({ className, scrollAreaClassName }: ListFolderUiProps) => {
   const [selectedFolder, setSelectedFolder] = useState<{
     id: string
     name: string
@@ -105,7 +112,7 @@ const ListFolderUi = () => {
   }, [selectedFolder, mediaFolderData])
 
   return (
-    <div className='flex flex-col gap-4 w-full bg-muted dark:bg-muted/5 backdrop-blur-xs p-4 rounded-2xl border border-muted/80 shadow-2xs min-h-[520px] transition-all duration-300'>
+    <div className={cn('flex flex-col gap-4 w-full bg-muted dark:bg-muted/5 backdrop-blur-xs p-4 rounded-2xl border border-muted/80 shadow-2xs min-h-[520px] transition-all duration-300', className)}>
       <div className='flex items-center justify-between border-b border-muted/65 pb-3 mb-1 px-1'>
         <div className='flex flex-col gap-0.5'>
           <h3 className='font-semibold text-xs text-foreground uppercase tracking-wider opacity-85'>
@@ -116,7 +123,7 @@ const ListFolderUi = () => {
         <AddFolder />
       </div>
 
-      <ScrollArea className='h-[calc(100vh-270px)] w-full'>
+      <ScrollArea className={cn('h-[calc(100vh-270px)] w-full', scrollAreaClassName)}>
         {isLoading ? (
           <div className='flex flex-col gap-2'>
             <LoadingUiFolder />

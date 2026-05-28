@@ -14,22 +14,37 @@ export default async function Layout({
   children: React.ReactNode
 }>) {
   let initialMenus = []
+  let logoUrl = null
+  let logoAlt = null
+
   try {
-    const res = await fetch(`${API_BASE_URL}/navigate/tree`, {
-      next: { revalidate: 300 }, // Cache 5 phút để có tốc độ phản hồi tối ưu
-    })
-    if (res.ok) {
-      const data = await res.json()
+    const [menusRes, logoRes] = await Promise.all([
+      fetch(`${API_BASE_URL}/navigate/tree`, {
+        next: { revalidate: 300 }, // Cache 5 phút để có tốc độ phản hồi tối ưu
+      }),
+      fetch(`${API_BASE_URL}/settings/logo`, {
+        next: { revalidate: 300 }, // Cache 5 phút để có tốc độ phản hồi tối ưu
+      })
+    ])
+
+    if (menusRes.ok) {
+      const data = await menusRes.json()
       initialMenus = data?.result || []
     }
+
+    if (logoRes.ok) {
+      const data = await logoRes.json()
+      logoUrl = data?.result?.imageUrl || null
+      logoAlt = data?.result?.alt || null
+    }
   } catch (error) {
-    console.error('Failed to fetch navigation tree on server:', error)
+    console.error('Failed to fetch initial page data on server:', error)
   }
 
   return (
     <ComingSoonWrapper isEnabled={isComingSoon}>
       <div className='flex flex-col min-h-screen'>
-        <Header initialMenus={initialMenus} />
+        <Header initialMenus={initialMenus} logoUrl={logoUrl} logoAlt={logoAlt} />
         <main className='w-full h-fit flex-1'>{children}</main>
         <Footer />
       </div>

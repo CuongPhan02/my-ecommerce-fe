@@ -15,6 +15,8 @@ export default function ProductDetailPage() {
   const { data: productData, isLoading, isError } = _productService.useProductDetail(id as string)
   const product = productData?.result
 
+  const [isExpanded, setIsExpanded] = React.useState(false)
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -73,17 +75,26 @@ export default function ProductDetailPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-black uppercase tracking-tight mb-10">MÔ TẢ SẢN PHẨM</h2>
           <div className="space-y-6 text-gray-600 font-medium leading-loose text-lg">
-             <p className="font-black text-black text-xl italic mb-8">
+             <p className="font-black text-black text-xl italic mb-8 text-center">
                {product.summary || product.name}
              </p>
-             <div 
-               className="prose max-w-none prose-neutral"
-               dangerouslySetInnerHTML={{ __html: product.description || '' }}
-             />
-             <div className="relative pt-8 group cursor-pointer">
-                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-                <button className="bg-gray-100 px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-lg group-hover:scale-105 transform">
-                  XEM THÊM CHI TIẾT
+             <div className="relative">
+               <div 
+                 className={`prose max-w-none prose-neutral text-left overflow-hidden transition-all duration-700 ease-in-out ${
+                   isExpanded ? 'max-h-none' : 'max-h-[380px]'
+                 }`}
+                 dangerouslySetInnerHTML={{ __html: product.description || '' }}
+               />
+               {!isExpanded && (
+                 <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none" />
+               )}
+             </div>
+             <div className="pt-8 flex justify-center">
+                <button 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="bg-gray-100 px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-md hover:scale-105 active:scale-95 transform duration-300"
+                >
+                  {isExpanded ? 'THU GỌN CHI TIẾT' : 'XEM THÊM CHI TIẾT'}
                 </button>
              </div>
           </div>

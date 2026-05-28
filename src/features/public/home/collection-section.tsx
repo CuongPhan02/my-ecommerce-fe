@@ -15,7 +15,9 @@ import {
 
 const CollectionSection = () => {
   const { data: collectionsData, isLoading } = _homeService.useCollections()
-  const collections = collectionsData?.result?.data || []
+  const collections = (collectionsData?.result?.data || []).filter(
+    (collection: any) => collection.isHomeActive === true
+  )
 
   if (isLoading) {
     return (

@@ -16,8 +16,9 @@ import { User, Heart } from 'lucide-react'
 import { Menu as DbMenu } from '~/features/admin/menu/types'
 import { _menuService } from '~/features/admin/menu/menu.query'
 import { useMemo } from 'react'
+import { _cartService } from '~/features/public/cart/cart.query'
 
-const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
+const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; logoUrl?: string | null; logoAlt?: string | null }) => {
   const [isLogin, setIsLogin] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -49,6 +50,15 @@ const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
     }
   }
 
+  const { data: cartData } = _cartService.useCart({
+    enabled: isAuthenticated
+  })
+
+  const cartItemsCount = useMemo(() => {
+    if (!isAuthenticated || !cartData?.result?.items) return 0
+    return cartData.result.items.reduce((total, item) => total + item.quantity, 0)
+  }, [isAuthenticated, cartData])
+
   useEffect(() => {
     setIsLogin(isAuthenticated)
   }, [isAuthenticated])
@@ -70,7 +80,7 @@ const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
           <div className='flex items-center justify-between container-layout px-4 md:px-8 h-[65px] md:h-[80px]'>
             {/* Logo Section */}
             <div className='flex-shrink-0'>
-              <LogoUi />
+              <LogoUi logoUrl={logoUrl} logoAlt={logoAlt} />
             </div>
 
             {/* Desktop Navigation - Centered */}
@@ -106,20 +116,33 @@ const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
 
             {/* Right Actions */}
             <div className='flex items-center gap-3 sm:gap-4 md:gap-6 text-[#231f20]'>
-              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
-                <User className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
-              </button>
+              {isLogin ? (
+                <AvatarDropdown handleLogout={handleLogout} />
+              ) : (
+                <Link
+                  href='/auth/sign-in'
+                  className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'
+                >
+                  <User className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+                </Link>
+              )}
 
-              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
+              <Link
+                href='/wishlist'
+                className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'
+              >
                 <Heart className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
-              </button>
+              </Link>
 
-              <button className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'>
+              <Link
+                href='/cart'
+                className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'
+              >
                 <ShoppingBag className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
                 <span className='absolute top-1.5 right-1.5 bg-primary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold scale-90 border border-white'>
-                  0
+                  {cartItemsCount}
                 </span>
-              </button>
+              </Link>
 
               <button
                 className='lg:hidden hover:text-primary p-1.5 hover:scale-105 duration-200'
@@ -138,6 +161,8 @@ const Header = ({ initialMenus }: { initialMenus?: DbMenu[] }) => {
           isAuthenticated={isAuthenticated}
           handleLogout={handleLogout}
           navLinks={navigationTree}
+          logoUrl={logoUrl}
+          logoAlt={logoAlt}
         />
       </div>
     </>

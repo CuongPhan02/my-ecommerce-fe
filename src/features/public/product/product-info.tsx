@@ -1,7 +1,9 @@
-import { Heart, Minus, Plus, Share2, ShoppingBag, Star } from 'lucide-react'
+import { Heart, Minus, Plus, Share2, ShoppingBag, Star, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { Product } from '~/features/admin/product/types'
 import { cn } from '~/lib/utils'
+import { _cartService } from '~/features/public/cart/cart.query'
+import { toast } from 'react-toastify'
 
 interface ProductInfoProps {
   product: Product
@@ -25,6 +27,30 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const discount =
     product.discountType === 'PERCENTAGE' ? product.discountValue : 0
+
+  const addToCartMutation = _cartService.useAddToCart()
+
+  const handleAddToCart = () => {
+    if (!variant) {
+      toast.error('Vui lòng chọn một phiên bản sản phẩm')
+      return
+    }
+    addToCartMutation.mutate(
+      {
+        productVariantId: variant.id,
+        quantity,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Đã thêm sản phẩm vào giỏ hàng thành công!')
+        },
+        onError: (err: any) => {
+          console.error(err)
+          toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng')
+        }
+      }
+    )
+  }
 
   return (
     <div className='flex flex-col gap-8'>
@@ -141,9 +167,19 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             <Plus className='w-4 h-4' />
           </button>
         </div>
-        <button className='flex-1 bg-black text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-black/10'>
-          <ShoppingBag className='w-5 h-5' />
-          Thêm vào giỏ
+        <button 
+          onClick={handleAddToCart}
+          disabled={addToCartMutation.isPending}
+          className='flex-1 bg-black text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-black/10 disabled:opacity-60'
+        >
+          {addToCartMutation.isPending ? (
+            <Loader2 className='w-5 h-5 animate-spin' />
+          ) : (
+            <>
+              <ShoppingBag className='w-5 h-5' />
+              Thêm vào giỏ
+            </>
+          )}
         </button>
         <button className='w-14 h-14 border-2 border-gray-100 rounded-2xl flex items-center justify-center hover:bg-red-50 hover:border-red-100 group transition-all'>
           <Heart className='w-6 h-6 group-hover:fill-red-500 group-hover:text-red-500 transition-all' />
