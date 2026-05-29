@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import CartItem from '~/features/public/cart/cart-item'
 import ShippingForm from '~/features/public/cart/shipping-form'
 import PaymentSelection from '~/features/public/cart/payment-selection'
@@ -8,17 +8,48 @@ import CartSummary from '~/features/public/cart/cart-summary'
 import StickyCheckoutBar from '~/features/public/cart/sticky-checkout-bar'
 import { Info, X, ShoppingBag, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { _cartService } from '~/features/public/cart/cart.query'
 
 export default function CartPage() {
+  const router = useRouter()
   const { data: cartData, isLoading, isError } = _cartService.useCart()
   const updateCartItemMutation = _cartService.useUpdateCartItem()
   const removeCartItemMutation = _cartService.useRemoveCartItem()
   const clearCartMutation = _cartService.useClearCart()
+  const createOrderMutation = _cartService.useCreateOrder()
+  const createPaymentUrlMutation = _cartService.useCreatePaymentUrl()
+
+  const [shippingValues, setShippingValues] = useState({
+    shippingName: '',
+    shippingPhone: '',
+    shippingEmail: '',
+    street: '',
+    province: '',
+    city: '',
+    note: ''
+  })
+
+  const [paymentMethod, setPaymentMethod] = useState('COD')
+  const [couponCode, setCouponCode] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const cart = cartData?.result
   const cartItems = cart?.items || []
   const subtotal = cartItems.reduce((acc, item) => acc + (item.variant.price * item.quantity), 0)
+
+  // Calculate discount based on active coupon
+  let discount = 0
+  if (couponCode === 'CM150') {
+    if (subtotal >= 999000) {
+      discount = 150000
+    }
+  } else if (couponCode === 'SALE10') {
+    discount = Math.round(subtotal * 0.1)
+  }
+  const finalTotal = Math.max(0, subtotal - discount)
+
+  const isSubmitting = createOrderMutation.isPending || createPaymentUrlMutation.isPending || clearCartMutation.isPending
 
   const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
     updateCartItemMutation.mutate({ itemId, payload: { quantity: newQuantity } })
@@ -33,6 +64,109 @@ export default function CartPage() {
       clearCartMutation.mutate()
     }
   }
+
+  const handleShippingChange = (field: string, value: string) => {
+    setShippingValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+    if (errors[field]) {
+      setErrors((prev) => {
+        const copy = { ...prev }
+        delete copy[field]
+        return copy
+      })
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!shippingValues.shippingName.trim()) {
+      newErrors.shippingName = 'Họ tên không được để trống'
+    } else if (shippingValues.shippingName.trim().length < 2) {
+      newErrors.shippingName = 'Họ tên phải có ít nhất 2 ký tự'
+    }
+
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
+    if (!shippingValues.shippingPhone.trim()) {
+      newErrors.shippingPhone = 'Số điện thoại không được để trống'
+    } else if (!phoneRegex.test(shippingValues.shippingPhone.trim())) {
+      newErrors.shippingPhone = 'Số điện thoại không hợp lệ (ví dụ: 0987654321)'
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!shippingValues.shippingEmail.trim()) {
+      newErrors.shippingEmail = 'Email không được để trống'
+    } else if (!emailRegex.test(shippingValues.shippingEmail.trim())) {
+      newErrors.shippingEmail = 'Email không hợp lệ (ví dụ: customer@gmail.com)'
+    }
+
+    if (!shippingValues.street.trim()) {
+      newErrors.street = 'Địa chỉ chi tiết không được để trống'
+    }
+
+    if (!shippingValues.province.trim()) {
+      newErrors.province = 'Tỉnh / Thành phố không được để trống'
+    }
+
+    if (!shippingValues.city.trim()) {
+      newErrors.city = 'Quận / Huyện không được để trống'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleOrder = async () => {
+    if (!validateForm()) {
+      alert('Vui lòng điền đầy đủ và chính xác thông tin vận chuyển!')
+      return
+    }
+
+    try {
+      const payload = {
+        shippingAddressId: undefined,
+        couponCode: couponCode || undefined,
+        paymentMethod: paymentMethod as 'COD' | 'VNPAY',
+        shippingName: shippingValues.shippingName,
+        shippingPhone: shippingValues.shippingPhone,
+        shippingEmail: shippingValues.shippingEmail,
+        street: shippingValues.street,
+        province: shippingValues.province,
+        city: shippingValues.city,
+        note: shippingValues.note || undefined,
+      }
+
+      const orderRes = await createOrderMutation.mutateAsync(payload)
+      const orderId = orderRes?.result?.id || orderRes?.result?.orderId || orderRes?.result
+
+      if (!orderId) {
+        throw new Error('Không nhận được mã đơn hàng từ hệ thống')
+      }
+
+      if (paymentMethod === 'VNPAY') {
+        const paymentRes = await createPaymentUrlMutation.mutateAsync({
+          orderId: String(orderId),
+          language: 'vn'
+        })
+        const paymentUrl = paymentRes?.result?.paymentUrl || (typeof paymentRes?.result === 'string' ? paymentRes.result : undefined)
+        if (paymentUrl) {
+          window.location.href = paymentUrl
+        } else {
+          throw new Error('Không tạo được đường dẫn thanh toán VNPAY')
+        }
+      } else {
+        await clearCartMutation.mutateAsync()
+        router.push(`/checkout/result?orderId=${orderId}&success=true`)
+      }
+    } catch (err: any) {
+      console.error('Lỗi khi đặt hàng:', err)
+      const message = err?.response?.data?.message || err?.message || 'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.'
+      alert(`Đã xảy ra lỗi: ${message}`)
+    }
+  }
+
 
   if (isLoading) {
     return (
@@ -99,9 +233,16 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
             {/* Left Column: Form & Payment */}
             <div className="lg:col-span-7 flex flex-col gap-16">
-              <ShippingForm />
+              <ShippingForm 
+                values={shippingValues}
+                onChange={handleShippingChange}
+                errors={errors}
+              />
               <div className="h-px bg-gray-100" />
-              <PaymentSelection />
+              <PaymentSelection 
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+              />
             </div>
 
             {/* Right Column: Cart items & Summary */}
@@ -143,13 +284,27 @@ export default function CartPage() {
               </div>
 
               {/* Summary & Voucher */}
-              <CartSummary subtotal={subtotal} />
+              <CartSummary 
+                subtotal={subtotal} 
+                couponCode={couponCode}
+                onCouponChange={setCouponCode}
+                isSubmitting={isSubmitting}
+                onOrder={handleOrder}
+              />
             </div>
           </div>
         )}
       </div>
 
-      {cartItems.length > 0 && <StickyCheckoutBar total={subtotal} />}
+      {cartItems.length > 0 && (
+        <StickyCheckoutBar 
+          total={finalTotal} 
+          paymentMethod={paymentMethod}
+          couponCode={couponCode}
+          isSubmitting={isSubmitting}
+          onOrder={handleOrder}
+        />
+      )}
     </div>
   )
 }

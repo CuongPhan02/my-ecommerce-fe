@@ -1,6 +1,6 @@
 import { ApiResponse } from '~/@types/api'
 import { https } from '~/config/https'
-import { Cart, AddToCartPayload, UpdateCartItemPayload } from './types'
+import { Cart, AddToCartPayload, UpdateCartItemPayload, CreateOrderPayload, CreatePaymentUrlPayload } from './types'
 
 export const _cartApi = {
   getCart: async () => {
@@ -26,5 +26,16 @@ export const _cartApi = {
   clearCart: async () => {
     const res = await https.post<ApiResponse<Cart>>('/cart/clear')
     return res.data
+  },
+
+  createOrder: async (payload: CreateOrderPayload) => {
+    const res = await https.post<ApiResponse<any>>('/orders', payload)
+    return res.data
+  },
+
+  createPaymentUrl: async (payload: CreatePaymentUrlPayload) => {
+    const res = await https.post<ApiResponse<{ paymentUrl: string }>>('/payments/create-payment-url', payload)
+    return res.data
   }
 }
+

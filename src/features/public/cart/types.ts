@@ -44,3 +44,23 @@ export interface AddToCartPayload {
 export interface UpdateCartItemPayload {
   quantity: number
 }
+
+export interface CreateOrderPayload {
+  shippingAddressId?: string
+  couponCode?: string
+  paymentMethod: 'COD' | 'VNPAY'
+  shippingName: string
+  shippingPhone: string
+  shippingEmail: string
+  street: string
+  province: string
+  city: string
+  note?: string
+}
+
+export interface CreatePaymentUrlPayload {
+  orderId: string
+  language: string
+  bankCode?: string
+}
+

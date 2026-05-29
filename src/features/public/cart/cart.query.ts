@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { _cartApi } from './cart.api'
-import { AddToCartPayload, UpdateCartItemPayload } from './types'
+import { AddToCartPayload, UpdateCartItemPayload, CreateOrderPayload, CreatePaymentUrlPayload } from './types'
 
 export const _cartService = {
   useCart: (options?: { enabled?: boolean }) => {
@@ -26,7 +26,7 @@ export const _cartService = {
     const queryClient = useQueryClient()
     return useMutation({
       mutationFn: ({ itemId, payload }: { itemId: string; payload: UpdateCartItemPayload }) => 
-        _cartApi.updateCartItem(itemId, payload),
+      _cartApi.updateCartItem(itemId, payload),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['cart'] })
       }
@@ -51,5 +51,22 @@ export const _cartService = {
         queryClient.invalidateQueries({ queryKey: ['cart'] })
       }
     })
+  },
+
+  useCreateOrder: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: (payload: CreateOrderPayload) => _cartApi.createOrder(payload),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['cart'] })
+      }
+    })
+  },
+
+  useCreatePaymentUrl: () => {
+    return useMutation({
+      mutationFn: (payload: CreatePaymentUrlPayload) => _cartApi.createPaymentUrl(payload)
+    })
   }
 }
+
