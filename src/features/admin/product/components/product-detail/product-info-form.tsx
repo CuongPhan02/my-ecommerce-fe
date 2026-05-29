@@ -283,30 +283,42 @@ const ProductInfoForm = () => {
               Thẻ <span className='text-destructive'>*</span>
             </Label>
           </div>
-          <Controller
-            control={control}
-            name='tags'
-            render={({ field }) => (
-              <MultipleSelector
-                {...field}
-                className='bg-white dark:bg-muted'
-                commandProps={{
-                  label: 'Chọn thẻ',
-                }}
-                defaultOptions={PRODUCT_TAG_OPTIONS}
-                placeholder='Chọn thẻ'
-                hideClearAllButton
-                hidePlaceholderWhenSelected
-                emptyIndicator={
-                  <p className='text-center text-sm'>Không tìm thấy kết quả</p>
-                }
-                onChange={(options) => {
-                  field.onChange(options.map((o) => o.value))
-                }}
-                value={PRODUCT_TAG_OPTIONS.filter((f: Option) => field.value?.includes(f.value))}
-              />
-            )}
-          />
+          <div className='flex flex-col gap-1.5'>
+            <Controller
+              control={control}
+              name='tags'
+              render={({ field }) => (
+                <MultipleSelector
+                  {...field}
+                  className='bg-white dark:bg-muted'
+                  commandProps={{
+                    label: 'Chọn thẻ',
+                  }}
+                  defaultOptions={PRODUCT_TAG_OPTIONS}
+                  placeholder='Gõ tên thẻ và nhấn Enter để tạo mới...'
+                  creatable
+                  hideClearAllButton
+                  hidePlaceholderWhenSelected
+                  emptyIndicator={
+                    <p className='text-center text-sm'>Không tìm thấy kết quả</p>
+                  }
+                  onChange={(options) => {
+                    field.onChange(options.map((o) => o.value))
+                  }}
+                  value={(field.value || []).map((val: string) => {
+                    const existingOption = PRODUCT_TAG_OPTIONS.find(
+                      (opt) => opt.value === val,
+                    )
+                    return existingOption || { label: val, value: val }
+                  })}
+                />
+              )}
+            />
+            <p className='text-[11px] text-muted-foreground italic'>
+              * Bạn có thể chọn thẻ có sẵn hoặc gõ tên thẻ mới rồi nhấn <strong>Enter</strong> để tạo.
+            </p>
+            <FieldError className='pl-2'>{errors.tags?.message}</FieldError>
+          </div>
         </div>
       </CardContent>
     </Card>

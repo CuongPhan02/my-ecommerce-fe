@@ -13,31 +13,31 @@ interface HtmlPluginProps {
 export default function HtmlPlugin({ value, onChange }: HtmlPluginProps) {
   const [editor] = useLexicalComposerContext()
   const isFirstRender = useRef(true)
+  const lastValueRef = useRef(value)
 
-  // 1. Load initial HTML once when editor is ready
+  // 1. Load initial HTML or handle external value reset/change
   useEffect(() => {
-    if (!editor || !isFirstRender.current) return
-    isFirstRender.current = false
+    if (!editor) return
 
-    if (value) {
+    // If it's first render or the value changed externally (e.g., form reset or loading a new product)
+    if (isFirstRender.current || value !== lastValueRef.current) {
+      isFirstRender.current = false
+      lastValueRef.current = value
+
       editor.update(() => {
-        // Clear current root nodes
         const root = $getRoot()
         root.clear()
 
-        // Parse HTML to DOM
-        const parser = new DOMParser()
-        const dom = parser.parseFromString(value, 'text/html')
-        
-        // Generate Lexical nodes from DOM
-        const nodes = $generateNodesFromDOM(editor, dom)
-        
-        // Select and insert
-        root.select()
-        $insertNodes(nodes)
+        if (value) {
+          const parser = new DOMParser()
+          const dom = parser.parseFromString(value, 'text/html')
+          const nodes = $generateNodesFromDOM(editor, dom)
+          root.select()
+          $insertNodes(nodes)
+        }
       })
     }
-  }, [editor])
+  }, [editor, value])
 
   // 2. Track changes and notify parent of HTML updates
   useEffect(() => {
@@ -46,7 +46,10 @@ export default function HtmlPlugin({ value, onChange }: HtmlPluginProps) {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
         const htmlString = $generateHtmlFromNodes(editor, null)
-        onChange(htmlString)
+        if (htmlString !== lastValueRef.current) {
+          lastValueRef.current = htmlString
+          onChange(htmlString)
+        }
       })
     })
   }, [editor, onChange])

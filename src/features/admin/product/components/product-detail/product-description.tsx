@@ -74,17 +74,25 @@ const ProductDescription = () => {
       <CardContent className='space-y-6'>
         {/* Tóm tắt ngắn gọn */}
         <div className='flex flex-col gap-3'>
-          <Label className='font-semibold text-gray-700 dark:text-gray-200'>Tóm tắt</Label>
+          <Label className='font-semibold text-gray-700 dark:text-gray-200'>
+            Tóm tắt <span className='text-destructive'>*</span>
+          </Label>
           <Textarea
             {...register('summary')}
             placeholder='Tóm tắt ngắn gọn về sản phẩm (Ví dụ: chất liệu, form dáng, tính năng nổi bật...)'
             className='min-h-[100px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-gray-800 focus-visible:ring-1 focus-visible:ring-primary'
+            aria-invalid={errors.summary && errors.summary.message ? true : false}
           />
+          {errors.summary && (
+            <p className='text-red-500 text-sm font-medium mt-1'>{errors.summary.message}</p>
+          )}
         </div>
 
         {/* Trình soạn thảo văn bản giàu tính năng (Lexical Editor) */}
         <div className='flex flex-col gap-3'>
-          <Label className='font-semibold text-gray-700 dark:text-gray-200'>Mô tả chi tiết</Label>
+          <Label className='font-semibold text-gray-700 dark:text-gray-200'>
+            Mô tả chi tiết <span className='text-destructive'>*</span>
+          </Label>
           
           <div className='flex flex-col border border-gray-200 dark:border-gray-850 rounded-lg shadow-sm overflow-hidden bg-white dark:bg-zinc-950'>
             <LexicalComposer initialConfig={initialConfig}>

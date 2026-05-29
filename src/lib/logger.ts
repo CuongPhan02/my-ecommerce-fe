@@ -33,9 +33,6 @@ const printLog = (
 
   const style = logStyles[type]
   const label = type.toUpperCase()
-
-  // Format message: [LABEL] message
-  console.log(`%c ${label} %c ${message}`, style, logStyles.label, ...data)
 }
 
 export const logger = {

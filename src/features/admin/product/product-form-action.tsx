@@ -31,6 +31,8 @@ import {
   DialogTitle,
 } from '~/components/ui/core/dialog'
 import { cn } from '~/lib/utils'
+import { AlertTriangle, InfoIcon } from 'lucide-react'
+import { useState } from 'react'
 
 interface ProductFormActionProps {
   productId?: string | null
@@ -231,72 +233,99 @@ const ActionForm = ({
     formState: { isSubmitting },
   } = useFormContext()
 
+  const [showWarning, setShowWarning] = useState(false)
+  const [warningData, setWarningData] = useState<any>(null)
+
   const createMutation = _productService.useCreateProduct()
   const updateMutation = _productService.useUpdateProduct()
+
+  const executeSubmit = async (data: any) => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { thumbnail, media, metaImage, ...submitData } = data as any
+
+      if (!submitData.variants) {
+        submitData.variants = []
+      }
+
+      if (productId) {
+        await updateMutation.mutateAsync({
+          id: productId,
+          data: submitData,
+        })
+        toast.success('Cập nhật sản phẩm thành công!')
+        reset(data)
+      } else {
+        await createMutation.mutateAsync(submitData as any)
+        toast.success('Thêm sản phẩm mới thành công!')
+        reset({
+          name: '',
+          description: '',
+          slug: '',
+          categoryId: '',
+          brandId: '',
+          type: 'SINGLE',
+          summary: '',
+          tags: [],
+          thumbnailId: null,
+          isFeatured: false,
+          isRefunded: false,
+          hasWarranty: false,
+          disableShipping: false,
+          stock: 0,
+          metaTitle: '',
+          metaDescription: '',
+          metaImageId: null,
+          discountType: 'PERCENTAGE',
+          discountValue: 0,
+          discountStartDate: null,
+          discountEndDate: null,
+          mediaIds: [],
+          collectionIds: [],
+          options: [],
+          variants: [],
+        })
+      }
+      onSuccess?.()
+    } catch (error) {
+      console.error('Form submission failed:', error)
+      toast.error(
+        productId ? 'Cập nhật sản phẩm thất bại!' : 'Thêm sản phẩm mới thất bại!'
+      )
+    }
+  }
 
   const handleSubmitData = async () => {
     handleSubmit(
       async (data) => {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { thumbnail, media, metaImage, ...submitData } = data as any
+        const variants = (data as any).variants || []
+        const zeroValues: string[] = []
 
-          if (!submitData.variants) {
-            submitData.variants = []
-          }
+        variants.forEach((v: any, index: number) => {
+          const combo =
+            v.attributes?.map((a: any) => a.value).join('-') || 'Gốc'
+          if (v.price === 0)
+            zeroValues.push(`Biến thể [${combo}]: Giá bán đang để bằng 0`)
+          if (v.purchasePrice === 0)
+            zeroValues.push(`Biến thể [${combo}]: Giá nhập đang để bằng 0`)
+          if (v.stock === 0)
+            zeroValues.push(`Biến thể [${combo}]: Số lượng tồn kho bằng 0`)
+        })
 
-          if (productId) {
-            await updateMutation.mutateAsync({
-              id: productId,
-              data: submitData,
-            })
-            toast.success('Cập nhật sản phẩm thành công!')
-            reset(data)
-          } else {
-            await createMutation.mutateAsync(submitData as any)
-            toast.success('Thêm sản phẩm mới thành công!')
-            reset({
-              name: '',
-              description: '',
-              slug: '',
-              categoryId: '',
-              brandId: '',
-              type: 'SINGLE',
-              summary: '',
-              tags: [],
-              thumbnailId: null,
-              isFeatured: false,
-              isRefunded: false,
-              hasWarranty: false,
-              disableShipping: false,
-              stock: 0,
-              metaTitle: '',
-              metaDescription: '',
-              metaImageId: null,
-              discountType: 'PERCENTAGE',
-              discountValue: 0,
-              discountStartDate: null,
-              discountEndDate: null,
-              mediaIds: [],
-              collectionIds: [],
-              options: [],
-              variants: [],
-            })
-          }
-          onSuccess?.()
-        } catch (error) {
-          console.error('Form submission failed:', error)
-          toast.error(
-            productId
-              ? 'Cập nhật sản phẩm thất bại!'
-              : 'Thêm sản phẩm mới thất bại!'
-          )
+        if (zeroValues.length > 0) {
+          setWarningData({ data, zeroValues })
+          setShowWarning(true)
+          return
         }
+
+        await executeSubmit(data)
       },
       (errors) => {
         console.log('Form validation errors:', errors)
-        toast.error('Vui lòng kiểm tra lại các thông tin bắt buộc trong biểu mẫu!')
-      },
+        toast.error(
+          'Vui lòng kiểm tra lại các thông tin bắt buộc trong biểu mẫu!'
+        )
+      }
     )()
   }
 
@@ -305,7 +334,7 @@ const ActionForm = ({
       className={cn(
         !isFooter && 'p-6 bg-muted rounded-xl border shadow-sm',
         'w-full',
-        className,
+        className
       )}
     >
       <div
@@ -327,6 +356,62 @@ const ActionForm = ({
           {isSubmitting ? 'ĐANG LƯU...' : 'LƯU'}
         </Button>
       </div>
+
+      <Dialog open={showWarning} onOpenChange={setShowWarning}>
+        <DialogContent className='sm:max-w-[500px] border-red-200 dark:border-red-900/50 shadow-2xl'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-bold flex items-center gap-2 text-red-600'>
+              <AlertTriangle className='h-6 w-6' />
+              Cảnh báo giá trị bằng 0
+            </DialogTitle>
+          </DialogHeader>
+          <div className='py-4 space-y-4'>
+            <div className='p-4 bg-red-50 dark:bg-red-950/20 rounded-xl border border-red-100 dark:border-red-900/30'>
+              <p className='text-sm text-red-800 dark:text-red-300 font-medium mb-3'>
+                Hệ thống phát hiện một số trường giá trị đang để bằng 0. Bạn có
+                chắc chắn muốn tiếp tục lưu?
+              </p>
+              <ul className='space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar pr-2'>
+                {warningData?.zeroValues?.map((msg: string, idx: number) => (
+                  <li
+                    key={idx}
+                    className='text-xs text-red-600 dark:text-red-400 flex items-start gap-2 font-semibold italic'
+                  >
+                    <div className='h-1 w-1 rounded-full bg-red-400 mt-1.5 shrink-0' />
+                    {msg}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className='flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-blue-800 dark:text-blue-300'>
+              <InfoIcon className='h-4 w-4 mt-0.5 shrink-0' />
+              <p className='text-[11px] leading-relaxed'>
+                Nếu đây là ý định của bạn (ví dụ: hàng tặng kèm hoặc chưa có
+                giá), hãy nhấn <strong>"Vẫn lưu sản phẩm"</strong> để hoàn tất.
+              </p>
+            </div>
+          </div>
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button
+              variant='outline'
+              onClick={() => setShowWarning(false)}
+              className='rounded-xl'
+            >
+              Quay lại chỉnh sửa
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={async () => {
+                setShowWarning(false)
+                await executeSubmit(warningData.data)
+              }}
+              className='rounded-xl bg-red-600 hover:bg-red-700'
+            >
+              Vẫn lưu sản phẩm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

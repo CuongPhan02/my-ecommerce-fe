@@ -1,5 +1,5 @@
 'use client'
-
+import { useEffect } from 'react'
 import { Trash, UploadCloud } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '~/components/ui/core/button'
@@ -13,9 +13,41 @@ import { cn } from '~/lib/utils'
 import { ProductSchemaType } from '../../product.validate'
 
 const SeoMetaTags = () => {
-  const { register, setValue, watch } = useFormContext<ProductSchemaType>()
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { dirtyFields },
+  } = useFormContext<ProductSchemaType>()
 
   const metaImage = watch('metaImage')
+  const productName = watch('name')
+  const productSummary = watch('summary')
+  const productThumbnail = watch('thumbnail')
+
+  // Auto-fill metaTitle from name
+  useEffect(() => {
+    if (!dirtyFields.metaTitle && productName) {
+      setValue('metaTitle', productName)
+    }
+  }, [productName, setValue, dirtyFields.metaTitle])
+
+  // Auto-fill metaDescription from summary
+  useEffect(() => {
+    if (!dirtyFields.metaDescription && productSummary) {
+      // Strip HTML if summary contains any (though it's a textarea here, better safe)
+      const plainText = productSummary.replace(/<[^>]*>?/gm, '')
+      setValue('metaDescription', plainText.slice(0, 160))
+    }
+  }, [productSummary, setValue, dirtyFields.metaDescription])
+
+  // Auto-fill metaImage from thumbnail
+  useEffect(() => {
+    if (!dirtyFields.metaImageId && productThumbnail) {
+      setValue('metaImageId', productThumbnail.id)
+      setValue('metaImage', productThumbnail)
+    }
+  }, [productThumbnail, setValue, dirtyFields.metaImageId])
 
   const handleSelectMedia = (items: MediaItem[]) => {
     if (items.length > 0) {

@@ -31,7 +31,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/core/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/core/dialog'
 import { CreateAttributeDialog } from './create-attribute-dialog'
+import { generateRandomId } from '~/lib/utils'
 
 interface CurrencyInputProps {
   name: string
@@ -84,7 +92,6 @@ const CurrencyInput = ({
   )
 }
 
-
 interface Variation {
   id: string | number
   name: string
@@ -122,31 +129,54 @@ const getCombinations = (
 }
 
 const ProductVariantForm = () => {
-  const { control, register, watch, setValue } =
-    useFormContext<ProductSchemaType>()
+  const {
+    control,
+    register,
+    watch,
+    setValue,
+    formState: { dirtyFields },
+  } = useFormContext<ProductSchemaType>()
   const { fields: variants, replace } = useFieldArray({
     control,
     name: 'variants',
   })
 
   const productType = watch('type')
+  const productName = watch('name')
+  const randomId = useMemo(
+    () => generateRandomId().slice(0, 4).toUpperCase(),
+    [],
+  )
+
+  const baseSku = useMemo(() => {
+    if (!productName) return ''
+    const slug = productName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .replace(/\s+/g, '-')
+      .toUpperCase()
+    return `${slug}-${randomId}`
+  }, [productName, randomId])
 
   // API Integration
   const { data: attributesData, isLoading: isLoadingAttributes } =
     _attributeService.useAllAttributes()
 
-  console.log(attributesData, '####=>')
   const [variations, setVariations] = useState<Variation[]>([
     { id: Date.now(), name: '', values: [] },
   ])
   const [isOpenCreateAttribute, setIsOpenCreateAttribute] = useState(false)
+  const [showTypeConfirm, setShowTypeConfirm] = useState(false)
+  const [pendingType, setPendingType] = useState<'SINGLE' | 'VARIANT' | null>(null)
 
   // Map API data to options format for MultipleSelector
   const attributeOptionsMap = useMemo(() => {
     const map: Record<string, Option[]> = {}
     attributesData?.result?.forEach((attr) => {
       map[attr.name] = attr.values.map((v) => ({
-        label: v.name && v.name !== v.value ? `${v.name} (${v.value})` : v.value,
+        label:
+          v.name && v.name !== v.value ? `${v.name} (${v.value})` : v.value,
         value: v.value,
       }))
     })
@@ -158,7 +188,8 @@ const ProductVariantForm = () => {
     const formOptions = watch('options')
     if (formOptions && formOptions.length > 0) {
       // Check if variations actually need initializing from options
-      const hasUninitializedVariations = variations.length === 1 && variations[0].name === ''
+      const hasUninitializedVariations =
+        variations.length === 1 && variations[0].name === ''
       if (hasUninitializedVariations) {
         const initialVariations = formOptions.map((opt, index) => ({
           id: `init-${index}`,
@@ -216,11 +247,21 @@ const ProductVariantForm = () => {
             return vKey === comboKey
           })
 
-          const skuSuffix = comboAttributes.map((a) => a.value).join('-')
+          const variantSlug = comboAttributes
+            .map((a) =>
+              a.value
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .toUpperCase(),
+            )
+            .join('-')
+
+          const autoSku = baseSku ? `${baseSku}-${variantSlug}` : variantSlug
 
           return {
             id: existingVariant?.id, // Keep ID if available (crucial for updates)
-            sku: existingVariant?.sku || skuSuffix,
+            sku: existingVariant?.sku || autoSku,
             price: existingVariant?.price || 0,
             stock: existingVariant?.stock || 0,
             purchasePrice: existingVariant?.purchasePrice || 0,
@@ -244,25 +285,33 @@ const ProductVariantForm = () => {
         }
       }
     } else if (productType === 'SINGLE') {
-      const currentVariants = watch('variants')
+      const currentVariants = watch('variants') || []
+      const autoSku = baseSku
+
       if (
-        !currentVariants ||
         currentVariants.length === 0 ||
         (currentVariants[0]?.attributes &&
           currentVariants[0].attributes.length > 0)
       ) {
+        // Reset/Initialize for SINGLE product type
         replace([
           {
-            sku: '',
+            sku: autoSku,
             price: 0,
             stock: 0,
             purchasePrice: 0,
             attributes: [],
           },
         ])
+      } else {
+        // Update existing SKU if not manually edited
+        const isSkuDirty = dirtyFields.variants?.[0]?.sku
+        if (!isSkuDirty && currentVariants[0].sku !== autoSku) {
+          setValue('variants.0.sku', autoSku, { shouldValidate: true })
+        }
       }
     }
-  }, [variations, productType, setValue, replace])
+  }, [variations, productType, setValue, replace, baseSku, dirtyFields.variants])
 
   const addVariation = () => {
     setVariations([...variations, { id: Date.now(), name: '', values: [] }])
@@ -289,6 +338,40 @@ const ProductVariantForm = () => {
     )
   }
 
+  const handleTypeChange = (value: 'SINGLE' | 'VARIANT') => {
+    if (productType === 'VARIANT' && value === 'SINGLE') {
+      const hasData = variations.some((v) => v.name || v.values.length > 0)
+      if (hasData) {
+        setPendingType(value)
+        setShowTypeConfirm(true)
+        return
+      }
+    }
+    setValue('type', value)
+  }
+
+  const confirmTypeChange = () => {
+    if (pendingType === 'SINGLE') {
+      // Reset variations state
+      setVariations([{ id: Date.now(), name: '', values: [] }])
+      // Reset options in form
+      setValue('options', [])
+      // Reset variants in form (useFieldArray)
+      replace([
+        {
+          sku: '',
+          price: 0,
+          stock: 0,
+          purchasePrice: 0,
+          attributes: [],
+        },
+      ])
+      setValue('type', 'SINGLE')
+    }
+    setShowTypeConfirm(false)
+    setPendingType(null)
+  }
+
   return (
     <div className='space-y-10'>
       <Card className='bg-muted shadow-none '>
@@ -300,7 +383,7 @@ const ProductVariantForm = () => {
             render={({ field }) => (
               <RadioGroup
                 value={field.value}
-                onValueChange={field.onChange}
+                onValueChange={handleTypeChange}
                 className='flex items-center gap-8'
               >
                 <div className='flex items-center space-x-2'>
@@ -388,20 +471,26 @@ const ProductVariantForm = () => {
               </div>
             </CardHeader>
             <CardContent className='space-y-6 pt-6'>
-              {!isLoadingAttributes && (!attributesData?.result || attributesData.result.length === 0) ? (
+              {!isLoadingAttributes &&
+              (!attributesData?.result ||
+                attributesData.result.length === 0) ? (
                 <div className='flex flex-col items-center justify-center py-10 px-4 border border-dashed rounded-lg bg-background/30 space-y-4 text-center'>
                   <div className='p-3 bg-primary/10 text-primary rounded-full'>
                     <Plus className='h-6 w-6' />
                   </div>
                   <div className='space-y-1'>
-                    <h4 className='font-semibold text-sm'>Chưa có thuộc tính nào được tạo</h4>
+                    <h4 className='font-semibold text-sm'>
+                      Chưa có thuộc tính nào được tạo
+                    </h4>
                     <p className='text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed'>
-                      Sản phẩm có biến thể yêu cầu ít nhất một thuộc tính (ví dụ: Màu sắc, Kích thước) để cấu hình các phân loại hàng bán.
+                      Sản phẩm có biến thể yêu cầu ít nhất một thuộc tính (ví
+                      dụ: Màu sắc, Kích thước) để cấu hình các phân loại hàng
+                      bán.
                     </p>
                   </div>
-                  <Button 
-                    type='button' 
-                    size='sm' 
+                  <Button
+                    type='button'
+                    size='sm'
                     onClick={() => setIsOpenCreateAttribute(true)}
                   >
                     Tạo thuộc tính đầu tiên
@@ -452,7 +541,9 @@ const ProductVariantForm = () => {
                         placeholder='Chọn hoặc nhập giá trị...'
                         creatable
                         emptyIndicator={
-                          <p className='text-center text-sm'>Không tìm thấy kết quả</p>
+                          <p className='text-center text-sm'>
+                            Không tìm thấy kết quả
+                          </p>
                         }
                       />
                     </div>
@@ -489,25 +580,35 @@ const ProductVariantForm = () => {
             {variants.map((field, index) => {
               const comboAttributes = field.attributes || []
               return (
-                <Card key={field.id} className='bg-white dark:bg-slate-900 border shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden'>
+                <Card
+                  key={field.id}
+                  className='bg-white dark:bg-slate-900 border shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden'
+                >
                   {/* Tiêu đề tổ hợp hiển thị dạng Badge chuyên nghiệp */}
                   <div className='bg-slate-50/80 dark:bg-slate-800/40 px-4 py-3 border-b flex flex-wrap items-center gap-2'>
                     <span className='text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-550 uppercase mr-1'>
                       Tổ hợp #{index + 1}:
                     </span>
                     {comboAttributes.map((attr, idx) => {
-                      const displayAttr = attributesData?.result?.find((a) => a.name === attr.name)
-                      const displayVal = displayAttr?.values?.find((v) => v.value === attr.value)
-                      const displayLabel = displayVal?.name && displayVal.name !== displayVal.value 
-                        ? `${displayVal.name} (${displayVal.value})` 
-                        : attr.value
+                      const displayAttr = attributesData?.result?.find(
+                        (a) => a.name === attr.name,
+                      )
+                      const displayVal = displayAttr?.values?.find(
+                        (v) => v.value === attr.value,
+                      )
+                      const displayLabel =
+                        displayVal?.name && displayVal.name !== displayVal.value
+                          ? `${displayVal.name} (${displayVal.value})`
+                          : attr.value
                       return (
-                        <Badge 
-                          key={idx} 
-                          variant="outline" 
-                          className="bg-orange-50/50 border-orange-100 hover:bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:border-orange-900/50 dark:text-orange-400 font-medium py-0.5 px-2 rounded-md text-xs"
+                        <Badge
+                          key={idx}
+                          variant='outline'
+                          className='bg-orange-50/50 border-orange-100 hover:bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:border-orange-900/50 dark:text-orange-400 font-medium py-0.5 px-2 rounded-md text-xs'
                         >
-                          <span className="text-slate-400 dark:text-slate-500 font-normal mr-1">{attr.name}:</span>
+                          <span className='text-slate-400 dark:text-slate-500 font-normal mr-1'>
+                            {attr.name}:
+                          </span>
                           {displayLabel}
                         </Badge>
                       )
@@ -531,7 +632,7 @@ const ProductVariantForm = () => {
                       {/* Giá bán */}
                       <div className='space-y-1.5'>
                         <Label className='text-xs font-semibold text-slate-650 dark:text-slate-400'>
-                          Giá bán <span className="text-red-500">*</span>
+                          Giá bán <span className='text-red-500'>*</span>
                         </Label>
                         <CurrencyInput
                           name={`variants.${index}.price`}
@@ -597,6 +698,38 @@ const ProductVariantForm = () => {
           setVariations(updatedVariations)
         }}
       />
+
+      {/* Confirmation Dialog for Product Type Change */}
+      <Dialog open={showTypeConfirm} onOpenChange={setShowTypeConfirm}>
+        <DialogContent className='sm:max-w-[425px]'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-bold text-red-600'>
+              Xác nhận thay đổi
+            </DialogTitle>
+          </DialogHeader>
+          <div className='py-4'>
+            <p className='text-sm text-slate-600 dark:text-slate-400'>
+              Khi chuyển sang <strong>Sản phẩm đơn giản</strong>, toàn bộ cấu
+              hình biến thể và danh sách phân loại hàng hiện tại sẽ bị xóa. Bạn
+              có chắc chắn muốn tiếp tục?
+            </p>
+          </div>
+          <DialogFooter className='gap-2 sm:gap-0'>
+            <Button
+              variant='outline'
+              onClick={() => {
+                setShowTypeConfirm(false)
+                setPendingType(null)
+              }}
+            >
+              Hủy bỏ
+            </Button>
+            <Button variant='destructive' onClick={confirmTypeChange}>
+              Xác nhận chuyển đổi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

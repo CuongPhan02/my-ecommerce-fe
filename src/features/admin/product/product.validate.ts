@@ -13,12 +13,9 @@ export const ProductValidate = z.object({
   name: z.string().min(2, {
     message: 'Tên sản phẩm phải có ít nhất 2 ký tự.',
   }),
-  description: z
-    .string()
-    .min(10, {
-      message: 'Mô tả phải có ít nhất 10 ký tự.',
-    })
-    .optional(),
+  description: z.string().min(10, {
+    message: 'Mô tả chi tiết phải có ít nhất 10 ký tự.',
+  }),
   slug: z.string().refine((value) => value !== '', {
     message: 'Đường dẫn (Slug) là bắt buộc',
   }),
@@ -29,7 +26,9 @@ export const ProductValidate = z.object({
     message: 'Thương hiệu là bắt buộc',
   }),
   type: z.enum(['SINGLE', 'VARIANT']).default('SINGLE'),
-  summary: z.string().optional(),
+  summary: z.string().min(10, {
+    message: 'Tóm tắt sản phẩm phải có ít nhất 10 ký tự.',
+  }),
   tags: z.array(z.string()).optional(),
   thumbnailId: z.string().nullable().optional(),
   isFeatured: z.boolean().default(false),
