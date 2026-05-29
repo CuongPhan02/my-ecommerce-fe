@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle2, XCircle, AlertCircle, ShoppingBag, ArrowRight, PhoneCall, RefreshCw } from 'lucide-react'
@@ -29,7 +29,7 @@ const getVNPAYErrorMessage = (code: string | null): string => {
   }
 }
 
-export default function CheckoutResultPage() {
+function CheckoutResultContent() {
   const searchParams = useSearchParams()
   
   const orderId = searchParams.get('orderId')
@@ -183,5 +183,32 @@ export default function CheckoutResultPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function CheckoutResultPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-gray-50/50 min-h-screen py-16 px-4 md:py-24 flex items-center justify-center">
+        <div className="max-w-2xl w-full bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-100/50 overflow-hidden p-12 text-center flex flex-col items-center justify-center gap-4">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-20 h-20 bg-gray-200/20 rounded-full animate-pulse" />
+            <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center relative z-10">
+              <RefreshCw className="w-7 h-7 animate-spin" />
+            </div>
+          </div>
+          <div className="space-y-2 mt-4">
+            <h1 className="text-xl font-black uppercase tracking-tight text-gray-700">
+              Đang tải kết quả
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+              Vui lòng chờ trong giây lát
+            </p>
+          </div>
+        </div>
+      </div>
+    }>
+      <CheckoutResultContent />
+    </Suspense>
   )
 }
