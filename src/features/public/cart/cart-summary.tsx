@@ -4,98 +4,91 @@ import React, { useState } from 'react'
 import { Ticket, Info, Loader2 } from 'lucide-react'
 import { cn } from '~/lib/utils'
 
-const vouchers = [
-  { id: 'SIPMAT', code: 'SIPMAT', desc: 'Tặng Quần Lót Nam Trunk Bamboo Fortune trị giá 99K cho đơn từ 599K', expiry: '31/05/2026', minSpend: 599000 },
-  { id: 'CM150', code: 'CM150', desc: 'Giảm 150K cho đơn từ 999K (không áp dụng Outlet)', expiry: '31/05/2026', minSpend: 999000 },
-  { id: 'SALE10', code: 'SALE10', desc: 'Giảm giá 10% cho toàn bộ đơn hàng của bạn', expiry: '31/12/2026', minSpend: 0 },
-]
+import { _voucherService } from '~/features/public/voucher/voucher.query'
 
 interface CartSummaryProps {
   subtotal: number
-  couponCode: string
-  onCouponChange: (code: string) => void
+  total: number
+  discountAmount?: number
+  onApplyVoucher?: (code: string) => void
+  isApplyingVoucher?: boolean
+  appliedVoucherCode?: string
   isSubmitting?: boolean
   onOrder: () => void
 }
 
-const CartSummary = ({ subtotal, couponCode, onCouponChange, isSubmitting, onOrder }: CartSummaryProps) => {
-  const [tempCode, setTempCode] = useState(couponCode)
+const CartSummary = ({
+  subtotal,
+  total,
+  discountAmount = 0,
+  onApplyVoucher,
+  isApplyingVoucher,
+  appliedVoucherCode,
+  isSubmitting,
+  onOrder,
+}: CartSummaryProps) => {
+  const [tempCode, setTempCode] = useState('')
+  const { data: publicVouchersRes } = _voucherService.usePublicVouchers()
+  const availableVouchers = publicVouchersRes?.result || []
 
-  const handleApplyVoucher = (code: string) => {
-    onCouponChange(code)
-    setTempCode(code)
-  }
-
-  // Calculate discount based on active coupon
-  let discount = 0
-  let discountMsg = ''
-  
-  if (couponCode === 'CM150') {
-    if (subtotal >= 999000) {
-      discount = 150000
-    } else {
-      discountMsg = 'Đơn hàng chưa đạt tối thiểu 999K để áp dụng CM150'
-    }
-  } else if (couponCode === 'SALE10') {
-    discount = Math.round(subtotal * 0.1)
-  } else if (couponCode === 'SIPMAT') {
-    if (subtotal >= 599000) {
-      discountMsg = 'Đã áp dụng quà tặng Quần Lót Bamboo Fortune!'
-    } else {
-      discountMsg = 'Đơn hàng chưa đạt tối thiểu 599K để nhận quà tặng'
+  const handleApply = () => {
+    if (onApplyVoucher && tempCode) {
+      onApplyVoucher(tempCode)
     }
   }
-
-  const finalTotal = Math.max(0, subtotal - discount)
 
   return (
     <div className="flex flex-col gap-8 sticky top-24">
       {/* Vouchers horizontal scroll */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-           <h3 className="font-black text-xs uppercase tracking-widest text-gray-400">Ưu đãi dành riêng cho bạn</h3>
+      {availableVouchers.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+             <h3 className="font-black text-xs uppercase tracking-widest text-gray-400">Ưu đãi dành riêng cho bạn</h3>
+          </div>
+          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+             {availableVouchers.map((v) => {
+               const isApplied = appliedVoucherCode === v.code
+               const isEligible = subtotal >= v.minOrderValue
+               return (
+                 <div 
+                   key={v.id} 
+                   onClick={() => isEligible && onApplyVoucher?.(v.code)}
+                   className={cn(
+                     "min-w-[280px] bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden select-none",
+                     isApplied ? "border-blue-600 bg-blue-50/10" : "border-gray-100 hover:border-gray-200",
+                     !isEligible && "opacity-40 cursor-not-allowed"
+                   )}
+                 >
+                    <div className="flex justify-between items-start mb-3">
+                       <div className={cn(
+                         "p-2 rounded-xl transition-all",
+                         isApplied ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
+                       )}>
+                          <Ticket className="w-5 h-5" />
+                       </div>
+                       <div className={cn(
+                         "w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all",
+                         isApplied ? "border-blue-600 bg-blue-600" : "border-gray-200"
+                       )}>
+                         {isApplied && <span className="w-2 h-2 bg-white rounded-full" />}
+                       </div>
+                    </div>
+                    <p className="font-black text-sm mb-1">{v.code}</p>
+                    <p className="text-[10px] text-gray-500 font-medium leading-relaxed mb-4 line-clamp-2">{v.description || `Giảm ${v.discountValueFormatted} cho đơn từ ${v.minOrderValueFormatted}`}</p>
+                    <div className="flex justify-between items-center">
+                      <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                        HSD: {v.expirationDate ? new Date(v.expirationDate).toLocaleDateString('vi-VN') : 'Vô thời hạn'}
+                      </p>
+                      {!isEligible && (
+                        <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">Chưa đủ đk</span>
+                      )}
+                    </div>
+                 </div>
+               )
+             })}
+          </div>
         </div>
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-           {vouchers.map((v) => {
-             const isApplied = couponCode === v.code
-             const isEligible = subtotal >= v.minSpend
-             return (
-               <div 
-                 key={v.id} 
-                 onClick={() => isEligible && handleApplyVoucher(v.code)}
-                 className={cn(
-                   "min-w-[280px] bg-white border rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group cursor-pointer relative overflow-hidden select-none",
-                   isApplied ? "border-blue-600 bg-blue-50/10" : "border-gray-100 hover:border-gray-200",
-                   !isEligible && "opacity-40 cursor-not-allowed"
-                 )}
-               >
-                  <div className="flex justify-between items-start mb-3">
-                     <div className={cn(
-                       "p-2 rounded-xl transition-all",
-                       isApplied ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white"
-                     )}>
-                        <Ticket className="w-5 h-5" />
-                     </div>
-                     <div className={cn(
-                       "w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all",
-                       isApplied ? "border-blue-600 bg-blue-600" : "border-gray-200"
-                     )}>
-                       {isApplied && <span className="w-2 h-2 bg-white rounded-full" />}
-                     </div>
-                  </div>
-                  <p className="font-black text-sm mb-1">{v.code}</p>
-                  <p className="text-[10px] text-gray-500 font-medium leading-relaxed mb-4 line-clamp-2">{v.desc}</p>
-                  <div className="flex justify-between items-center">
-                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">HSD: {v.expiry}</p>
-                    {!isEligible && (
-                      <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">Chưa đủ đk</span>
-                    )}
-                  </div>
-               </div>
-             )
-           })}
-        </div>
-      </div>
+      )}
 
       {/* Discount Input */}
       <div className="flex flex-col gap-4">
@@ -108,22 +101,20 @@ const CartSummary = ({ subtotal, couponCode, onCouponChange, isSubmitting, onOrd
              className="flex-1 py-3 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all uppercase bg-white border-gray-200"
            />
            <button 
-             onClick={() => onCouponChange(tempCode)}
-             className="bg-black text-white px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary transition-all border-none outline-none cursor-pointer"
+             onClick={handleApply}
+             disabled={isApplyingVoucher || !tempCode}
+             className="bg-black text-white px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary transition-all border-none outline-none cursor-pointer disabled:bg-gray-200"
            >
-             Áp dụng
+             {isApplyingVoucher ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Áp dụng'}
            </button>
         </div>
-        {couponCode && (
+        {appliedVoucherCode && (
           <div className="flex items-center justify-between bg-blue-50/50 p-4 rounded-xl border border-blue-50">
              <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
-               Mã đang áp dụng: {couponCode}
+               Mã đang áp dụng: {appliedVoucherCode}
              </span>
              <button 
-               onClick={() => {
-                 onCouponChange('')
-                 setTempCode('')
-               }}
+               onClick={() => onApplyVoucher?.('')}
                className="text-[10px] font-black text-red-500 uppercase tracking-widest cursor-pointer hover:underline border-none bg-transparent"
              >
                Hủy
@@ -141,16 +132,10 @@ const CartSummary = ({ subtotal, couponCode, onCouponChange, isSubmitting, onOrd
                <span>Tạm tính</span>
                <span className="font-bold text-black">{subtotal.toLocaleString('vi-VN')} ₫</span>
             </div>
-            {discount > 0 && (
+            {discountAmount > 0 && (
               <div className="flex justify-between font-medium text-gray-500">
                  <span>Voucher giảm giá</span>
-                 <span className="font-bold text-green-600">-{discount.toLocaleString('vi-VN')} ₫</span>
-              </div>
-            )}
-            {discountMsg && (
-              <div className="text-[10px] font-bold text-blue-600 bg-blue-50 p-2.5 rounded-lg border border-blue-100 flex items-center gap-2">
-                 <Info className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                 <span>{discountMsg}</span>
+                 <span className="font-bold text-green-600">-{discountAmount.toLocaleString('vi-VN')} ₫</span>
               </div>
             )}
             <div className="flex justify-between font-medium text-gray-500">
@@ -161,7 +146,7 @@ const CartSummary = ({ subtotal, couponCode, onCouponChange, isSubmitting, onOrd
 
          <div className="pt-6 border-t border-gray-200 flex justify-between items-center">
             <span className="text-lg font-black uppercase tracking-tight">Thành tiền</span>
-            <span className="text-2xl font-black text-black">{finalTotal.toLocaleString('vi-VN')} ₫</span>
+            <span className="text-2xl font-black text-black">{total.toLocaleString('vi-VN')} ₫</span>
          </div>
 
          <button 

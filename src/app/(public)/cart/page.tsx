@@ -11,10 +11,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { _cartService } from '~/features/public/cart/cart.query'
 import { _profileService } from '~/features/public/profile/profile.query'
+import { _voucherService } from '~/features/public/voucher/voucher.query'
 import { toast } from 'react-toastify'
 import { ConfirmModal } from '~/components/shared/confirm-modal'
 import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 import { cn } from '~/lib/utils'
+import { Voucher } from '~/features/public/voucher/types'
 
 export default function CartPage() {
   const router = useRouter()
@@ -27,6 +29,7 @@ export default function CartPage() {
   const clearCartMutation = _cartService.useClearCart()
   const createOrderMutation = _cartService.useCreateOrder()
   const createPaymentUrlMutation = _cartService.useCreatePaymentUrl()
+  const applyVoucherMutation = _voucherService.useApplyVoucher()
 
   const [shippingValues, setShippingValues] = useState({
     shippingName: '',
@@ -40,6 +43,7 @@ export default function CartPage() {
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const [couponCode, setCouponCode] = useState('')
+  const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showAddressList, setShowAddressList] = useState(false)
 
@@ -87,14 +91,13 @@ export default function CartPage() {
     0,
   )
 
-  // Calculate discount based on active coupon
   let discount = 0
-  if (couponCode === 'CM150') {
-    if (subtotal >= 999000) {
-      discount = 150000
+  if (appliedVoucher) {
+    if (appliedVoucher.type === 'PERCENTAGE') {
+      discount = (subtotal * appliedVoucher.discountValue) / 100
+    } else if (appliedVoucher.type === 'FIXED') {
+      discount = appliedVoucher.discountValue
     }
-  } else if (couponCode === 'SALE10') {
-    discount = Math.round(subtotal * 0.1)
   }
   const finalTotal = Math.max(0, subtotal - discount)
 
@@ -102,6 +105,32 @@ export default function CartPage() {
     createOrderMutation.isPending ||
     createPaymentUrlMutation.isPending ||
     clearCartMutation.isPending
+
+  const handleApplyVoucher = async (code: string) => {
+    if (!code) {
+      setAppliedVoucher(null)
+      setCouponCode('')
+      return
+    }
+
+    try {
+      const res = await applyVoucherMutation.mutateAsync({
+        code,
+        orderValue: subtotal
+      })
+
+      if (res?.result) {
+        setAppliedVoucher(res.result)
+        setCouponCode(res.result.code)
+        toast.success(`Đã áp dụng mã ${res.result.code}`)
+      }
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || 'Không thể áp dụng mã này'
+      toast.error(msg)
+      setAppliedVoucher(null)
+      setCouponCode('')
+    }
+  }
 
   const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
     updateCartItemMutation.mutate({
@@ -425,10 +454,13 @@ export default function CartPage() {
               {/* Summary & Voucher */}
               <CartSummary
                 subtotal={subtotal}
-                couponCode={couponCode}
-                onCouponChange={setCouponCode}
-                isSubmitting={isSubmitting}
+                total={finalTotal}
+                discountAmount={discount}
+                onApplyVoucher={handleApplyVoucher}
+                isApplyingVoucher={applyVoucherMutation.isPending}
+                appliedVoucherCode={appliedVoucher?.code}
                 onOrder={handleOrder}
+                isSubmitting={isSubmitting}
               />
             </div>
           </div>
