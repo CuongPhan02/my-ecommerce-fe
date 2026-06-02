@@ -3,7 +3,9 @@
 import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle2, XCircle, AlertCircle, ShoppingBag, ArrowRight, PhoneCall, RefreshCw } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertCircle, ShoppingBag, ArrowRight, PhoneCall, RefreshCw, Package, MapPin, CreditCard } from 'lucide-react'
+import { _orderService } from '~/features/public/order/order.query'
+import Image from 'next/image'
 
 // VNPAY response code translations
 const getVNPAYErrorMessage = (code: string | null): string => {
@@ -38,9 +40,12 @@ function CheckoutResultContent() {
   
   const isSuccess = successParam === 'true'
 
+  const { data: orderRes, isLoading: isOrderLoading } = _orderService.useTrackOrder(orderId || '')
+  const order = orderRes?.result
+
   return (
     <div className="bg-gray-50/50 min-h-screen py-16 px-4 md:py-24 flex items-center justify-center">
-      <div className="max-w-2xl w-full bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-100/50 overflow-hidden transition-all duration-300">
+      <div className="max-w-3xl w-full bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-100/50 overflow-hidden transition-all duration-300">
         
         {/* Header Visual Banner */}
         <div className={`relative py-12 px-6 text-center flex flex-col items-center justify-center gap-4 ${
@@ -87,29 +92,103 @@ function CheckoutResultContent() {
           
           {/* Status Box */}
           {isSuccess ? (
-            <div className="space-y-6">
-              <div className="bg-gray-50 rounded-3xl p-6 md:p-8 space-y-4 border border-gray-100">
-                <div className="flex justify-between items-center pb-4 border-b border-gray-200/60">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mã đơn hàng</span>
-                  <span className="text-sm font-black text-black bg-white px-4 py-1.5 rounded-full border shadow-sm">
-                    #{orderId || 'N/A'}
-                  </span>
+            <div className="space-y-8">
+              {/* Order Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-100">
+                  <div className="flex justify-between items-center pb-4 border-b border-gray-200/60">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mã đơn hàng</span>
+                    <span className="text-sm font-black text-black bg-white px-4 py-1.5 rounded-full border shadow-sm">
+                      #{orderId || 'N/A'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Trạng thái</span>
+                    <span className="text-xs font-black text-green-600 bg-green-50 px-3 py-1 rounded-lg uppercase tracking-wider">
+                      {order?.payment?.status === 'COMPLETED' ? 'Đã thanh toán' : 'Chờ thanh toán'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-100">
+                  <div className="flex items-center gap-3 pb-2">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Địa chỉ giao hàng</span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-gray-900">{order?.customer?.name}</p>
+                    <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+                      {order?.shippingAddress?.street}, {order?.shippingAddress?.city}, {order?.shippingAddress?.province}
+                    </p>
+                    <p className="text-[11px] text-gray-500 font-medium">{order?.customer?.phone}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Package className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Sản phẩm của bạn</h3>
                 </div>
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Trạng thái thanh toán</span>
-                  <span className="text-xs font-black text-green-600 bg-green-50 px-3 py-1 rounded-lg uppercase tracking-wider">
-                    Đã thanh toán (VNPAY/COD)
-                  </span>
+                <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden">
+                  <div className="divide-y divide-gray-50">
+                    {order?.items?.map((item) => (
+                      <div key={item.id} className="p-4 flex items-center gap-4">
+                        <div className="w-16 h-16 relative rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0 border border-gray-100">
+                          <Image
+                            src={item.product.thumbnail?.url || '/placeholder.png'}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-black uppercase tracking-tight text-gray-900 truncate">
+                            {item.product.name}
+                          </h4>
+                          <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">
+                            Số lượng: {item.quantity} × {item.priceAtPurchaseFormatted}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs font-black text-gray-900">
+                            {item.priceAtPurchaseFormatted}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="bg-gray-50/50 p-6 space-y-3">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span>Tạm tính</span>
+                      <span>{order?.totalAmountFormatted}</span>
+                    </div>
+                    {(order?.discountAmount ?? 0) > 0 && (
+                      <div className="flex justify-between items-center text-[10px] font-bold text-red-500 uppercase tracking-widest">
+                        <span>Giảm giá</span>
+                        <span>-{order?.discountAmountFormatted}</span>
+                      </div>
+                    )}
+                    <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
+                      <span className="text-xs font-black uppercase tracking-widest text-gray-900">Tổng thanh toán</span>
+                      <span className="text-lg font-black text-black">
+                        {order?.totalAmountFormatted}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div className="bg-blue-50/50 border border-blue-50 rounded-3xl p-6 flex items-start gap-4">
                 <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-blue-900">Thông tin giao hàng</h4>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-blue-900">Thông tin vận chuyển</h4>
                   <p className="text-xs text-blue-950 font-medium leading-relaxed">
-                    Hệ thống đang chuẩn bị sản phẩm của bạn. Đơn hàng sẽ được bàn giao cho đơn vị vận chuyển và giao tới tay bạn trong vòng 1-3 ngày làm việc tới. Một email xác nhận chi tiết đã được gửi tới hòm thư của bạn.
+                    Đơn hàng sẽ được bàn giao cho đơn vị vận chuyển và giao tới tay bạn trong vòng 1-3 ngày làm việc tới. Một email xác nhận chi tiết đã được gửi tới hòm thư của bạn.
                   </p>
                 </div>
               </div>
@@ -134,7 +213,7 @@ function CheckoutResultContent() {
                 <div className="space-y-1">
                   <h4 className="text-xs font-black uppercase tracking-wider text-gray-700">Làm thế nào để tiếp tục?</h4>
                   <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                    Bạn có thể quay lại giỏ hàng để chọn phương thức thanh toán khác (như thanh toán COD) hoặc thử thanh toán lại với ngân hàng khác qua VNPAY. Đừng ngần ngại liên hệ hotline của chúng tôi nếu bạn cần hỗ trợ lập tiếp.
+                    Bạn có thể quay lại giỏ hàng để chọn phương thức thanh toán khác (như thanh toán COD) hoặc thử thanh toán lại với ngân hàng khác qua VNPAY. Đừng ngần ngại liên hệ hotline của chúng tôi nếu bạn cần hỗ trợ.
                   </p>
                 </div>
               </div>

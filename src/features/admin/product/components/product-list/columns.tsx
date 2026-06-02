@@ -3,6 +3,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '~/components/ui/core/checkbox'
 import { CollectionItem, Product, TableMeta, Variant } from '../../types'
 import { Switch } from '~/components/ui/core/switch'
+import { cn } from '~/lib/utils'
 export const columns: ColumnDef<Product>[] = [
   {
     id: 'select',
@@ -103,6 +104,22 @@ export const columns: ColumnDef<Product>[] = [
       return min === max
         ? formatter.format(min)
         : `${formatter.format(min)} - ${formatter.format(max)}`
+    },
+  },
+  {
+    accessorKey: 'stock',
+    header: 'Tồn kho',
+    cell: ({ row }) => {
+      const stock = row.original.stock || 0
+      return (
+        <div className='flex items-center gap-2'>
+          <div className={cn(
+            "w-2 h-2 rounded-full",
+            stock === 0 ? "bg-red-500" : stock <= 5 ? "bg-amber-500" : "bg-green-500"
+          )} />
+          <span className='font-bold'>{stock}</span>
+        </div>
+      )
     },
   },
   {

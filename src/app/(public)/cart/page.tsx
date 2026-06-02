@@ -1,19 +1,27 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import CartItem from '~/features/public/cart/cart-item'
 import ShippingForm from '~/features/public/cart/shipping-form'
 import PaymentSelection from '~/features/public/cart/payment-selection'
 import CartSummary from '~/features/public/cart/cart-summary'
 import StickyCheckoutBar from '~/features/public/cart/sticky-checkout-bar'
-import { Info, X, ShoppingBag, Loader2 } from 'lucide-react'
+import { Info, X, ShoppingBag, Loader2, MapPin, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { _cartService } from '~/features/public/cart/cart.query'
+import { _profileService } from '~/features/public/profile/profile.query'
+import { toast } from 'react-toastify'
+import { ConfirmModal } from '~/components/shared/confirm-modal'
+import { AUTH_QUERY } from '~/features/public/auth/auth.query'
+import { cn } from '~/lib/utils'
 
 export default function CartPage() {
   const router = useRouter()
   const { data: cartData, isLoading, isError } = _cartService.useCart()
+  const { data: addressesRes } = _profileService.useMyAddresses()
+  const { data: profileRes } = AUTH_QUERY.useMe()
+
   const updateCartItemMutation = _cartService.useUpdateCartItem()
   const removeCartItemMutation = _cartService.useRemoveCartItem()
   const clearCartMutation = _cartService.useClearCart()
@@ -33,8 +41,46 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const [couponCode, setCouponCode] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showAddressList, setShowAddressList] = useState(false)
+
+  const [isClearCartModalOpen, setIsClearCartModalOpen] = useState(false)
+  const [itemToRemove, setItemToRemove] = useState<string | null>(null)
 
   const cart = cartData?.result
+  const addresses = addressesRes?.result || []
+  const user = profileRes?.result
+
+  // Auto-fill form with default address or user info
+  useEffect(() => {
+    if (user && !shippingValues.shippingName) {
+      const defaultAddr = addresses.find(a => a.isDefault) || addresses[0]
+
+      setShippingValues(prev => ({
+        ...prev,
+        shippingName: defaultAddr?.receiverName || user.name || '',
+        shippingEmail: user.email || '',
+        shippingPhone: defaultAddr?.phone || user.phone || '',
+        ...(defaultAddr ? {
+          street: defaultAddr.street,
+          city: defaultAddr.city,
+          province: defaultAddr.province,
+        } : {})
+      }))
+    }
+  }, [user, addresses])
+
+  const handleSelectAddress = (addr: any) => {
+    setShippingValues(prev => ({
+      ...prev,
+      shippingName: addr.receiverName,
+      shippingPhone: addr.phone,
+      street: addr.street,
+      city: addr.city,
+      province: addr.province,
+    }))
+    setShowAddressList(false)
+    toast.info('Đã áp dụng địa chỉ đã chọn')
+  }
   const cartItems = cart?.items || []
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.variant.price * item.quantity,
@@ -65,13 +111,11 @@ export default function CartPage() {
   }
 
   const handleRemoveItem = (itemId: string) => {
-    removeCartItemMutation.mutate(itemId)
+    setItemToRemove(itemId)
   }
 
   const handleClearCart = () => {
-    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ sản phẩm khỏi giỏ hàng?')) {
-      clearCartMutation.mutate()
-    }
+    setIsClearCartModalOpen(true)
   }
 
   const handleShippingChange = (field: string, value: string) => {
@@ -129,7 +173,7 @@ export default function CartPage() {
 
   const handleOrder = async () => {
     if (!validateForm()) {
-      alert('Vui lòng điền đầy đủ và chính xác thông tin vận chuyển!')
+      toast.warning('Vui lòng điền đầy đủ và chính xác thông tin vận chuyển!')
       return
     }
 
@@ -179,7 +223,7 @@ export default function CartPage() {
         err?.response?.data?.message ||
         err?.message ||
         'Có lỗi xảy ra khi tạo đơn hàng. Vui lòng thử lại.'
-      alert(`Đã xảy ra lỗi: ${message}`)
+      toast.error(`Đã xảy ra lỗi: ${message}`)
     }
   }
 
@@ -270,6 +314,56 @@ export default function CartPage() {
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-20 items-start'>
             {/* Left Column: Form & Payment */}
             <div className='lg:col-span-7 flex flex-col gap-16'>
+              {/* Address Selection Dropdown for logged in users */}
+              {user && addresses.length > 0 && (
+                <div className="mb-8 relative">
+                  <button 
+                    onClick={() => setShowAddressList(!showAddressList)}
+                    className="w-full flex items-center justify-between p-6 bg-blue-50/50 border border-blue-100 rounded-[2rem] hover:bg-blue-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Sổ địa chỉ</p>
+                        <p className="text-sm font-black text-blue-900">Chọn từ địa chỉ đã lưu của bạn</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={cn("w-5 h-5 text-blue-600 transition-transform duration-300", showAddressList && "rotate-180")} />
+                  </button>
+
+                  {showAddressList && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-[2rem] shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="p-2 max-h-80 overflow-y-auto no-scrollbar">
+                        {addresses.map((addr) => (
+                          <button
+                            key={addr.id}
+                            onClick={() => handleSelectAddress(addr)}
+                            className="w-full text-left p-4 hover:bg-gray-50 rounded-2xl transition-all border border-transparent hover:border-gray-100 flex items-start gap-4"
+                          >
+                            <div className={cn(
+                              "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1",
+                              addr.isDefault ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-400"
+                            )}>
+                              <MapPin className="w-4 h-4" />
+                            </div>
+                            <div className="space-y-0.5">
+                              <p className="text-xs font-black text-gray-900">{addr.receiverName} • {addr.phone}</p>
+                              <p className="text-[10px] font-bold text-gray-400">{addr.street}</p>
+                              <p className="text-[10px] font-bold text-gray-400">{addr.city}, {addr.province}</p>
+                              {addr.isDefault && (
+                                <span className="text-[8px] font-black uppercase tracking-widest text-blue-600">Mặc định</span>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <ShippingForm
                 values={shippingValues}
                 onChange={handleShippingChange}
@@ -350,6 +444,33 @@ export default function CartPage() {
           onOrder={handleOrder}
         />
       )}
+
+      {/* Confirm Modals */}
+      <ConfirmModal
+        isOpen={isClearCartModalOpen}
+        onClose={() => setIsClearCartModalOpen(false)}
+        onConfirm={() => clearCartMutation.mutate()}
+        title="Xóa giỏ hàng"
+        description="Bạn có chắc chắn muốn xóa toàn bộ sản phẩm khỏi giỏ hàng? Hành động này không thể hoàn tác."
+        variant="destructive"
+        confirmText="Xóa toàn bộ"
+        isLoading={clearCartMutation.isPending}
+      />
+
+      <ConfirmModal
+        isOpen={!!itemToRemove}
+        onClose={() => setItemToRemove(null)}
+        onConfirm={() => {
+          if (itemToRemove) {
+            removeCartItemMutation.mutate(itemToRemove)
+          }
+        }}
+        title="Xóa sản phẩm"
+        description="Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?"
+        variant="destructive"
+        confirmText="Xóa ngay"
+        isLoading={removeCartItemMutation.isPending}
+      />
     </div>
   )
 }

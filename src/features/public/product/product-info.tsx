@@ -14,6 +14,10 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   const [quantity, setQuantity] = useState(1)
 
   const variant = product.variants?.[selectedVariantIndex]
+  const stockQuantity = variant?.stockQuantity ?? (product as any).stock ?? 0
+  const isOutOfStock = stockQuantity <= 0
+  const isStockLow = stockQuantity > 0 && stockQuantity <= 5
+
   const price = variant?.price || 0
   const priceFormatted = (variant as any)?.priceFormatted || (product as any)?.priceFormatted
 
@@ -35,6 +39,12 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       toast.error('Vui lòng chọn một phiên bản sản phẩm')
       return
     }
+
+    if (quantity > stockQuantity) {
+      toast.error(`Rất tiếc, chỉ còn ${stockQuantity} sản phẩm trong kho`)
+      return
+    }
+
     addToCartMutation.mutate(
       {
         productVariantId: variant.id,
@@ -135,45 +145,79 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             {product.variants.map((v, idx) => (
               <button
                 key={v.id}
-                onClick={() => setSelectedVariantIndex(idx)}
+                onClick={() => {
+                  setSelectedVariantIndex(idx)
+                  if (quantity > (v.stockQuantity ?? 0)) {
+                    setQuantity(Math.max(1, v.stockQuantity ?? 0))
+                  }
+                }}
                 className={cn(
-                  'px-4 py-2 rounded-xl text-sm font-bold transition-all border-2',
+                  'px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 relative',
                   selectedVariantIndex === idx
                     ? 'bg-black text-white border-black'
                     : 'bg-gray-50 text-gray-400 border-transparent hover:border-gray-200',
+                  (v.stockQuantity ?? 0) <= 0 && 'opacity-50 cursor-not-allowed grayscale'
                 )}
               >
                 {v.sku || `Bản ${idx + 1}`}
+                {(v.stockQuantity ?? 0) <= 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-[8px] px-1.5 py-0.5 rounded-full text-white">Hết</span>
+                )}
               </button>
             ))}
           </div>
         </div>
       )}
 
+      {/* Stock Status */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            "w-2 h-2 rounded-full",
+            isOutOfStock ? "bg-red-500" : isStockLow ? "bg-amber-500 animate-pulse" : "bg-green-500"
+          )} />
+          <span className={cn(
+            "text-[10px] font-black uppercase tracking-widest",
+            isOutOfStock ? "text-red-500" : isStockLow ? "text-amber-600" : "text-green-600"
+          )}>
+            {isOutOfStock ? 'Hết hàng' : isStockLow ? `Sắp hết hàng (Còn ${stockQuantity})` : 'Còn hàng trong kho'}
+          </span>
+        </div>
+        {quantity > stockQuantity && !isOutOfStock && (
+          <p className="text-[10px] font-bold text-red-500 uppercase tracking-tight">
+            Số lượng yêu cầu vượt quá tồn kho hiện tại!
+          </p>
+        )}
+      </div>
+
       {/* Quantity & Actions */}
       <div className='flex gap-4'>
         <div className='flex items-center bg-gray-100 rounded-2xl p-1 h-14'>
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className='w-12 h-full flex items-center justify-center hover:bg-white rounded-xl transition-all'
+            disabled={quantity <= 1 || isOutOfStock}
+            className='w-12 h-full flex items-center justify-center hover:bg-white rounded-xl transition-all disabled:opacity-30'
           >
             <Minus className='w-4 h-4' />
           </button>
-          <span className='w-12 text-center font-black'>{quantity}</span>
+          <span className='w-12 text-center font-black'>{isOutOfStock ? 0 : quantity}</span>
           <button
             onClick={() => setQuantity((q) => q + 1)}
-            className='w-12 h-full flex items-center justify-center hover:bg-white rounded-xl transition-all'
+            disabled={quantity >= stockQuantity || isOutOfStock}
+            className='w-12 h-full flex items-center justify-center hover:bg-white rounded-xl transition-all disabled:opacity-30'
           >
             <Plus className='w-4 h-4' />
           </button>
         </div>
         <button 
           onClick={handleAddToCart}
-          disabled={addToCartMutation.isPending}
-          className='flex-1 bg-black text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-black/10 disabled:opacity-60'
+          disabled={addToCartMutation.isPending || isOutOfStock || quantity > stockQuantity}
+          className='flex-1 bg-black text-white rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-black/10 disabled:opacity-60 disabled:bg-gray-400 disabled:cursor-not-allowed'
         >
           {addToCartMutation.isPending ? (
             <Loader2 className='w-5 h-5 animate-spin' />
+          ) : isOutOfStock ? (
+            'Hết hàng'
           ) : (
             <>
               <ShoppingBag className='w-5 h-5' />
