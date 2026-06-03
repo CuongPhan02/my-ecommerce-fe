@@ -33,7 +33,7 @@ const ProfilePage = () => {
       try {
         await deleteAddressMutation.mutateAsync(addressToDelete)
         toast.success('Xóa địa chỉ thành công')
-      } catch (error) {
+      } catch (error: any) {
         toast.error('Không thể xóa địa chỉ')
       }
     }
@@ -43,7 +43,7 @@ const ProfilePage = () => {
     try {
       await setDefaultAddressMutation.mutateAsync(id)
       toast.success('Đã đặt làm mặc định')
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Thao tác thất bại')
     }
   }

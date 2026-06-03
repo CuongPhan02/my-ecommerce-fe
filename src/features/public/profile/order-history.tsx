@@ -66,7 +66,7 @@ export const OrderHistory = () => {
   return (
     <div className="space-y-6">
       {orders.map((order) => {
-        const config = statusConfig[order.status]
+        const config = statusConfig[order.status as keyof typeof statusConfig]
         const StatusIcon = config.icon
 
         return (
