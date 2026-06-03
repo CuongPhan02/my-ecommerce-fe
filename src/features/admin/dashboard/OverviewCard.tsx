@@ -33,7 +33,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
-export function Overview() {
+export function Overview({ data }: { data?: { name: string; total: number }[] }) {
+  if (!data) return null;
+
   return (
     <ResponsiveContainer width='100%' height={350}>
       <BarChart data={data}>

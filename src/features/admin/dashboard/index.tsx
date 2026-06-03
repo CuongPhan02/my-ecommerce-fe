@@ -14,68 +14,89 @@ import { AnalyticsTab } from './analytics-tab'
 import { ReportsTab } from './reports-tab'
 import { NotificationsTab } from './notifications-tab'
 
-import { CreditCard, ShoppingCart, ShoppingBag, Tag } from 'lucide-react'
+import { CreditCard, ShoppingCart, ShoppingBag, Tag, Loader2 } from 'lucide-react'
+import { _dashboardService } from './dashboard.query'
 
 const DashboardPage = () => {
+  const { data: dashRes, isLoading } = _dashboardService.useDashboardData()
+  const data = dashRes?.result
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Đang tải dữ liệu dashboard...</p>
+      </div>
+    )
+  }
+
   return (
     <div className='flex-1 space-y-6'>
       <div className='mb-2 flex items-center justify-between space-y-2'>
-        <h1 className='text-3xl font-bold tracking-tight'>Bảng điều khiển</h1>
+        <h1 className='text-3xl font-black uppercase tracking-tight'>Bảng điều khiển</h1>
         <div className='flex items-center space-x-2'>
-          <Button>Tải xuống báo cáo</Button>
+          <Button className="rounded-xl font-bold text-xs uppercase tracking-widest">Tải xuống báo cáo</Button>
         </div>
       </div>
       
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
+            <Card className='rounded-2xl transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>
+                <CardTitle className='text-[10px] font-black uppercase tracking-widest text-gray-500'>
                   Tổng doanh thu
                 </CardTitle>
                 <CreditCard className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>184.230.000 ₫</div>
-                <p className='text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-1 mt-1'>
+                <div className='text-2xl font-black text-slate-900 dark:text-slate-50'>
+                  {data?.stats.totalRevenueFormatted}
+                </div>
+                <p className='text-emerald-600 dark:text-emerald-400 text-[10px] font-bold flex items-center gap-1 mt-1 uppercase'>
                   <span>↑</span> +12.5% so với tháng trước
                 </p>
               </CardContent>
             </Card>
-            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
+            <Card className='rounded-2xl transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>Đơn hàng mới</CardTitle>
+                <CardTitle className='text-[10px] font-black uppercase tracking-widest text-gray-500'>Đơn hàng mới</CardTitle>
                 <ShoppingCart className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>+1,432 đơn</div>
-                <p className='text-emerald-600 dark:text-emerald-400 text-xs font-medium flex items-center gap-1 mt-1'>
-                  <span>↑</span> +8.2% so với tháng trước
+                <div className='text-2xl font-black text-slate-900 dark:text-slate-50'>
+                  +{data?.stats.newOrdersCount} đơn
+                </div>
+                <p className='text-emerald-600 dark:text-emerald-400 text-[10px] font-bold flex items-center gap-1 mt-1 uppercase'>
+                  <span>↑</span> trong tháng này
                 </p>
               </CardContent>
             </Card>
-            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
+            <Card className='rounded-2xl transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>Tổng sản phẩm</CardTitle>
+                <CardTitle className='text-[10px] font-black uppercase tracking-widest text-gray-500'>Tổng sản phẩm</CardTitle>
                 <ShoppingBag className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>342 sản phẩm</div>
-                <p className='text-muted-foreground text-xs font-medium mt-1'>
-                  15 danh mục / 8 thương hiệu
+                <div className='text-2xl font-black text-slate-900 dark:text-slate-50'>
+                  {data?.stats.totalProducts} sản phẩm
+                </div>
+                <p className='text-muted-foreground text-[10px] font-bold mt-1 uppercase tracking-widest'>
+                  Đang kinh doanh
                 </p>
               </CardContent>
             </Card>
-            <Card className='transition-all duration-200 hover:shadow-md border-muted/50'>
+            <Card className='rounded-2xl transition-all duration-200 hover:shadow-md border-muted/50'>
               <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                <CardTitle className='text-sm font-medium'>
-                  Voucher & Khuyến mãi
+                <CardTitle className='text-[10px] font-black uppercase tracking-widest text-gray-500'>
+                  Voucher hoạt động
                 </CardTitle>
                 <Tag className='text-primary h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold text-slate-900 dark:text-slate-50'>6 Voucher</div>
-                <p className='text-amber-600 dark:text-amber-400 text-xs font-medium mt-1'>
-                  3 chương trình sắp hết hạn
+                <div className='text-2xl font-black text-slate-900 dark:text-slate-50'>
+                  {data?.stats.activeVouchers} Voucher
+                </div>
+                <p className='text-amber-600 dark:text-amber-400 text-[10px] font-bold mt-1 uppercase tracking-widest'>
+                  Sẵn sàng áp dụng
                 </p>
               </CardContent>
             </Card>
@@ -84,23 +105,23 @@ const DashboardPage = () => {
       <AnalyticsTab />
       
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-        <Card className='col-span-1 lg:col-span-4'>
+        <Card className='col-span-1 lg:col-span-4 rounded-2xl'>
           <CardHeader>
-            <CardTitle>Tổng quan doanh thu</CardTitle>
+            <CardTitle className="text-sm font-black uppercase tracking-widest">Tổng quan doanh thu</CardTitle>
           </CardHeader>
           <CardContent className='ps-2'>
-            <Overview />
+            <Overview data={data?.revenueOverview} />
           </CardContent>
         </Card>
-        <Card className='col-span-1 lg:col-span-3'>
+        <Card className='col-span-1 lg:col-span-3 rounded-2xl'>
           <CardHeader>
-            <CardTitle>Doanh số gần đây</CardTitle>
-            <CardDescription>
-              Bạn đã thực hiện 265 giao dịch trong tháng này.
+            <CardTitle className="text-sm font-black uppercase tracking-widest">Doanh số gần đây</CardTitle>
+            <CardDescription className="text-xs font-bold uppercase tracking-widest">
+              Giao dịch mới nhất trên hệ thống.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RecentSales />
+            <RecentSales data={data?.recentSales} />
           </CardContent>
         </Card>
       </div>
@@ -118,3 +139,4 @@ const DashboardPage = () => {
 }
 
 export default DashboardPage
+
