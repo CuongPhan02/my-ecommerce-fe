@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { _orderApi } from './order.api'
 
 export const _orderService = {
@@ -8,6 +8,23 @@ export const _orderService = {
       queryFn: () => _orderApi.trackOrder(orderId),
       enabled: !!orderId,
       staleTime: 1000 * 60 * 5, // 5 minutes
+    })
+  },
+
+  useMyOrders: (params?: { page?: number; limit?: number }) => {
+    return useQuery({
+      queryKey: ['my-orders', params],
+      queryFn: () => _orderApi.getMyOrders(params),
+    })
+  },
+
+  useConfirmReceipt: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: (orderId: string) => _orderApi.confirmReceipt(orderId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['my-orders'] })
+      }
     })
   }
 }
