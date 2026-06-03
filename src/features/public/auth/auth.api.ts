@@ -54,4 +54,12 @@ export const AUTH_API = {
     const response = await https.get<ApiResponse<any>>('/auth/me')
     return response.data
   },
+  updateProfile: async (payload: { name?: string; phone?: string; avatarUrl?: string }) => {
+    const response = await https.put<ApiResponse<any>>('/auth/profile', payload)
+    return response.data
+  },
+  changePassword: async (payload: any) => {
+    const response = await https.put<ApiResponse<any>>('/auth/change-password', payload)
+    return response.data
+  },
 }

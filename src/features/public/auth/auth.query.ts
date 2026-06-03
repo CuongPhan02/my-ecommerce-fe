@@ -85,4 +85,18 @@ export const AUTH_QUERY = {
       },
     })
   },
+  useUpdateProfile: (queryClient: QueryClient) => {
+    return useMutation({
+      mutationFn: (payload: { name?: string; phone?: string; avatarUrl?: string }) =>
+        AUTH_API.updateProfile(payload),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY.me })
+      },
+    })
+  },
+  useChangePassword: () => {
+    return useMutation({
+      mutationFn: (payload: any) => AUTH_API.changePassword(payload),
+    })
+  },
 }

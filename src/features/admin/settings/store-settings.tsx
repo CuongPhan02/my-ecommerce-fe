@@ -47,9 +47,17 @@ export function StoreSettings() {
   // 1. Fetch & Mutation Hooks for App Settings
   const { data: logoData, isLoading: isLogoLoading } = _settingsService.useLogoSettings()
   const { data: heroData, isLoading: isHeroLoading } = _settingsService.useHeroBannerSettings()
+  const { data: storeInfoData } = _settingsService.useStoreInfo()
+  const { data: socialLinksData } = _settingsService.useSocialLinks()
+  const { data: seoMetaData } = _settingsService.useSeoMeta()
+  const { data: systemConfigData } = _settingsService.useSystemConfig()
 
   const updateLogoMutation = _settingsService.useUpdateLogoSettings()
   const updateHeroMutation = _settingsService.useUpdateHeroBannerSettings()
+  const updateStoreInfoMutation = _settingsService.useUpdateStoreInfo()
+  const updateSocialLinksMutation = _settingsService.useUpdateSocialLinks()
+  const updateSeoMetaMutation = _settingsService.useUpdateSeoMeta()
+  const updateSystemConfigMutation = _settingsService.useUpdateSystemConfig()
 
   // 2. States
   const [logoState, setLogoState] = useState<LogoSettings>({
@@ -62,6 +70,32 @@ export function StoreSettings() {
 
   const [banners, setBanners] = useState<HeroBannerItem[]>([])
   const [activeSlideIndex, setActiveSlideIndex] = useState<number | null>(null)
+
+  const [storeInfo, setStoreInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+  })
+
+  const [socialLinks, setSocialLinks] = useState({
+    facebook: '',
+    instagram: '',
+    tiktok: '',
+    youtube: '',
+    twitter: '',
+  })
+
+  const [seoMeta, setSeoMeta] = useState({
+    title: '',
+    description: '',
+    keywords: '',
+  })
+
+  const [systemConfig, setSystemConfig] = useState({
+    maintenanceMode: false,
+    enableEmailVerification: true,
+  })
 
   // Sync loaded states
   useEffect(() => {
@@ -85,6 +119,48 @@ export function StoreSettings() {
       setBanners((heroData.result as any).items || [])
     }
   }, [heroData])
+
+  useEffect(() => {
+    if (storeInfoData?.result) {
+      setStoreInfo({
+        name: storeInfoData.result.name || '',
+        email: storeInfoData.result.email || '',
+        phone: storeInfoData.result.phone || '',
+        address: storeInfoData.result.address || '',
+      })
+    }
+  }, [storeInfoData])
+
+  useEffect(() => {
+    if (socialLinksData?.result) {
+      setSocialLinks({
+        facebook: socialLinksData.result.facebook || '',
+        instagram: socialLinksData.result.instagram || '',
+        tiktok: socialLinksData.result.tiktok || '',
+        youtube: socialLinksData.result.youtube || '',
+        twitter: socialLinksData.result.twitter || '',
+      })
+    }
+  }, [socialLinksData])
+
+  useEffect(() => {
+    if (seoMetaData?.result) {
+      setSeoMeta({
+        title: seoMetaData.result.title || '',
+        description: seoMetaData.result.description || '',
+        keywords: seoMetaData.result.keywords || '',
+      })
+    }
+  }, [seoMetaData])
+
+  useEffect(() => {
+    if (systemConfigData?.result) {
+      setSystemConfig({
+        maintenanceMode: !!systemConfigData.result.maintenanceMode,
+        enableEmailVerification: !!systemConfigData.result.enableEmailVerification,
+      })
+    }
+  }, [systemConfigData])
 
   // Logo form event handlers
   const handleLogoFieldChange = (field: keyof LogoSettings, value: any) => {
@@ -211,27 +287,50 @@ export function StoreSettings() {
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
                 <Label htmlFor='storeName'>Tên cửa hàng</Label>
-                <Input id='storeName' defaultValue='My E-commerce' className='rounded-xl' />
+                <Input 
+                  id='storeName' 
+                  value={storeInfo.name} 
+                  onChange={(e) => setStoreInfo({ ...storeInfo, name: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='storeEmail'>Email liên hệ</Label>
-                <Input id='storeEmail' type='email' defaultValue='contact@myecommerce.com' className='rounded-xl' />
+                <Input 
+                  id='storeEmail' 
+                  type='email' 
+                  value={storeInfo.email} 
+                  onChange={(e) => setStoreInfo({ ...storeInfo, email: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='storePhone'>Số điện thoại</Label>
-                <Input id='storePhone' defaultValue='0123 456 789' className='rounded-xl' />
+                <Input 
+                  id='storePhone' 
+                  value={storeInfo.phone} 
+                  onChange={(e) => setStoreInfo({ ...storeInfo, phone: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='storeAddress'>Địa chỉ</Label>
                 <Textarea
                   id='storeAddress'
-                  defaultValue='123 Đường ABC, Quận X, TP.HCM'
+                  value={storeInfo.address}
+                  onChange={(e) => setStoreInfo({ ...storeInfo, address: e.target.value })}
                   className='min-h-[80px] rounded-xl'
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button className='rounded-xl'>Lưu thông tin</Button>
+              <Button 
+                onClick={() => updateStoreInfoMutation.mutate(storeInfo)}
+                disabled={updateStoreInfoMutation.isPending}
+                className='rounded-xl'
+              >
+                {updateStoreInfoMutation.isPending ? 'Đang lưu...' : 'Lưu thông tin'}
+              </Button>
             </CardFooter>
           </Card>
 
@@ -243,19 +342,47 @@ export function StoreSettings() {
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
                 <Label htmlFor='facebook'>Facebook</Label>
-                <Input id='facebook' placeholder='https://facebook.com/...' className='rounded-xl' />
+                <Input 
+                  id='facebook' 
+                  placeholder='https://facebook.com/...' 
+                  value={socialLinks.facebook}
+                  onChange={(e) => setSocialLinks({ ...socialLinks, facebook: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='instagram'>Instagram</Label>
-                <Input id='instagram' placeholder='https://instagram.com/...' className='rounded-xl' />
+                <Input 
+                  id='instagram' 
+                  placeholder='https://instagram.com/...' 
+                  value={socialLinks.instagram}
+                  onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='tiktok'>TikTok</Label>
-                <Input id='tiktok' placeholder='https://tiktok.com/@...' className='rounded-xl' />
+                <Input 
+                  id='tiktok' 
+                  placeholder='https://tiktok.com/@...' 
+                  value={socialLinks.tiktok}
+                  onChange={(e) => setSocialLinks({ ...socialLinks, tiktok: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
             </CardContent>
             <CardFooter>
-              <Button className='rounded-xl'>Lưu liên kết</Button>
+              <Button 
+                onClick={() => updateSocialLinksMutation.mutate({
+                  ...socialLinks,
+                  youtube: socialLinks.youtube || null,
+                  twitter: socialLinks.twitter || null
+                })}
+                disabled={updateSocialLinksMutation.isPending}
+                className='rounded-xl'
+              >
+                {updateSocialLinksMutation.isPending ? 'Đang lưu...' : 'Lưu liên kết'}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -271,23 +398,43 @@ export function StoreSettings() {
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
                 <Label htmlFor='metaTitle'>Meta Title</Label>
-                <Input id='metaTitle' defaultValue='My E-commerce - Mua sắm trực tuyến' className='rounded-xl' />
+                <Input 
+                  id='metaTitle' 
+                  value={seoMeta.title} 
+                  onChange={(e) => setSeoMeta({ ...seoMeta, title: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='metaDesc'>Meta Description</Label>
                 <Textarea
                   id='metaDesc'
-                  defaultValue='Nền tảng mua sắm trực tuyến hàng đầu với đa dạng sản phẩm chất lượng cao.'
+                  value={seoMeta.description}
+                  onChange={(e) => setSeoMeta({ ...seoMeta, description: e.target.value })}
                   className='min-h-[80px] rounded-xl'
                 />
               </div>
               <div className='space-y-2'>
                 <Label htmlFor='keywords'>Meta Keywords</Label>
-                <Input id='keywords' defaultValue='mua sắm, online, ecommerce, quần áo, giày dép' className='rounded-xl' />
+                <Input 
+                  id='keywords' 
+                  value={seoMeta.keywords} 
+                  onChange={(e) => setSeoMeta({ ...seoMeta, keywords: e.target.value })}
+                  className='rounded-xl' 
+                />
               </div>
             </CardContent>
             <CardFooter>
-              <Button className='rounded-xl'>Lưu SEO</Button>
+              <Button 
+                onClick={() => updateSeoMetaMutation.mutate({
+                  ...seoMeta,
+                  ogImage: null
+                })}
+                disabled={updateSeoMetaMutation.isPending}
+                className='rounded-xl'
+              >
+                {updateSeoMetaMutation.isPending ? 'Đang lưu...' : 'Lưu SEO'}
+              </Button>
             </CardFooter>
           </Card>
 
@@ -304,7 +451,14 @@ export function StoreSettings() {
                     Tạm dừng mọi giao dịch và hiển thị thông báo bảo trì.
                   </p>
                 </div>
-                <Switch />
+                <Switch 
+                  checked={systemConfig.maintenanceMode}
+                  onCheckedChange={(checked) => {
+                    const newData = { ...systemConfig, maintenanceMode: checked }
+                    setSystemConfig(newData)
+                    updateSystemConfigMutation.mutate(newData)
+                  }}
+                />
               </div>
               <div className='flex items-center justify-between rounded-2xl border p-4 bg-gray-50/50'>
                 <div className='space-y-0.5'>
@@ -313,7 +467,14 @@ export function StoreSettings() {
                     Yêu cầu khách hàng xác thực email khi đăng ký mới.
                   </p>
                 </div>
-                <Switch defaultChecked />
+                <Switch 
+                  checked={systemConfig.enableEmailVerification}
+                  onCheckedChange={(checked) => {
+                    const newData = { ...systemConfig, enableEmailVerification: checked }
+                    setSystemConfig(newData)
+                    updateSystemConfigMutation.mutate(newData)
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

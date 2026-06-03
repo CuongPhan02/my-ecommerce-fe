@@ -22,3 +22,30 @@ export interface HeroBannerItem {
 export interface HeroBannerSettings {
   items: HeroBannerItem[]
 }
+
+export interface StoreInfo {
+  name: string
+  email: string
+  phone: string
+  address: string
+}
+
+export interface SocialLinks {
+  facebook: string | null
+  instagram: string | null
+  tiktok: string | null
+  youtube: string | null
+  twitter: string | null
+}
+
+export interface SeoMeta {
+  title: string | null
+  description: string | null
+  keywords: string | null
+  ogImage: string | null
+}
+
+export interface SystemConfig {
+  maintenanceMode: boolean
+  enableEmailVerification: boolean
+}
