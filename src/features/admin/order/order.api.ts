@@ -3,8 +3,13 @@ import { https } from '~/config/https';
 import { Order, OrderParams, UpdateOrderInput } from './types';
 
 export type OrderListResponse = {
-  orders: Order[];
-  total: number;
+  data: Order[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 };
 
 export const _orderApi = {

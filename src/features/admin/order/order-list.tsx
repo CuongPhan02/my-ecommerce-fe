@@ -103,9 +103,9 @@ export function OrderList() {
 
   const updateOrderMutation = _orderService.useUpdateOrder()
 
-  const orders = ordersRes?.result?.orders || []
-  const totalItems = ordersRes?.result?.total || 0
-  const totalPages = Math.ceil(totalItems / pageSize)
+  const orders = ordersRes?.result?.data || []
+  const totalItems = ordersRes?.result?.meta?.total || 0
+  const totalPages = ordersRes?.result?.meta?.totalPages || 0
 
   // Details and edit UI states
   const [editStatus, setEditStatus] = useState<OrderStatus>('PENDING')

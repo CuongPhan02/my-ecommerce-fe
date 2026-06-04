@@ -21,7 +21,7 @@ const statusConfig = {
 export const OrderHistory = () => {
   const { data: ordersRes, isLoading } = _orderService.useMyOrders()
   const confirmReceiptMutation = _orderService.useConfirmReceipt()
-  
+
   const orders = ordersRes?.result?.data || []
 
   const handleConfirmReceipt = async (orderId: string) => {
@@ -53,8 +53,8 @@ export const OrderHistory = () => {
         <p className="text-sm font-bold text-gray-400 mt-2 max-w-xs uppercase tracking-widest">
           Bắt đầu mua sắm để lấp đầy lịch sử đơn hàng của bạn ngay hôm nay!
         </p>
-        <Link 
-          href="/shop" 
+        <Link
+          href="/shop"
           className="mt-8 px-8 py-4 bg-black text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-black/5"
         >
           Khám phá cửa hàng
@@ -70,8 +70,8 @@ export const OrderHistory = () => {
         const StatusIcon = config.icon
 
         return (
-          <div 
-            key={order.id} 
+          <div
+            key={order.id}
             className="bg-white rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-100/50 overflow-hidden hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-300 group"
           >
             {/* Order Header */}
@@ -85,7 +85,7 @@ export const OrderHistory = () => {
                   <p className="text-sm font-black text-gray-900 uppercase">#{order.id}</p>
                 </div>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-4 md:gap-8">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gray-400" />
@@ -99,14 +99,14 @@ export const OrderHistory = () => {
 
             {/* Order Items Summary */}
             <div className="px-8 py-6 space-y-6">
-              {order.items.map((item) => (
+              {order.items?.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 relative rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex-shrink-0">
-                      <Image 
-                        src={item.product.thumbnail?.url || '/placeholder.png'} 
-                        alt={item.product.name} 
-                        fill 
+                      <Image
+                        src={item.product.thumbnail?.url || '/placeholder.png'}
+                        alt={item.product.name}
+                        fill
                         className="object-cover"
                       />
                     </div>
@@ -117,9 +117,9 @@ export const OrderHistory = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {order.status === 'DELIVERED' && (
-                    <Link 
+                    <Link
                       href={`/product/${item.product.slug}#reviews`}
                       className="h-9 px-4 bg-white hover:bg-black hover:text-white text-black border border-gray-100 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all"
                     >
@@ -145,7 +145,7 @@ export const OrderHistory = () => {
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 {order.status === 'SHIPPED' && (
-                  <Button 
+                  <Button
                     onClick={() => handleConfirmReceipt(order.id)}
                     disabled={confirmReceiptMutation.isPending}
                     className="flex-1 sm:flex-none h-11 px-6 bg-green-600 hover:bg-green-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-600/20"
@@ -153,7 +153,7 @@ export const OrderHistory = () => {
                     Xác nhận đã nhận hàng
                   </Button>
                 )}
-                <Link 
+                <Link
                   href={`/checkout/result?orderId=${order.id}&success=true`}
                   className="flex-1 sm:flex-none h-11 px-6 bg-white hover:bg-gray-50 text-black border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center shadow-sm"
                 >
