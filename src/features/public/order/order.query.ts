@@ -7,7 +7,7 @@ export const _orderService = {
       queryKey: ['order-track', orderId],
       queryFn: () => _orderApi.trackOrder(orderId),
       enabled: !!orderId,
-      staleTime: 1000 * 60 * 5, // 5 minutes
+      staleTime: 1000 * 60 * 5,
     })
   },
 
@@ -26,5 +26,17 @@ export const _orderService = {
         queryClient.invalidateQueries({ queryKey: ['my-orders'] })
       }
     })
-  }
+  },
+
+  useCreateRefund: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: (payload: { orderId: string; reason: string; amount: number }) =>
+        _orderApi.createRefund(payload),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['my-orders'] })
+      },
+    })
+  },
 }
+

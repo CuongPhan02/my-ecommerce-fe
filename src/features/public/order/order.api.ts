@@ -16,5 +16,11 @@ export const _orderApi = {
   confirmReceipt: async (orderId: string) => {
     const res = await https.post<ApiResponse<any>>(`/orders/my-orders/${orderId}/confirm-receipt`)
     return res.data
-  }
+  },
+
+  createRefund: async (payload: { orderId: string; reason: string; amount: number }) => {
+    const res = await https.post<ApiResponse<any>>('/refunds', payload)
+    return res.data
+  },
 }
+
