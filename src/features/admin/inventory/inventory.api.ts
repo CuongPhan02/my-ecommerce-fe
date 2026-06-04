@@ -5,12 +5,13 @@ import {
   InventoryQuery, 
   ImportStockPayload, 
   AdjustStockPayload, 
-  InventoryTransaction 
+  InventoryTransaction,
+  PaginationMeta,
 } from './types';
 
 export const _inventoryApi = {
   getStockList: async (params?: InventoryQuery) => {
-    const res = await https.get<ApiResponse<{ data: InventoryStockItem[]; total: number }>>('/inventory', { params });
+    const res = await https.get<ApiResponse<{ data: InventoryStockItem[] } & PaginationMeta>>('/inventory', { params });
     return res.data;
   },
 
@@ -25,7 +26,8 @@ export const _inventoryApi = {
   },
 
   getTransactions: async (params?: { page?: number; limit?: number; type?: string; productVariantId?: string }) => {
-    const res = await https.get<ApiResponse<{ data: InventoryTransaction[]; total: number }>>('/inventory/transactions', { params });
+    const res = await https.get<ApiResponse<{ data: InventoryTransaction[] } & PaginationMeta>>('/inventory/transactions', { params });
     return res.data;
   }
 };
+

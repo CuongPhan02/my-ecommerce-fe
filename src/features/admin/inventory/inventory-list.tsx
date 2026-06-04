@@ -82,6 +82,9 @@ export function InventoryList() {
   })
 
   const { data: categoriesRes } = _categoryService.useCategories()
+
+  // Reset page khi filter thay đổi
+  React.useEffect(() => { setPage(1) }, [statusFilter, categoryFilter, sortBy])
   
   // Mutations
   const importStockMutation = _inventoryService.useImportStock()
@@ -89,6 +92,8 @@ export function InventoryList() {
 
   const inventory = stockRes?.result?.data || []
   const totalItems = stockRes?.result?.total || 0
+  const totalPages = stockRes?.result?.totalPages || 1
+  const pageSize = 10
   const categories = categoriesRes?.result?.data || []
 
   // Edit / Adjust Modal State
@@ -364,6 +369,64 @@ export function InventoryList() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-1 py-2">
+              <span className="text-xs font-semibold text-gray-400">
+                Hiển thị {(page - 1) * pageSize + 1} – {Math.min(page * pageSize, totalItems)} trên {totalItems} sản phẩm
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 1}
+                  onClick={() => setPage(p => p - 1)}
+                  className="rounded-lg h-8 text-xs font-bold border-gray-200 hover:bg-gray-50"
+                >
+                  Trước
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce<(number | '...')[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...')
+                      acc.push(p)
+                      return acc
+                    }, [])
+                    .map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`dots-${idx}`} className="px-1.5 text-xs font-bold text-gray-300">…</span>
+                      ) : (
+                        <Button
+                          key={p}
+                          variant={page === p ? 'default' : 'ghost'}
+                          size="icon"
+                          onClick={() => setPage(p as number)}
+                          className={`h-8 w-8 rounded-lg text-xs font-bold ${
+                            page === p
+                              ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          {p}
+                        </Button>
+                      )
+                    )
+                  }
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === totalPages}
+                  onClick={() => setPage(p => p + 1)}
+                  className="rounded-lg h-8 text-xs font-bold border-gray-200 hover:bg-gray-50"
+                >
+                  Sau
+                </Button>
+              </div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="transactions" className="mt-0 outline-none">
