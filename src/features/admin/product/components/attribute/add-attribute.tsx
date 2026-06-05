@@ -285,6 +285,7 @@ const AddAttributeModal = ({
                     key={idx}
                     variant='secondary'
                     size='sm'
+                    type='button'
                     className={cn(
                       'rounded-lg py-1 pl-2.5 pr-1 gap-1 border shadow-sm flex items-center cursor-pointer transition-all',
                       editingIndex === idx
