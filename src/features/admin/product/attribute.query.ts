@@ -32,10 +32,10 @@ export const _attributeService = {
       mutationFn: _attributeApi.createAttribute,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['attributes'] })
-        toast.success('Attribute created successfully')
+        toast.success('Thêm thuộc tính thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to create attribute')
+        toast.error(error?.response?.data?.message || 'Thêm thuộc tính thất bại!')
       },
     })
   },
@@ -48,10 +48,10 @@ export const _attributeService = {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['attributes'] })
         queryClient.invalidateQueries({ queryKey: ['attribute'] })
-        toast.success('Attribute updated successfully')
+        toast.success('Cập nhật thuộc tính thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to update attribute')
+        toast.error(error?.response?.data?.message || 'Cập nhật thuộc tính thất bại!')
       },
     })
   },
@@ -62,10 +62,10 @@ export const _attributeService = {
       mutationFn: _attributeApi.deleteAttribute,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['attributes'] })
-        toast.success('Attribute deleted successfully')
+        toast.success('Xóa thuộc tính thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to delete attribute')
+        toast.error(error?.response?.data?.message || 'Xóa thuộc tính thất bại!')
       },
     })
   },
@@ -76,10 +76,10 @@ export const _attributeService = {
       mutationFn: _attributeApi.deleteManyAttributes,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['attributes'] })
-        toast.success('Attributes deleted successfully')
+        toast.success('Xóa các thuộc tính thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to delete attributes')
+        toast.error(error?.response?.data?.message || 'Xóa các thuộc tính thất bại!')
       },
     })
   },

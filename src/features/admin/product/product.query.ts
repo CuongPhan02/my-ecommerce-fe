@@ -25,10 +25,10 @@ export const _productService = {
       mutationFn: _productApi.createProduct,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['products'] })
-        toast.success('Product created successfully')
+        toast.success('Thêm sản phẩm mới thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to create product')
+        toast.error(error?.response?.data?.message || 'Thêm sản phẩm mới thất bại!')
       },
     })
   },
@@ -41,10 +41,10 @@ export const _productService = {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['products'] })
         queryClient.invalidateQueries({ queryKey: ['product'] })
-        toast.success('Product updated successfully')
+        toast.success('Cập nhật sản phẩm thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to update product')
+        toast.error(error?.response?.data?.message || 'Cập nhật sản phẩm thất bại!')
       },
     })
   },
@@ -55,10 +55,10 @@ export const _productService = {
       mutationFn: _productApi.deleteProduct,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['products'] })
-        toast.success('Product deleted successfully')
+        toast.success('Xóa sản phẩm thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to delete product')
+        toast.error(error?.response?.data?.message || 'Xóa sản phẩm thất bại!')
       },
     })
   },
@@ -69,10 +69,10 @@ export const _productService = {
       mutationFn: _productApi.deleteManyProducts,
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['products'] })
-        toast.success('Products deleted successfully')
+        toast.success('Xóa các sản phẩm thành công!')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Failed to delete products')
+        toast.error(error?.response?.data?.message || 'Xóa các sản phẩm thất bại!')
       },
     })
   },

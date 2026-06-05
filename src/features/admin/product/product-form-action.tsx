@@ -253,11 +253,9 @@ const ActionForm = ({
           id: productId,
           data: submitData,
         })
-        toast.success('Cập nhật sản phẩm thành công!')
         reset(data)
       } else {
         await createMutation.mutateAsync(submitData as any)
-        toast.success('Thêm sản phẩm mới thành công!')
         reset({
           name: '',
           description: '',
@@ -289,9 +287,6 @@ const ActionForm = ({
       onSuccess?.()
     } catch (error) {
       console.error('Form submission failed:', error)
-      toast.error(
-        productId ? 'Cập nhật sản phẩm thất bại!' : 'Thêm sản phẩm mới thất bại!'
-      )
     }
   }
 
