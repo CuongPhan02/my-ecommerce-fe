@@ -108,7 +108,7 @@ const AddAttributeModal = ({
             v.value.toLowerCase() === trimmedValue.toLowerCase()
         )
       ) {
-        toast.warn('Giá trị này đã tồn tại!')
+        toast.warn(`Giá trị thực tế "${trimmedValue}" đã tồn tại!`)
         return
       }
 
@@ -122,7 +122,7 @@ const AddAttributeModal = ({
       setEditingIndex(null)
     } else {
       if (values.some((v) => v.value.toLowerCase() === trimmedValue.toLowerCase())) {
-        toast.warn('Giá trị này đã tồn tại!')
+        toast.warn(`Giá trị thực tế "${trimmedValue}" đã tồn tại!`)
         return
       }
 
@@ -217,6 +217,7 @@ const AddAttributeModal = ({
                 <Input
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder='Ví dụ: Đỏ, Size L...'
                   className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium'
                 />

@@ -239,6 +239,8 @@ const ActionForm = ({
   const createMutation = _productService.useCreateProduct()
   const updateMutation = _productService.useUpdateProduct()
 
+  const isSaving = isSubmitting || createMutation.isPending || updateMutation.isPending
+
   const executeSubmit = async (data: any) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -345,10 +347,10 @@ const ActionForm = ({
         </Button>
         <Button
           onClick={handleSubmitData}
-          disabled={isSubmitting}
+          disabled={isSaving}
           className={cn(!isFooter ? 'w-full flex-1' : 'w-32')}
         >
-          {isSubmitting ? 'ĐANG LƯU...' : 'LƯU'}
+          {isSaving ? 'ĐANG LƯU...' : 'LƯU'}
         </Button>
       </div>
 
@@ -400,9 +402,10 @@ const ActionForm = ({
                 setShowWarning(false)
                 await executeSubmit(warningData.data)
               }}
+              disabled={isSaving}
               className='rounded-xl bg-red-600 hover:bg-red-700'
             >
-              Vẫn lưu sản phẩm
+              {isSaving ? 'ĐANG LƯU...' : 'Vẫn lưu sản phẩm'}
             </Button>
           </DialogFooter>
         </DialogContent>
