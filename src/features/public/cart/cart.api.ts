@@ -24,7 +24,7 @@ export const _cartApi = {
   },
 
   clearCart: async () => {
-    const res = await https.post<ApiResponse<Cart>>('/cart/clear')
+    const res = await https.delete<ApiResponse<Cart>>('/cart/clear')
     return res.data
   },
 

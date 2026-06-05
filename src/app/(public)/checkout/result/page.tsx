@@ -1,10 +1,11 @@
 'use client'
 
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle2, XCircle, AlertCircle, ShoppingBag, ArrowRight, PhoneCall, RefreshCw, Package, MapPin, CreditCard } from 'lucide-react'
 import { _orderService } from '~/features/public/order/order.query'
+import { _cartService } from '~/features/public/cart/cart.query'
 import Image from 'next/image'
 
 // VNPAY response code translations
@@ -42,6 +43,16 @@ function CheckoutResultContent() {
 
   const { data: orderRes, isLoading: isOrderLoading } = _orderService.useTrackOrder(orderId || '')
   const order = orderRes?.result
+
+  const clearCartMutation = _cartService.useClearCart()
+  const hasCleared = useRef(false)
+
+  useEffect(() => {
+    if (isSuccess && !hasCleared.current) {
+      hasCleared.current = true
+      clearCartMutation.mutate()
+    }
+  }, [isSuccess, clearCartMutation])
 
   return (
     <div className="bg-gray-50/50 min-h-screen py-16 px-4 md:py-24 flex items-center justify-center">
