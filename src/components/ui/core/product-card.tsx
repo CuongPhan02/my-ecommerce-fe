@@ -3,11 +3,14 @@
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, ShoppingCart, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { cn } from '~/lib/utils'
-
+import { toast } from 'react-toastify'
 import { Product } from '~/features/admin/product/types'
+import { _cartService } from '~/features/public/cart/cart.query'
+import { getAccessToken } from '~/config/https'
 
 export interface SimpleProduct {
   id: string | number
@@ -31,112 +34,187 @@ interface ProductCardProps {
   product: Product | SimpleProduct
 }
 
+// Extract a color hex from a variant value string like "Đỏ (#FF0000)"
+const extractColorHex = (value: string): string | null => {
+  const match = value?.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/)
+  return match ? match[0] : null
+}
+
+// Clean a value string by stripping parenthesized hex codes
+const cleanValue = (value: string): string =>
+  value?.replace(/\s*\([^)]*\)/g, '').trim() || value
+
+// Build a short label for a variant for display in quick-select panel
+const getVariantQuickLabel = (variant: any): string => {
+  if (variant.attributes && variant.attributes.length > 0) {
+    return variant.attributes
+      .map((a: any) => cleanValue(a.value || ''))
+      .join(' / ')
+  }
+  return variant.sku || ''
+}
+
 const ProductCard = ({ product }: ProductCardProps) => {
+  const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const sizes = ['S', 'M', 'L', 'XL', '2XL']
-  
+  const [addingVariantId, setAddingVariantId] = useState<string | null>(null)
+
+  const addToCartMutation = _cartService.useAddToCart()
+
   const isDbProduct = 'slug' in product
 
-  // 1. Price
-  const price = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
-    ? (product as Product).variants?.[0]?.price || 0 
-    : (product as any).price || 0
+  // --- Price ---
+  const price =
+    isDbProduct && Array.isArray((product as Product).variants) && (product as Product).variants.length > 0
+      ? (product as Product).variants[0]?.price || 0
+      : (product as any).price || 0
 
-  const priceFormatted = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
-    ? ((product as Product).variants?.[0] as any)?.priceFormatted || (product as any)?.priceFormatted
-    : (product as any)?.priceFormatted
+  const priceFormatted =
+    isDbProduct && Array.isArray((product as Product).variants) && (product as Product).variants.length > 0
+      ? ((product as Product).variants[0] as any)?.priceFormatted || (product as any)?.priceFormatted
+      : (product as any)?.priceFormatted
 
-  // 2. Discount Value
+  // --- Discount ---
   const discountValue = isDbProduct ? (product as Product).discountValue : null
   const discountType = isDbProduct ? (product as Product).discountType : null
-
-  // 3. Original Price
   const originalPrice = isDbProduct
-    ? (discountValue 
-        ? (discountType === 'PERCENTAGE' 
-            ? price / (1 - (discountValue || 0) / 100) 
-            : price + (discountValue || 0))
-        : undefined)
+    ? discountValue
+      ? discountType === 'PERCENTAGE'
+        ? price / (1 - (discountValue || 0) / 100)
+        : price + (discountValue || 0)
+      : undefined
     : (product as SimpleProduct).originalPrice
-
-  const originalPriceFormatted = (isDbProduct && 'variants' in product && Array.isArray(product.variants) && product.variants.length > 0)
-    ? ((product as Product).variants?.[0] as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
-    : (product as any)?.originalPriceFormatted
-
-  // 4. Discount label percentage
+  const originalPriceFormatted =
+    isDbProduct && Array.isArray((product as Product).variants) && (product as Product).variants.length > 0
+      ? ((product as Product).variants[0] as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
+      : (product as any)?.originalPriceFormatted
   const discount = isDbProduct
-    ? (discountType === 'PERCENTAGE' ? discountValue || 0 : 0)
-    : (originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0)
+    ? discountType === 'PERCENTAGE'
+      ? discountValue || 0
+      : 0
+    : originalPrice && originalPrice > price
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : 0
 
-  // 5. Rating & Reviews
+  // --- Rating ---
   const rating = !isDbProduct ? (product as SimpleProduct).rating || 5 : 5
   const reviews = !isDbProduct ? (product as SimpleProduct).reviews || 0 : 0
 
-  // 6. Badge
-  const badge = isDbProduct 
-    ? (product as Product).tags?.[0] 
+  // --- Badge ---
+  const badge = isDbProduct
+    ? (product as Product).tags?.[0]
     : (product as SimpleProduct).badge
 
-  // 7. Extract all images for the slider
+  // --- Images ---
   const allImages = useMemo(() => {
     const urls: string[] = []
-    
     if (isDbProduct) {
       const dbProduct = product as Product
-      if (dbProduct.thumbnail?.url) {
-        urls.push(dbProduct.thumbnail.url)
-      }
+      if (dbProduct.thumbnail?.url) urls.push(dbProduct.thumbnail.url)
       if (Array.isArray(dbProduct.images)) {
-        dbProduct.images.forEach(img => {
+        dbProduct.images.forEach((img) => {
           const u = img.url || img.media?.url
-          if (u && !urls.includes(u)) {
-            urls.push(u)
-          }
+          if (u && !urls.includes(u)) urls.push(u)
         })
       }
     } else {
-      const simpleProduct = product as SimpleProduct
-      if (simpleProduct.thumbnail?.url) {
-        urls.push(simpleProduct.thumbnail.url)
-      }
-      if (Array.isArray(simpleProduct.colors)) {
-        simpleProduct.colors.forEach(c => {
-          if (c.image && !urls.includes(c.image)) {
-            urls.push(c.image)
-          }
+      const sp = product as SimpleProduct
+      if (sp.thumbnail?.url) urls.push(sp.thumbnail.url)
+      if (Array.isArray(sp.colors)) {
+        sp.colors.forEach((c) => {
+          if (c.image && !urls.includes(c.image)) urls.push(c.image)
         })
       }
     }
-    
-    if (urls.length === 0) {
-      urls.push('/placeholder-product.png')
-    }
-    
+    if (urls.length === 0) urls.push('/placeholder-product.png')
     return urls
   }, [product, isDbProduct])
 
-  // Get current active image URL
   const currentImageUrl = allImages[activeImageIndex] || '/placeholder-product.png'
 
+  // --- Variants for quick-select panel ---
+  const variants = useMemo(() => {
+    if (!isDbProduct) return []
+    return (product as Product).variants || []
+  }, [product, isDbProduct])
+
+  // Determine if variants are size-only, color-only, or mixed
+  const hasColorVariants = useMemo(() => {
+    return variants.some((v) =>
+      v.attributes?.some((a: any) => {
+        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
+        return name.includes('màu') || name.includes('color')
+      })
+    )
+  }, [variants])
+
+  // --- Image navigation ---
   const handlePrevImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault(); e.stopPropagation()
     setActiveImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length)
   }
-
   const handleNextImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault(); e.stopPropagation()
     setActiveImageIndex((prev) => (prev + 1) % allImages.length)
   }
 
-  const handleQuickAdd = (e: React.MouseEvent, size: string) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // Perform quick cart add action
-    console.log(`Quick add size ${size} for product ${product.id}`)
+  // --- Quick Add to Cart ---
+  const handleQuickAdd = async (e: React.MouseEvent, variantId: string) => {
+    e.preventDefault(); e.stopPropagation()
+
+    const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken()
+    if (!isLoggedIn) {
+      toast.warning('Vui lòng đăng nhập để thêm vào giỏ hàng!')
+      router.push('/auth/sign-in')
+      return
+    }
+
+    setAddingVariantId(variantId)
+    try {
+      await addToCartMutation.mutateAsync({ productVariantId: variantId, quantity: 1 })
+      toast.success('Đã thêm vào giỏ hàng!')
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Không thể thêm vào giỏ hàng')
+    } finally {
+      setAddingVariantId(null)
+    }
   }
+
+  // --- Quick add for floating button: add first in-stock variant ---
+  const handleFloatingCartClick = async (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation()
+
+    const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken()
+    if (!isLoggedIn) {
+      toast.warning('Vui lòng đăng nhập để thêm vào giỏ hàng!')
+      router.push('/auth/sign-in')
+      return
+    }
+
+    if (variants.length === 0) {
+      toast.info('Sản phẩm này không có phiên bản nào để thêm')
+      return
+    }
+
+    const firstInStock = variants.find((v) => (v.stockQuantity ?? 0) > 0)
+    if (!firstInStock) {
+      toast.error('Sản phẩm đã hết hàng')
+      return
+    }
+
+    setAddingVariantId(firstInStock.id)
+    try {
+      await addToCartMutation.mutateAsync({ productVariantId: firstInStock.id, quantity: 1 })
+      toast.success('Đã thêm vào giỏ hàng!')
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Không thể thêm vào giỏ hàng')
+    } finally {
+      setAddingVariantId(null)
+    }
+  }
+
+  const isAnyAdding = addToCartMutation.isPending
 
   return (
     <motion.div
@@ -144,7 +222,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false)
-        setActiveImageIndex(0) // Reset to first image on mouse leave for consistent experience
+        setActiveImageIndex(0)
       }}
     >
       {/* Image Container & Carousel */}
@@ -170,7 +248,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             </motion.div>
           </AnimatePresence>
         </Link>
-        
+
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
           {badge && (
@@ -185,107 +263,139 @@ const ProductCard = ({ product }: ProductCardProps) => {
           )}
         </div>
 
-        {/* Floating Quick Action Buttons */}
+        {/* Floating Cart Button */}
         <div className={cn(
           "absolute top-3 right-3 flex flex-col gap-2 z-10 transition-all duration-300",
           isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-3 pointer-events-none"
         )}>
           <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-            className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn"
+            onClick={handleFloatingCartClick}
+            disabled={isAnyAdding}
+            className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn disabled:opacity-60"
             title="Thêm vào giỏ hàng"
           >
-            <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+            {isAnyAdding ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
+            )}
           </button>
         </div>
 
-        {/* Dynamic Image Carousel Chevrons */}
+        {/* Image Carousel Chevrons */}
         {allImages.length > 1 && (
           <div className={cn(
             "absolute inset-x-3 top-1/2 -translate-y-1/2 flex items-center justify-between z-10 pointer-events-none transition-opacity duration-300",
             isHovered ? "opacity-100" : "opacity-0"
           )}>
-            <button
-              onClick={handlePrevImage}
-              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm"
-            >
+            <button onClick={handlePrevImage} className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm">
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button
-              onClick={handleNextImage}
-              className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm"
-            >
+            <button onClick={handleNextImage} className="p-1.5 rounded-full bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 pointer-events-auto backdrop-blur-sm">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Stories-Style Image Progress Indicators */}
+        {/* Image Indicator Dots */}
         {allImages.length > 1 && (
           <div className="absolute bottom-3 inset-x-4 flex items-center gap-1 z-10 pointer-events-auto transition-opacity duration-300">
             {allImages.map((_, i) => (
               <button
                 key={i}
                 onMouseEnter={() => setActiveImageIndex(i)}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setActiveImageIndex(i)
-                }}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setActiveImageIndex(i) }}
                 className="flex-1 h-1 rounded-full transition-all duration-300 relative group/indicator"
               >
                 <div className={cn(
                   "absolute inset-0 rounded-full transition-all duration-300",
-                  i === activeImageIndex 
-                    ? "bg-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] scale-y-125" 
-                    : "bg-white/40 hover:bg-white/70"
+                  i === activeImageIndex ? "bg-white shadow-[0_1px_3px_rgba(0,0,0,0.3)] scale-y-125" : "bg-white/40 hover:bg-white/70"
                 )} />
               </button>
             ))}
           </div>
         )}
 
-        {/* Quick Size Selection Panel */}
+        {/* Quick Variant Select Panel */}
         <div className={cn(
-          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-4 z-20 flex flex-col items-center justify-end transition-all duration-500",
-          isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
+          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 z-20 flex flex-col items-center justify-end transition-all duration-500",
+          isHovered && variants.length > 0 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
         )}>
-          <p className="text-[9px] font-black text-center mb-2.5 text-white/80 uppercase tracking-widest">
-            Chọn size nhanh
+          <p className="text-[9px] font-black text-center mb-2 text-white/80 uppercase tracking-widest">
+            {hasColorVariants ? 'Chọn màu & thêm giỏ' : 'Chọn size & thêm giỏ'}
           </p>
-          <div className="grid grid-cols-5 gap-1.5 w-full">
-            {sizes.map((size) => (
-              <button 
-                key={size}
-                onClick={(e) => handleQuickAdd(e, size)}
-                className="py-1.5 border border-white/20 rounded bg-white/10 hover:bg-white text-white hover:text-slate-900 text-[10px] font-black transition-all duration-300 backdrop-blur-sm active:scale-95 shadow-sm uppercase tracking-wider"
-              >
-                {size}
-              </button>
-            ))}
+          <div className={cn(
+            "w-full gap-1.5",
+            // For 5 or fewer: single row grid; for more show 2 rows
+            variants.length <= 5
+              ? `grid grid-cols-${Math.min(variants.length, 5)}`
+              : "grid grid-cols-4"
+          )}>
+            {variants.slice(0, 8).map((v) => {
+              const label = getVariantQuickLabel(v)
+              const colorHex = extractColorHex(
+                v.attributes?.map((a: any) => a.value).join(' ') || v.sku || ''
+              )
+              const outOfStock = (v.stockQuantity ?? 0) <= 0
+              const isAdding = addingVariantId === v.id && isAnyAdding
+
+              return (
+                <button
+                  key={v.id}
+                  onClick={(e) => !outOfStock && handleQuickAdd(e, v.id)}
+                  disabled={outOfStock || isAnyAdding}
+                  title={outOfStock ? `${label} - Hết hàng` : `Thêm ${label}`}
+                  className={cn(
+                    "py-1.5 px-1 border border-white/20 rounded flex items-center justify-center gap-1 text-[10px] font-black transition-all duration-300 backdrop-blur-sm active:scale-95 shadow-sm uppercase tracking-wider",
+                    outOfStock
+                      ? "opacity-40 cursor-not-allowed bg-white/5 text-white/40 line-through"
+                      : "bg-white/10 hover:bg-white text-white hover:text-slate-900"
+                  )}
+                >
+                  {isAdding ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <>
+                      {colorHex && (
+                        <span
+                          className="w-3 h-3 rounded-full border border-white/40 shrink-0"
+                          style={{ backgroundColor: colorHex }}
+                        />
+                      )}
+                      <span className="truncate">{label}</span>
+                    </>
+                  )}
+                </button>
+              )
+            })}
           </div>
+          {variants.length > 8 && (
+            <Link
+              href={`/product/${product.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-2 text-[9px] text-white/60 hover:text-white font-bold uppercase tracking-widest transition-colors"
+            >
+              +{variants.length - 8} phiên bản khác →
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Product Info */}
       <div className="flex flex-col flex-grow p-4 bg-white">
-        {/* Brand/Category Label */}
         {isDbProduct && (product as Product).brand?.name && (
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
             {(product as Product).brand.name}
           </span>
         )}
-        
+
         <Link href={`/product/${product.id}`}>
           <h3 className="font-bold text-sm text-slate-800 mb-2 line-clamp-2 min-h-[40px] hover:text-primary cursor-pointer transition-colors duration-300 tracking-tight leading-snug">
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating Stars & Count */}
+        {/* Rating */}
         <div className="flex items-center gap-1.5 mb-3">
           <div className="flex items-center gap-0.5">
             {[...Array(5)].map((_, i) => (
@@ -293,9 +403,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 key={i}
                 className={cn(
                   "w-3.5 h-3.5 transition-transform duration-300 hover:scale-110",
-                  i < Math.floor(rating) 
-                    ? "fill-amber-400 text-amber-400" 
-                    : "fill-slate-100 text-slate-200"
+                  i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "fill-slate-100 text-slate-200"
                 )}
               />
             ))}
@@ -303,7 +411,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <span className="text-[11px] font-bold text-slate-400">({reviews})</span>
         </div>
 
-        {/* Price Tag with Gradient or Sleek Text */}
+        {/* Price */}
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-50">
           <div className="flex items-baseline gap-2">
             <span className="font-black text-base text-slate-900 tracking-tight">
@@ -315,6 +423,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
               </span>
             )}
           </div>
+          {/* Variant count badge */}
+          {variants.length > 1 && (
+            <span className="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+              {variants.length} phiên bản
+            </span>
+          )}
         </div>
       </div>
     </motion.div>

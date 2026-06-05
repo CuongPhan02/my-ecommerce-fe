@@ -186,7 +186,9 @@ const AttributeList = () => {
                     <th className='p-5 font-bold text-slate-850 dark:text-slate-100 align-middle w-40'>
                       Ngày tạo
                     </th>
-                    <th className='p-5 font-bold text-slate-850 dark:text-slate-100 align-middle w-24 text-center'>
+                    <th className={cn(
+                      'p-5 font-bold text-slate-850 dark:text-slate-100 align-middle w-24 text-center sticky right-0 z-20 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                    )}>
                       Thao tác
                     </th>
                   </tr>
@@ -237,7 +239,7 @@ const AttributeList = () => {
                         <tr
                           key={attr.id}
                           className={cn(
-                            'hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors duration-150',
+                            'group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors duration-150',
                             isSelected && 'bg-primary/[0.01] dark:bg-primary/[0.02]'
                           )}
                         >
@@ -279,7 +281,11 @@ const AttributeList = () => {
                               <span>{formatDate(attr.createdAt)}</span>
                             </div>
                           </td>
-                          <td className='p-5 align-middle text-center'>
+                          <td className={cn(
+                            'p-5 align-middle text-center sticky right-0 z-10 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]',
+                            isSelected ? 'bg-indigo-50/10' : 'bg-white dark:bg-slate-950',
+                            'group-hover:bg-slate-50/50 dark:group-hover:bg-slate-900/30 transition-colors'
+                          )}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button

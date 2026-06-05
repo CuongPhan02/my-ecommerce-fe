@@ -75,6 +75,7 @@ import {
 import { TableSkeletonLoading } from '~/components/shared/table-skeleton-loading'
 import { _userService } from '../user/user.query'
 import { User, UserParams, UserStatus, UserRole } from '../user/types'
+import { cn } from '~/lib/utils'
 
 export function StaffList() {
   // Search & Filter state
@@ -740,7 +741,10 @@ export function StaffList() {
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
-                          className='p-4 font-bold text-slate-900 border-b first:w-[50px] last:text-right'
+                          className={cn(
+                            'p-4 font-bold text-slate-900 border-b first:w-[50px] last:text-right',
+                            header.id === 'actions' && 'sticky right-0 z-20 bg-slate-50 dark:bg-muted shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                          )}
                         >
                           <div
                             className={
@@ -797,11 +801,20 @@ export function StaffList() {
                               : 'hover:bg-slate-50/50 transition-colors'
                           }`}
                         >
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id} className='p-4 align-middle'>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </td>
-                          ))}
+                          {row.getVisibleCells().map((cell) => {
+                            const isActions = cell.column.id === 'actions'
+                            return (
+                              <td
+                                key={cell.id}
+                                className={cn(
+                                  'p-4 align-middle',
+                                  isActions && 'sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-slate-50/50 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                                )}
+                              >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            )
+                          })}
                         </tr>
                       )
                     })

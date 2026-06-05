@@ -29,6 +29,7 @@ import {
 import { Label } from '~/components/ui/core/label'
 import { Switch } from '~/components/ui/core/switch'
 import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
+import { cn } from '~/lib/utils'
 import { toast } from 'react-toastify'
 import {
   IconTicket,
@@ -552,7 +553,9 @@ export function DiscountList() {
                     <th className='p-4 font-bold text-slate-900 border-b'>
                       Hạn sử dụng
                     </th>
-                    <th className='p-4 font-bold text-slate-900 border-b text-right'>
+                    <th className={cn(
+                      'p-4 font-bold text-slate-900 border-b text-right sticky right-0 z-20 bg-slate-50 dark:bg-muted shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                    )}>
                       Thao tác
                     </th>
                   </tr>
@@ -584,7 +587,7 @@ export function DiscountList() {
                       return (
                         <tr
                           key={voucher.id}
-                          className='border-b border-slate-100/60 hover:bg-slate-50/50 transition-colors'
+                          className='group border-b border-slate-100/60 hover:bg-slate-50/50 transition-colors'
                         >
                           {/* Code */}
                           <td className='p-4 align-middle'>
@@ -692,7 +695,9 @@ export function DiscountList() {
                           </td>
 
                           {/* Actions */}
-                          <td className='p-4 align-middle text-right'>
+                          <td className={cn(
+                            'p-4 align-middle text-right sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-slate-50/50 dark:group-hover:bg-slate-900/30 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                          )}>
                             <div className='flex justify-end items-center gap-1'>
                               {/* Toggle status: Pause / Play */}
                               {currentStatus !== 'EXPIRED' && (

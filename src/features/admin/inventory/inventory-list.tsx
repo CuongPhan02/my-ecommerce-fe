@@ -53,6 +53,7 @@ import {
 } from 'lucide-react'
 import { _inventoryService } from './inventory.query'
 import { _categoryService } from '~/features/admin/category/category.query'
+import { cn } from '~/lib/utils'
 import { toast } from 'react-toastify'
 import { InventoryStockItem } from './types'
 import { InventoryTransactions } from './inventory-transactions'
@@ -317,7 +318,11 @@ export function InventoryList() {
                     <TableHead className='text-right font-bold text-gray-600'>Giá nhập</TableHead>
                     <TableHead className='text-right font-bold text-gray-600'>Tồn kho</TableHead>
                     <TableHead className="font-bold text-gray-600 pl-8">Trạng thái</TableHead>
-                    <TableHead className='text-right font-bold text-gray-600 pr-6'>Điều phối</TableHead>
+                    <TableHead className={cn(
+                      'text-right font-bold text-gray-600 pr-6 sticky right-0 z-20 bg-gray-50/80 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                    )}>
+                      Điều phối
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -332,7 +337,7 @@ export function InventoryList() {
                     </TableRow>
                   ) : inventory.length > 0 ? (
                     inventory.map((item) => (
-                      <TableRow key={item.id} className="hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
+                      <TableRow key={item.id} className="group hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
                         <TableCell className="font-bold text-gray-800 text-sm pl-6">{item.product.name}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-mono bg-gray-50 text-gray-600 text-xs font-semibold px-2 py-0.5 rounded border-gray-200">
@@ -345,7 +350,9 @@ export function InventoryList() {
                         <TableCell className="pl-8">
                           {getStatusBadge(item)}
                         </TableCell>
-                        <TableCell className='text-right pr-6'>
+                        <TableCell className={cn(
+                          'text-right pr-6 sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-gray-50/30 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                        )}>
                           <Button 
                             variant='outline' 
                             size='sm'

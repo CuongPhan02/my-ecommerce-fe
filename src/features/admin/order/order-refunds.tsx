@@ -54,6 +54,7 @@ import { _refundService } from './refund.query'
 import { Refund, RefundStatus } from './refund.types'
 import { useDebounce } from '~/hooks/use-debounce'
 import { format } from 'date-fns'
+import { cn } from '~/lib/utils'
 
 const statusMap: Record<RefundStatus, { label: string; color: string }> = {
   PENDING: { label: 'Chờ duyệt', color: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -235,7 +236,11 @@ export function OrderRefunds() {
                 <TableHead className="font-bold text-gray-600">Trạng thái</TableHead>
                 <TableHead className="font-bold text-gray-600">Ngày gửi</TableHead>
                 <TableHead className='text-right font-bold text-gray-600'>Số tiền hoàn</TableHead>
-                <TableHead className='text-right font-bold text-gray-600 pr-6'>Hành động</TableHead>
+                <TableHead className={cn(
+                  'text-right font-bold text-gray-600 pr-6 sticky right-0 z-20 bg-gray-50/80 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                )}>
+                  Hành động
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -247,7 +252,7 @@ export function OrderRefunds() {
                 ))
               ) : refunds.length > 0 ? (
                 refunds.map((refund) => (
-                  <TableRow key={refund.id} className="hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
+                  <TableRow key={refund.id} className="group hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
                     <TableCell className='font-bold text-indigo-600 pl-6 text-[10px] truncate max-w-[80px]'>{refund.code}</TableCell>
                     <TableCell className="font-semibold text-gray-700 text-[10px] truncate max-w-[80px]">{refund.orderId}</TableCell>
                     <TableCell>
@@ -278,7 +283,9 @@ export function OrderRefunds() {
                     </TableCell>
                     <TableCell className="text-gray-500 text-[10px] font-semibold">{formatDateTime(refund.createdAt)}</TableCell>
                     <TableCell className='text-right font-extrabold text-rose-600 pl-4 text-xs'>{refund.amountFormatted}</TableCell>
-                    <TableCell className='text-right pr-6'>
+                    <TableCell className={cn(
+                      'text-right pr-6 sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-gray-50/30 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                    )}>
                       {refund.status === 'PENDING' ? (
                         <div className='flex justify-end gap-2'>
                           <Button 

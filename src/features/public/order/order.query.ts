@@ -18,12 +18,22 @@ export const _orderService = {
     })
   },
 
+  useOrderDetail: (orderId: string | null) => {
+    return useQuery({
+      queryKey: ['order-detail', orderId],
+      queryFn: () => _orderApi.getOrderDetail(orderId!),
+      enabled: !!orderId,
+      staleTime: 1000 * 60 * 2,
+    })
+  },
+
   useConfirmReceipt: () => {
     const queryClient = useQueryClient()
     return useMutation({
       mutationFn: (orderId: string) => _orderApi.confirmReceipt(orderId),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['my-orders'] })
+        queryClient.invalidateQueries({ queryKey: ['order-detail'] })
       }
     })
   },
@@ -35,8 +45,8 @@ export const _orderService = {
         _orderApi.createRefund(payload),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['my-orders'] })
+        queryClient.invalidateQueries({ queryKey: ['order-detail'] })
       },
     })
   },
 }
-

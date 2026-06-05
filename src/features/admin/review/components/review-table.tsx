@@ -12,6 +12,7 @@ import {
 import { useMemo, useState } from 'react'
 import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
 import { columns } from './review-list/columns'
+import { cn } from '~/lib/utils'
 import { ArrowDown, ArrowUp, ChevronsUpDown, SearchIcon } from 'lucide-react'
 import { Button } from '~/components/ui/core/button'
 import { Review, ReviewParams, ReviewTableMeta, ReviewStatus } from '../types'
@@ -223,10 +224,14 @@ const ReviewTable = () => {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
+                      const isActions = header.id === 'actions'
                       return (
                         <th
                           key={header.id}
-                          className='p-4 font-bold text-slate-800 dark:text-slate-100'
+                          className={cn(
+                            'p-4 font-bold text-slate-800 dark:text-slate-100',
+                            isActions && 'sticky right-0 z-20 bg-slate-50/50 dark:bg-muted shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                          )}
                         >
                           <div
                             className={
@@ -286,16 +291,25 @@ const ReviewTable = () => {
                     return (
                       <tr
                         key={row.id}
-                        className='border-b border-slate-100 hover:bg-slate-50/40 transition-colors'
+                        className='group border-b border-slate-100 hover:bg-slate-50/40 transition-colors'
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className='p-4 align-middle'>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </td>
-                        ))}
+                        {row.getVisibleCells().map((cell) => {
+                          const isActions = cell.column.id === 'actions'
+                          return (
+                            <td
+                              key={cell.id}
+                              className={cn(
+                                'p-4 align-middle',
+                                isActions && 'sticky right-0 z-10 bg-white dark:bg-background group-hover:bg-slate-50/50 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                              )}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </td>
+                          )
+                        })}
                       </tr>
                     )
                   })

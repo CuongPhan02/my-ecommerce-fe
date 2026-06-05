@@ -1,80 +1,50 @@
 'use client'
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '~/components/ui/core/avatar'
-import { Button } from '~/components/ui/core/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '~/components/ui/core/dropdown-menu'
+import Image from 'next/image'
 import { useAuthStore } from '~/store/auth-store'
 import { useRole } from '~/hooks/use-role'
-import { LayoutDashboard, LogOut, Settings, User } from 'lucide-react'
+import { User } from 'lucide-react'
 import { Link } from 'next-view-transitions'
+import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 
-interface Props {
-  handleLogout: () => void
-}
-
-export function AvatarDropdown({ handleLogout }: Props) {
+export function AvatarIcon() {
   const { user } = useAuthStore()
   const { isManagement } = useRole()
+  const { data: meData } = AUTH_QUERY.useMe()
+
+  // Prefer fresh server data for avatar, fall back to store
+  const avatarUrl = meData?.result?.avatarUrl || user?.avatarUrl
+  const name = meData?.result?.name || user?.name || ''
+
+  const href = isManagement ? '/admin/dashboard' : '/profile'
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant='ghost' size='icon' className='rounded-full'>
-          <Avatar>
-            <AvatarImage src='https://github.com/shadcn.png' alt='shadcn' />
-            <AvatarFallback>
-              {user?.name?.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className='w-40' align='end'>
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href='/profile' className='cursor-pointer w-full'>
-              <User className='size-4' />
-              Profile
-            </Link>
-          </DropdownMenuItem>
-          {isManagement && (
-            <DropdownMenuItem asChild>
-              <Link
-                href='/admin/dashboard'
-                className='cursor-pointer w-full flex items-center gap-2'
-              >
-                <LayoutDashboard className='size-4' />
-                Dashboard
-              </Link>
-            </DropdownMenuItem>
+    <Link
+      href={href}
+      title={isManagement ? 'Vào trang quản trị' : 'Trang cá nhân'}
+      className="relative p-0.5 rounded-full hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all duration-200"
+    >
+      {avatarUrl ? (
+        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-gray-200">
+          <Image
+            src={avatarUrl}
+            alt={name}
+            width={36}
+            height={36}
+            className="object-cover w-full h-full"
+          />
+        </div>
+      ) : (
+        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-gray-500 hover:bg-primary/10 transition-colors">
+          {name ? (
+            <span className="text-xs font-black uppercase text-gray-600">
+              {name.slice(0, 2)}
+            </span>
+          ) : (
+            <User className="w-4 h-4 stroke-[1.8]" />
           )}
-          <DropdownMenuItem className='cursor-pointer'>
-            <Settings className='size-4' />
-            Settings
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            variant='destructive'
-            onClick={handleLogout}
-            className='cursor-pointer flex justify-between gap-2'
-          >
-            Log out
-            <LogOut className='size-4' />
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </div>
+      )}
+    </Link>
   )
 }

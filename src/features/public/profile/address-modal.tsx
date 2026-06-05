@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 import {
   Dialog,
   DialogContent,
@@ -47,6 +48,8 @@ export const AddressModal = ({
   address,
   isLoading = false,
 }: AddressModalProps) => {
+  const { data: meData } = AUTH_QUERY.useMe()
+  const me = meData?.result
   const {
     register,
     handleSubmit,
@@ -81,9 +84,10 @@ export const AddressModal = ({
         isDefault: address.isDefault,
       })
     } else {
+      // Auto-fill from profile for new address
       reset({
-        receiverName: '',
-        phone: '',
+        receiverName: me?.name || '',
+        phone: me?.phone || '',
         street: '',
         city: '',
         province: '',
@@ -92,7 +96,7 @@ export const AddressModal = ({
         isDefault: false,
       })
     }
-  }, [address, reset, isOpen])
+  }, [address, reset, isOpen, me])
 
   const onSubmit = (data: AddressFormValues) => {
     onSave(data)

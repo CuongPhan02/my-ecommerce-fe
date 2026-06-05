@@ -42,7 +42,7 @@ export const CollectionProducts = ({
                 <th className='p-5 border-b'>Sản phẩm</th>
                 <th className='p-5 border-b'>Mã sản phẩm (SKU)</th>
                 <th className='p-5 border-b'>Tồn kho</th>
-                <th className='p-5 border-b text-right'>Hành động</th>
+                <th className='p-5 border-b text-right sticky right-0 z-20 bg-muted/85 backdrop-blur-md shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'>Hành động</th>
               </tr>
             </thead>
             <tbody className='divide-y '>
@@ -93,7 +93,7 @@ export const CollectionProducts = ({
                       </span>
                     </div>
                   </td>
-                  <td className='p-5 text-right'>
+                  <td className='p-5 text-right sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-slate-50/50 dark:group-hover:bg-slate-900/30 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'>
                     <Button
                       variant='ghost'
                       size='icon'

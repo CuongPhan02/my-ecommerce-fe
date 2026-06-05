@@ -57,6 +57,7 @@ import { Order, OrderStatus, PaymentStatus } from './types'
 import { useDebounce } from '~/hooks/use-debounce'
 import { format } from 'date-fns'
 import { toast } from 'react-toastify'
+import { cn } from '~/lib/utils'
 
 const statusMap: Record<OrderStatus, { label: string; color: string }> = {
   PENDING: { label: 'Chờ xử lý', color: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -257,7 +258,11 @@ export function OrderList() {
                 <TableHead className="font-bold text-gray-600">Trạng thái đơn</TableHead>
                 <TableHead className="font-bold text-gray-600">Ngày đặt</TableHead>
                 <TableHead className='text-right font-bold text-gray-600'>Tổng tiền</TableHead>
-                <TableHead className='text-right font-bold text-gray-600 pr-6'>Thao tác</TableHead>
+                <TableHead className={cn(
+                  'text-right font-bold text-gray-600 pr-6 sticky right-0 z-20 bg-gray-50/80 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                )}>
+                  Thao tác
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -269,7 +274,7 @@ export function OrderList() {
                 ))
               ) : orders.length > 0 ? (
                 orders.map((order) => (
-                  <TableRow key={order.id} className="hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
+                  <TableRow key={order.id} className="group hover:bg-gray-50/30 border-b border-gray-100 transition-colors">
                     <TableCell className='font-bold text-indigo-600 pl-6 text-[11px] truncate max-w-[100px]'>{order.id}</TableCell>
                     <TableCell>
                       <div className='flex flex-col gap-0.5'>
@@ -296,7 +301,9 @@ export function OrderList() {
                     </TableCell>
                     <TableCell className="text-gray-500 font-medium text-xs">{formatDateTime(order.createdAt)}</TableCell>
                     <TableCell className='text-right font-bold text-gray-800 text-sm'>{order.totalAmountFormatted}</TableCell>
-                    <TableCell className='text-right pr-6'>
+                    <TableCell className={cn(
+                      'text-right pr-6 sticky right-0 z-10 bg-white dark:bg-slate-950 group-hover:bg-gray-50/30 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                    )}>
                       <Button 
                         variant='ghost' 
                         size='icon' 

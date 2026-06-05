@@ -8,7 +8,7 @@ import { Search, ChevronDown, ShoppingBag, Menu, X } from 'lucide-react'
 import ShopDropdown from './shop-dropdown'
 import LogoUi from '~/components/shared/logo-ui'
 import MobileNavbar from './mobile-navbar'
-import { AvatarDropdown } from './avatar'
+import { AvatarIcon } from './avatar'
 import { Link } from 'next-view-transitions'
 
 import PromotionBar from './promotion-bar'
@@ -117,7 +117,7 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
             {/* Right Actions */}
             <div className='flex items-center gap-3 sm:gap-4 md:gap-6 text-[#231f20]'>
               {isLogin ? (
-                <AvatarDropdown handleLogout={handleLogout} />
+                <AvatarIcon />
               ) : (
                 <Link
                   href='/auth/sign-in'

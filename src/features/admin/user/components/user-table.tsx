@@ -12,6 +12,7 @@ import {
 import { useMemo, useState, useEffect } from 'react'
 import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
 import { columns } from './user-list/columns'
+import { cn } from '~/lib/utils'
 import {
   ArrowDown,
   ArrowUp,
@@ -314,10 +315,14 @@ const UserTable = () => {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
+                      const isActions = header.id === 'actions'
                       return (
                         <th
                           key={header.id}
-                          className='p-4 font-semibold text-slate-900 dark:text-slate-100 border-b'
+                          className={cn(
+                            'p-4 font-semibold text-slate-900 dark:text-slate-100 border-b',
+                            isActions && 'sticky right-0 z-20 bg-gray-50 dark:bg-muted shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                          )}
                         >
                           <div
                             className={
@@ -372,16 +377,25 @@ const UserTable = () => {
                     return (
                       <tr
                         key={row.id}
-                        className='border-b hover:bg-gray-50 transition-colors'
+                        className='group border-b hover:bg-gray-50 transition-colors'
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className='p-4 align-middle'>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </td>
-                        ))}
+                        {row.getVisibleCells().map((cell) => {
+                          const isActions = cell.column.id === 'actions'
+                          return (
+                            <td
+                              key={cell.id}
+                              className={cn(
+                                'p-4 align-middle',
+                                isActions && 'sticky right-0 z-10 bg-white dark:bg-background group-hover:bg-gray-50 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                              )}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </td>
+                          )
+                        })}
                       </tr>
                     )
                   })

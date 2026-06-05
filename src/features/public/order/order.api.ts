@@ -13,6 +13,11 @@ export const _orderApi = {
     return res.data
   },
 
+  getOrderDetail: async (orderId: string) => {
+    const res = await https.get<ApiResponse<OrderDetail>>(`/orders/my-orders/${orderId}`)
+    return res.data
+  },
+
   confirmReceipt: async (orderId: string) => {
     const res = await https.post<ApiResponse<any>>(`/orders/my-orders/${orderId}/confirm-receipt`)
     return res.data
@@ -23,4 +28,3 @@ export const _orderApi = {
     return res.data
   },
 }
-

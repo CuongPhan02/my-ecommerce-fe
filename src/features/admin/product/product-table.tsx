@@ -200,10 +200,14 @@ const ProductTable = () => {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
+                      const isActions = header.id === 'actions'
                       return (
                         <th
                           key={header.id}
-                          className='p-4 font-semibold dark:text-slate-100 text-slate-900 border-b'
+                          className={cn(
+                            'p-4 font-semibold dark:text-slate-100 text-slate-900 border-b',
+                            isActions && 'sticky right-0 z-20 bg-gray-200 dark:bg-muted shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                          )}
                         >
                           <div
                             className={
@@ -274,16 +278,25 @@ const ProductTable = () => {
                     return (
                       <tr
                         key={row.id}
-                        className='border-b  transition-colors duration-200'
+                        className='group border-b transition-colors duration-200 hover:bg-slate-50/50'
                       >
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className='p-4 align-middle'>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </td>
-                        ))}
+                        {row.getVisibleCells().map((cell) => {
+                          const isActions = cell.column.id === 'actions'
+                          return (
+                            <td
+                              key={cell.id}
+                              className={cn(
+                                'p-4 align-middle',
+                                isActions && 'sticky right-0 z-10 bg-white dark:bg-background group-hover:bg-slate-50 transition-colors shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
+                              )}
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </td>
+                          )
+                        })}
                       </tr>
                     )
                   })
