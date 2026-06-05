@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Check } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { Button } from '~/components/ui/core/button'
 import { Input } from '~/components/ui/core/input'
 import { Label } from '~/components/ui/core/label'
 import { Badge } from '~/components/ui/core/badge'
+import { cn } from '~/lib/utils'
 import { AttributeValidate, AttributeSchemaType } from '../../attribute.validate'
 import { _attributeService } from '../../attribute.query'
 import { toast } from 'react-toastify'
@@ -33,6 +34,7 @@ const AddAttributeModal = ({
   const isEdit = !!attributeId
   const [nameInput, setNameInput] = useState('')
   const [valueInput, setValueInput] = useState('')
+  const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
   const {
     register,
@@ -78,10 +80,17 @@ const AddAttributeModal = ({
       })
       setNameInput('')
       setValueInput('')
+      setEditingIndex(null)
     }
   }, [attributeDetail, reset, open])
 
-  // Handle adding custom value tags
+  const handleSelectValueToEdit = (index: number) => {
+    setEditingIndex(index)
+    setNameInput(values[index].name || '')
+    setValueInput(values[index].value)
+  }
+
+  // Handle adding or editing custom value tags
   const handleAddValue = (e?: React.FormEvent) => {
     e?.preventDefault()
     const trimmedName = nameInput.trim()
@@ -91,14 +100,37 @@ const AddAttributeModal = ({
     // Default name to match value if display name is left empty
     const finalName = trimmedName || trimmedValue
 
-    if (values.some((v) => v.value.toLowerCase() === trimmedValue.toLowerCase())) {
-      toast.warn('Giá trị này đã tồn tại!')
-      return
+    if (editingIndex !== null) {
+      if (
+        values.some(
+          (v, idx) =>
+            idx !== editingIndex &&
+            v.value.toLowerCase() === trimmedValue.toLowerCase()
+        )
+      ) {
+        toast.warn('Giá trị này đã tồn tại!')
+        return
+      }
+
+      const updatedValues = [...values]
+      updatedValues[editingIndex] = {
+        ...updatedValues[editingIndex],
+        value: trimmedValue,
+        name: finalName,
+      }
+      setValue('values', updatedValues, { shouldValidate: true })
+      setEditingIndex(null)
+    } else {
+      if (values.some((v) => v.value.toLowerCase() === trimmedValue.toLowerCase())) {
+        toast.warn('Giá trị này đã tồn tại!')
+        return
+      }
+
+      setValue('values', [...values, { value: trimmedValue, name: finalName }], {
+        shouldValidate: true,
+      })
     }
 
-    setValue('values', [...values, { value: trimmedValue, name: finalName }], {
-      shouldValidate: true,
-    })
     setNameInput('')
     setValueInput('')
   }
@@ -111,6 +143,13 @@ const AddAttributeModal = ({
   }
 
   const handleRemoveValue = (indexToRemove: number) => {
+    if (editingIndex === indexToRemove) {
+      setEditingIndex(null)
+      setNameInput('')
+      setValueInput('')
+    } else if (editingIndex !== null && editingIndex > indexToRemove) {
+      setEditingIndex(editingIndex - 1)
+    }
     setValue(
       'values',
       values.filter((_, idx) => idx !== indexToRemove),
@@ -192,13 +231,39 @@ const AddAttributeModal = ({
                     placeholder='Ví dụ: #ff0000, L...'
                     className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium flex-1'
                   />
-                  <Button
-                    type='button'
-                    onClick={() => handleAddValue()}
-                    className='rounded-xl px-3 font-bold shrink-0'
-                  >
-                    <Plus className='h-4 w-4' />
-                  </Button>
+                  {editingIndex !== null ? (
+                    <div className='flex gap-1 shrink-0'>
+                      <Button
+                        type='button'
+                        onClick={() => handleAddValue()}
+                        className='rounded-xl px-3 font-bold bg-green-600 hover:bg-green-700 text-white'
+                        title='Lưu thay đổi'
+                      >
+                        <Check className='h-4 w-4' />
+                      </Button>
+                      <Button
+                        type='button'
+                        onClick={() => {
+                          setEditingIndex(null)
+                          setNameInput('')
+                          setValueInput('')
+                        }}
+                        variant='outline'
+                        className='rounded-xl px-3 font-bold border-slate-200 dark:border-slate-800'
+                        title='Hủy bỏ'
+                      >
+                        <X className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type='button'
+                      onClick={() => handleAddValue()}
+                      className='rounded-xl px-3 font-bold shrink-0'
+                    >
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -220,7 +285,13 @@ const AddAttributeModal = ({
                     key={idx}
                     variant='secondary'
                     size='sm'
-                    className='rounded-lg bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 py-1 pl-2.5 pr-1 gap-1 border-none shadow-sm flex items-center'
+                    className={cn(
+                      'rounded-lg py-1 pl-2.5 pr-1 gap-1 border shadow-sm flex items-center cursor-pointer transition-all',
+                      editingIndex === idx
+                        ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 ring-2 ring-primary/20'
+                        : 'border-none bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+                    )}
+                    onClick={() => handleSelectValueToEdit(idx)}
                   >
                     <span>
                       {val.name || val.value}{' '}
@@ -230,8 +301,12 @@ const AddAttributeModal = ({
                     </span>
                     <button
                       type='button'
-                      onClick={() => handleRemoveValue(idx)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleRemoveValue(idx)
+                      }}
                       className='p-0.5 rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors'
+                      title='Xóa giá trị'
                     >
                       <X className='h-3 w-3' />
                     </button>
