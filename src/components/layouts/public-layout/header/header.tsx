@@ -1,7 +1,7 @@
 'use client'
 import { useAuthStore } from '~/store/auth-store'
 import { useEffect, useState } from 'react'
-import { motion, useScroll, useMotionValueEvent } from 'motion/react'
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'motion/react'
 import { https, logout } from '~/config/https'
 import TopBar from './top-bar'
 import { Search, ChevronDown, ShoppingBag, Menu, X } from 'lucide-react'
@@ -9,9 +9,8 @@ import ShopDropdown from './shop-dropdown'
 import LogoUi from '~/components/shared/logo-ui'
 import MobileNavbar from './mobile-navbar'
 import { AvatarIcon } from './avatar'
-import { Link } from 'next-view-transitions'
+import { Link, useTransitionRouter } from 'next-view-transitions'
 
-import PromotionBar from './promotion-bar'
 import { User, Heart } from 'lucide-react'
 import { Menu as DbMenu } from '~/features/admin/menu/types'
 import { _menuService } from '~/features/admin/menu/menu.query'
@@ -23,6 +22,19 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { scrollY } = useScroll()
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const router = useTransitionRouter()
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
+      setIsSearchOpen(false)
+      setSearchQuery('')
+    }
+  }
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setIsScrolled(latest > 40)
@@ -116,6 +128,18 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
 
             {/* Right Actions */}
             <div className='flex items-center gap-3 sm:gap-4 md:gap-6 text-[#231f20]'>
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'
+                aria-label='Toggle Search'
+              >
+                {isSearchOpen ? (
+                  <X className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+                ) : (
+                  <Search className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+                )}
+              </button>
+
               {isLogin ? (
                 <AvatarIcon />
               ) : (
@@ -152,8 +176,42 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
               </button>
             </div>
           </div>
+
+          {/* Search slide down container */}
+          <AnimatePresence>
+            {isSearchOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                className='overflow-hidden bg-[#FBF8F3] border-t border-neutral-200/45'
+              >
+                <div className='container-layout px-4 md:px-8 py-3 md:py-4 flex items-center justify-center'>
+                  <form
+                    onSubmit={handleSearchSubmit}
+                    className='relative w-full max-w-xl flex items-center'
+                  >
+                    <input
+                      type='text'
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder='Tìm kiếm sản phẩm...'
+                      className='w-full bg-white border border-neutral-200 rounded-full py-2 px-5 pr-12 text-xs focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium placeholder-neutral-400 text-neutral-900 shadow-sm'
+                      autoFocus
+                    />
+                    <button
+                      type='submit'
+                      className='absolute right-1.5 top-1.5 w-7 h-7 bg-[#231f20] hover:bg-black text-white rounded-full flex items-center justify-center transition-colors shadow-sm'
+                    >
+                      <Search className='w-3.5 h-3.5' />
+                    </button>
+                  </form>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.header>
-        <PromotionBar />
 
         <MobileNavbar
           isOpen={isMobileMenuOpen}

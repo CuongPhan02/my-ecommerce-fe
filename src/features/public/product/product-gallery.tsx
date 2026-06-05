@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Product } from '~/features/admin/product/types'
 import { cn } from '~/lib/utils'
@@ -25,10 +25,10 @@ const ProductGallery = ({ product }: ProductGalleryProps) => {
             key={idx}
             onClick={() => setActiveIndex(idx)}
             className={cn(
-              'relative w-20 aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all flex-shrink-0',
+              'relative w-20 aspect-[3/4] rounded-sm overflow-hidden border transition-all flex-shrink-0',
               activeIndex === idx
-                ? 'border-black shadow-md'
-                : 'border-transparent opacity-60 hover:opacity-100',
+                ? 'border-black'
+                : 'border-neutral-200 opacity-60 hover:opacity-100',
             )}
           >
             {media.type === 'VIDEO' ? (
@@ -44,7 +44,7 @@ const ProductGallery = ({ product }: ProductGalleryProps) => {
       </div>
 
       {/* Main Media */}
-      <div className='order-1 md:order-2 flex-1 relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100'>
+      <div className='order-1 md:order-2 flex-1 relative aspect-[3/4] rounded-sm overflow-hidden bg-gray-50 border border-neutral-100'>
         {allMedia[activeIndex]?.type === 'VIDEO' ? (
           <video
             src={allMedia[activeIndex].url}
@@ -58,38 +58,40 @@ const ProductGallery = ({ product }: ProductGalleryProps) => {
           <img
             src={allMedia[activeIndex]?.url || '/placeholder-product.png'}
             alt={product.name || 'Main product'}
-            className='object-cover w-full h-full transition-all duration-700 hover:scale-105'
+            className='object-cover w-full h-full transition-all duration-700 hover:scale-102'
           />
         )}
 
         {/* Navigation Arrows */}
-        <button
-          onClick={() =>
-            setActiveIndex((prev) =>
-              prev > 0 ? prev - 1 : allMedia.length - 1,
-            )
-          }
-          className='absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg'
-        >
-          <ChevronLeft className='w-6 h-6' />
-        </button>
-        <button
-          onClick={() =>
-            setActiveIndex((prev) =>
-              prev < allMedia.length - 1 ? prev + 1 : 0,
-            )
-          }
-          className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-all shadow-lg'
-        >
-          <ChevronRight className='w-6 h-6' />
-        </button>
+        {allMedia.length > 1 && (
+          <>
+            <button
+              onClick={() =>
+                setActiveIndex((prev) =>
+                  prev > 0 ? prev - 1 : allMedia.length - 1,
+                )
+              }
+              className='absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center hover:bg-white transition-all shadow-md text-neutral-800'
+            >
+              <ChevronLeft className='w-5 h-5' />
+            </button>
+            <button
+              onClick={() =>
+                setActiveIndex((prev) =>
+                  prev < allMedia.length - 1 ? prev + 1 : 0,
+                )
+              }
+              className='absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center hover:bg-white transition-all shadow-md text-neutral-800'
+            >
+              <ChevronRight className='w-5 h-5' />
+            </button>
+          </>
+        )}
 
-        {/* Promo Banner */}
-        <div className='absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12'>
-          <div className='bg-orange-600 text-white py-2 px-6 rounded-full w-fit mx-auto font-black text-sm tracking-widest animate-pulse'>
-            TẶNG 01 TÚI TOTE ĐƠN TỪ 499K
-          </div>
-        </div>
+        {/* Zoom Button */}
+        <button className='absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md text-neutral-800 hover:scale-105 active:scale-95 transition-all z-20'>
+          <Search className='w-4.5 h-4.5 stroke-[2]' />
+        </button>
       </div>
     </div>
   )

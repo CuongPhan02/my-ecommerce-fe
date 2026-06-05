@@ -1,7 +1,7 @@
 'use client'
-import Image from 'next/image'
 import { cn } from '~/lib/utils'
 import { useTransitionRouter } from 'next-view-transitions'
+import Image from 'next/image'
 
 const LogoUi = ({
   className,
@@ -13,22 +13,35 @@ const LogoUi = ({
   logoAlt?: string | null
 }) => {
   const router = useTransitionRouter()
+
+  // Format brand name to spaced out serif text (e.g. L U N É)
+  const isLune =
+    !logoAlt ||
+    logoAlt.toUpperCase().replace(/\s/g, '') === 'LUNE' ||
+    logoAlt === 'L U N É'
+  const displayText = isLune ? 'L U N É' : logoAlt
+
   return (
     <div
       onClick={() => router.push('/')}
       className={cn(
-        'font-extrabold text-xl sm:text-3xl text-primary whitespace-nowrap  flex items-center gap-2 cursor-pointer',
+        'whitespace-nowrap flex items-center gap-2 cursor-pointer select-none transition-opacity hover:opacity-85',
         className,
       )}
     >
-      <Image
-        src={logoUrl || '/logo-app.png'}
-        alt={logoAlt || 'Logo'}
-        width={200}
-        height={200}
-        className='max-w-12 h-auto object-cover'
-      />
-      {logoAlt || 'AKR-SHOP'}
+      {logoUrl ? (
+        <Image
+          src={logoUrl}
+          alt={logoAlt || 'Logo'}
+          width={150}
+          height={50}
+          className='max-h-20 w-auto object-contain'
+        />
+      ) : (
+        <span className='font-heading tracking-[0.25em] text-2xl font-bold text-[#231f20]'>
+          {displayText}
+        </span>
+      )}
     </div>
   )
 }

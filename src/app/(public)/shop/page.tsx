@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react'
+import Image from 'next/image'
 import FilterSidebar from '~/features/public/shop/filter-sidebar'
 import ProductCard from '~/components/ui/core/product-card'
 import { ArrowLeft, ArrowRight, Filter } from 'lucide-react'
@@ -173,13 +174,41 @@ export default async function ShopPage({
   ])
 
   return (
-    <div className='bg-white min-h-screen pt-10'>
+    <div className='bg-white min-h-screen pb-20'>
       {/* Scroll to top when search parameters change */}
       <Suspense fallback={null}>
         <ScrollToTop />
       </Suspense>
 
-      <div className='main-container mx-auto px-4'>
+      {/* Top Shop Banner */}
+      <div className='w-full relative h-[250px] md:h-[320px] bg-[#FAF6F0] mb-12 select-none overflow-hidden'>
+        <div className='absolute inset-0 z-0'>
+          <Image
+            src='/lune-shop-banner.png'
+            alt='Shop Banner'
+            fill
+            priority
+            className='object-cover object-center'
+            sizes='100vw'
+          />
+          {/* Subtle light overlay to blend text */}
+          <div className='absolute inset-0 bg-black/10 lg:bg-transparent lg:bg-gradient-to-r lg:from-[#FAF6F0]/85 lg:to-transparent' />
+        </div>
+        <div className='max-w-[1400px] mx-auto px-6 md:px-12 h-full flex flex-col justify-center relative z-10 text-left space-y-3 md:space-y-4'>
+          <span className='text-[10px] font-black uppercase tracking-[0.25em] text-neutral-400'>
+            SHOP
+          </span>
+          <h1 className='font-heading text-2xl md:text-3xl lg:text-4xl font-black text-black uppercase tracking-wider leading-tight max-w-lg'>
+            Khám phá phong cách<br />của riêng bạn
+          </h1>
+          <div className='text-xs md:text-sm text-neutral-500 font-medium leading-relaxed max-w-sm'>
+            <p>Những thiết kế tối giản, tinh tế và chất lượng vượt thời gian.</p>
+            <p>Dành cho những người theo đuổi sự thanh lịch trong từng chi tiết.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className='main-container mx-auto px-6 md:px-12'>
         <div className='flex flex-col lg:flex-row gap-12'>
           {/* Sidebar (Desktop) */}
           <div className='hidden lg:block'>

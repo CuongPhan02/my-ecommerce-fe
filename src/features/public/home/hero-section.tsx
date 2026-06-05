@@ -111,47 +111,7 @@ const HeroSection = () => {
                 />
               )}
 
-              {/* Luxury dark gradient overlay */}
-              <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/45 -z-10' />
 
-              {/* Text content with beautiful delay slide-up */}
-              <motion.div
-                animate={{
-                  opacity: isActive ? 1 : 0,
-                  y: isActive ? 0 : 25,
-                }}
-                transition={{
-                  duration: 0.8,
-                  delay: isActive ? 0.15 : 0,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className='max-w-4xl space-y-5 md:space-y-7'
-              >
-                {item.heading && (
-                  <h1
-                    className='text-3xl md:text-5xl lg:text-7xl font-extrabold text-white leading-tight uppercase tracking-tight'
-                    style={{ textShadow: '0 2px 12px rgba(0,0,0,0.3)' }}
-                  >
-                    {item.heading}
-                  </h1>
-                )}
-
-                {item.subheading && (
-                  <p className='text-neutral-100 text-sm md:text-lg lg:text-xl font-medium max-w-2xl leading-relaxed drop-shadow-md'>
-                    {item.subheading}
-                  </p>
-                )}
-
-                <div className='pt-2'>
-                  <Link
-                    href={item.buttonLink || '/shop'}
-                    className='inline-flex items-center gap-3 bg-[#00a2e8] text-white px-6 md:px-10 py-3.5 md:py-4 rounded-full font-bold text-sm md:text-base hover:bg-[#008cc9] hover:scale-105 duration-200 transition-all group shadow-lg shadow-black/15'
-                  >
-                    <span>{item.buttonText || 'MUA NGAY'}</span>
-                    <ArrowRight className='w-4 h-4 md:w-5 h-5 group-hover:translate-x-1 transition-transform' />
-                  </Link>
-                </div>
-              </motion.div>
             </motion.div>
           )
         })}
@@ -190,7 +150,7 @@ const HeroSection = () => {
               onClick={() => setCurrentIndex(idx)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 idx === currentIndex
-                  ? 'bg-[#00a2e8] w-6'
+                  ? 'bg-white w-6'
                   : 'bg-white/40 hover:bg-white/60 w-2'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
