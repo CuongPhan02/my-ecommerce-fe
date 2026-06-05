@@ -10,6 +10,7 @@ import {
 import { shopApi, ShopFilters } from '~/features/public/shop/shop.api'
 import ShopPagination from '~/features/public/shop/shop-pagination'
 import SortDropdown from '~/features/public/shop/sort-dropdown'
+import ScrollToTop from '~/features/public/shop/scroll-to-top'
 
 const NewArrivals = ({ products }: { products: any[] }) => {
   if (!products || products.length === 0) return null;
@@ -35,6 +36,69 @@ const NewArrivals = ({ products }: { products: any[] }) => {
         ))}
       </div>
     </section>
+  )
+}
+
+const ProductGridSkeleton = () => {
+  return (
+    <div className="space-y-8">
+      {/* Skeleton dynamic count info */}
+      <div className="h-4 w-48 bg-gray-100 animate-pulse rounded-md" />
+      
+      {/* Skeleton product grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+        {Array.from({ length: 8 }).map((_, idx) => (
+          <div key={idx} className="flex flex-col gap-4 w-full animate-pulse">
+            <div className="aspect-[3/4] w-full bg-gray-100 rounded-3xl" />
+            <div className="space-y-2">
+              <div className="h-4 w-2/3 bg-gray-100 rounded-md" />
+              <div className="h-4 w-1/3 bg-gray-100 rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+const ProductListContent = async ({ filters }: { filters: ShopFilters }) => {
+  const productsResponse = await shopApi.fetchProducts(filters).catch((e) => {
+    console.error('Failed to fetch shop products:', e)
+    return null
+  })
+
+  const products = productsResponse?.data || []
+  const totalPages = productsResponse?.meta?.totalPages || 1
+  const total = productsResponse?.meta?.total || 0
+
+  return (
+    <>
+      <div className='text-sm text-gray-500 mb-8'>
+        Hiển thị{' '}
+        <span className='font-bold text-black'>{products.length}</span>{' '}
+        trên tổng số{' '}
+        <span className='font-bold text-black'>{total}</span> sản phẩm
+      </div>
+
+      {products.length === 0 ? (
+        <div className='py-20 flex flex-col items-center justify-center text-center bg-gray-50 rounded-2xl border border-dashed'>
+          <p className='text-xl font-semibold text-gray-500 mb-2'>
+            Không tìm thấy sản phẩm nào
+          </p>
+          <p className='text-sm text-gray-400'>
+            Vui lòng thử điều chỉnh lại bộ lọc hoặc tìm kiếm với từ khóa khác.
+          </p>
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12'>
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product as any} />
+          ))}
+        </div>
+      )}
+
+      {totalPages > 1 && <ShopPagination totalPages={totalPages} />}
+    </>
   )
 }
 
@@ -99,9 +163,8 @@ export default async function ShopPage({
     maxPrice,
   }
 
-  // Fetch data directly from Server Component
-  const [productsResponse, categories, brands, collections, attributes, newArrivals] = await Promise.all([
-    shopApi.fetchProducts(filters).catch(e => { console.error('Failed to fetch shop products:', e); return null }),
+  // Fetch filters & arrivals data in parallel
+  const [categories, brands, collections, attributes, newArrivals] = await Promise.all([
     shopApi.fetchCategories(),
     shopApi.fetchBrands(),
     shopApi.fetchCollections(),
@@ -109,12 +172,13 @@ export default async function ShopPage({
     shopApi.fetchNewArrivals(),
   ])
 
-  const products = productsResponse?.data || []
-  const totalPages = productsResponse?.meta?.totalPages || 1
-  const total = productsResponse?.meta?.total || 0
-
   return (
     <div className='bg-white min-h-screen pt-10'>
+      {/* Scroll to top when search parameters change */}
+      <Suspense fallback={null}>
+        <ScrollToTop />
+      </Suspense>
+
       <div className='main-container mx-auto px-4'>
         <div className='flex flex-col lg:flex-row gap-12'>
           {/* Sidebar (Desktop) */}
@@ -136,7 +200,7 @@ export default async function ShopPage({
           {/* Main Content */}
           <main className='flex-1'>
             {/* Top Bar */}
-            <div className='flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4'>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 border-b pb-6'>
               <div className='flex items-center gap-4'>
                 <Sheet>
                   <SheetTrigger asChild>
@@ -156,12 +220,6 @@ export default async function ShopPage({
                     </div>
                   </SheetContent>
                 </Sheet>
-                <div className='text-sm text-gray-500'>
-                  Hiển thị{' '}
-                  <span className='font-bold text-black'>{products.length}</span>{' '}
-                  trên tổng số{' '}
-                  <span className='font-bold text-black'>{total}</span> sản phẩm
-                </div>
               </div>
               <Suspense
                 fallback={
@@ -172,28 +230,9 @@ export default async function ShopPage({
               </Suspense>
             </div>
 
-            {/* Product Grid */}
-            {products.length === 0 ? (
-              <div className='py-20 flex flex-col items-center justify-center text-center bg-gray-50 rounded-2xl border border-dashed'>
-                <p className='text-xl font-semibold text-gray-500 mb-2'>
-                  Không tìm thấy sản phẩm nào
-                </p>
-                <p className='text-sm text-gray-400'>
-                  Vui lòng thử điều chỉnh lại bộ lọc hoặc tìm kiếm với từ khóa
-                  khác.
-                </p>
-              </div>
-            ) : (
-              <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12'>
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product as any} />
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            <Suspense fallback={<div className='h-10 mt-20' />}>
-              <ShopPagination totalPages={totalPages} />
+            {/* Suspended Product Grid & Pagination */}
+            <Suspense key={JSON.stringify(filters)} fallback={<ProductGridSkeleton />}>
+              <ProductListContent filters={filters} />
             </Suspense>
 
             {/* New Arrivals */}

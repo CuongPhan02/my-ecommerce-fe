@@ -4,7 +4,13 @@ import { Product } from '~/features/admin/product/types'
 
 export interface PublicReview {
   id: string
-  userName: string
+  userName?: string
+  user?: {
+    id: string
+    name: string
+    email?: string
+    avatarUrl?: string | null
+  }
   userAvatar?: string
   rating: number
   comment?: string
@@ -24,6 +30,22 @@ export interface PublicReview {
     content: string
     createdAt: string
   }>
+  reply?: {
+    content: string
+    createdAt: string
+    repliedBy?: {
+      id: string
+      name: string
+    }
+  } | null
+  variant?: {
+    id: string
+    sku: string
+    price: number
+    priceFormatted?: string
+    attributes?: Array<{ name: string; value: string }>
+    label?: string
+  }
 }
 
 export type PublicReviewListResponse = {

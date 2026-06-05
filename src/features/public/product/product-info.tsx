@@ -9,6 +9,43 @@ interface ProductInfoProps {
   product: Product
 }
 
+const getColorHex = (v: any): string | null => {
+  const colorAttr = v.attributes?.find((attr: any) => {
+    const attrName = (
+      attr.attributeValue?.attribute?.name ||
+      attr.name ||
+      ''
+    ).toLowerCase();
+    return attrName.includes('màu') || attrName.includes('color');
+  });
+
+  if (colorAttr) {
+    const match = colorAttr.value?.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/);
+    if (match) return match[0];
+  }
+
+  const anyValue = v.attributes?.map((attr: any) => attr.value).join(' ') || v.sku || '';
+  const matchAny = anyValue.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/);
+  return matchAny ? matchAny[0] : null;
+};
+
+const getCleanedVariantLabel = (v: any, idx: number): string => {
+  if (v.attributes && v.attributes.length > 0) {
+    return v.attributes
+      .map((attr: any) => {
+        const val = attr.value || '';
+        return val.replace(/\s*\([^)]*\)/g, '').trim();
+      })
+      .join(' - ');
+  }
+
+  if (v.sku) {
+    return v.sku.replace(/\s*\([^)]*\)/g, '').trim();
+  }
+
+  return `Bản ${idx + 1}`;
+};
+
 const ProductInfo = ({ product }: ProductInfoProps) => {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
@@ -142,29 +179,43 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             Phiên bản:
           </p>
           <div className='flex flex-wrap gap-3'>
-            {product.variants.map((v, idx) => (
-              <button
-                key={v.id}
-                onClick={() => {
-                  setSelectedVariantIndex(idx)
-                  if (quantity > (v.stockQuantity ?? 0)) {
-                    setQuantity(Math.max(1, v.stockQuantity ?? 0))
-                  }
-                }}
-                className={cn(
-                  'px-4 py-2 rounded-xl text-sm font-bold transition-all border-2 relative',
-                  selectedVariantIndex === idx
-                    ? 'bg-black text-white border-black'
-                    : 'bg-gray-50 text-gray-400 border-transparent hover:border-gray-200',
-                  (v.stockQuantity ?? 0) <= 0 && 'opacity-50 cursor-not-allowed grayscale'
-                )}
-              >
-                {v.sku || `Bản ${idx + 1}`}
-                {(v.stockQuantity ?? 0) <= 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-[8px] px-1.5 py-0.5 rounded-full text-white">Hết</span>
-                )}
-              </button>
-            ))}
+            {product.variants.map((v, idx) => {
+              const colorHex = getColorHex(v)
+              const label = getCleanedVariantLabel(v, idx)
+
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => {
+                    setSelectedVariantIndex(idx)
+                    if (quantity > (v.stockQuantity ?? 0)) {
+                      setQuantity(Math.max(1, v.stockQuantity ?? 0))
+                    }
+                  }}
+                  className={cn(
+                    'px-4 py-2.5 rounded-xl text-sm font-bold transition-all border-2 relative flex items-center gap-2',
+                    selectedVariantIndex === idx
+                      ? 'bg-black text-white border-black'
+                      : 'bg-gray-50 text-gray-500 border-transparent hover:border-gray-200',
+                    (v.stockQuantity ?? 0) <= 0 && 'opacity-50 cursor-not-allowed grayscale'
+                  )}
+                >
+                  {colorHex && (
+                    <span 
+                      className={cn(
+                        'w-4 h-4 rounded-full border shrink-0',
+                        selectedVariantIndex === idx ? 'border-white/30' : 'border-gray-300'
+                      )}
+                      style={{ backgroundColor: colorHex }}
+                    />
+                  )}
+                  <span>{label}</span>
+                  {(v.stockQuantity ?? 0) <= 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-[8px] px-1.5 py-0.5 rounded-full text-white">Hết</span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       )}

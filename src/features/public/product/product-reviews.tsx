@@ -265,10 +265,10 @@ const ProductReviews = ({ product }: ProductReviewsProps) => {
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-black text-lg text-black border border-gray-200">
-                          {review.userName?.charAt(0) || 'U'}
+                          {(review.userName || review.user?.name || 'U').charAt(0)}
                         </div>
                         <div>
-                          <p className="font-black text-sm">{review.userName || 'Người dùng'}</p>
+                          <p className="font-black text-sm">{review.userName || review.user?.name || 'Người dùng'}</p>
                           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                             {review.createdAt ? format(new Date(review.createdAt), 'dd/MM/yyyy HH:mm') : 'Mới đây'}
                           </p>
@@ -287,9 +287,11 @@ const ProductReviews = ({ product }: ProductReviewsProps) => {
                       </div>
                     </div>
 
-                    {review.productVariant && (
+                    {(review.productVariant || review.variant) && (
                       <div className="flex gap-4 mb-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 py-1.5 px-3 rounded-lg w-fit">
-                        <span>Biến thể: <span className="text-black">{review.productVariant.name}</span></span>
+                        <span>Biến thể: <span className="text-black">
+                          {review.productVariant?.name || review.variant?.label || review.variant?.sku}
+                        </span></span>
                       </div>
                     )}
 
@@ -311,19 +313,19 @@ const ProductReviews = ({ product }: ProductReviewsProps) => {
                     )}
 
                     {/* Admin Replies Bubble */}
-                    {review.replies && review.replies.length > 0 && (
+                    {((review.replies && review.replies.length > 0) || review.reply) && (
                       <div className="flex flex-col gap-4 pl-6 border-l-2 border-black mt-6 bg-gray-50/50 p-4 rounded-r-2xl">
                         <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
                           Phản hồi từ quản trị viên
                         </p>
-                        {review.replies.map((reply) => (
+                        {review.replies && review.replies.map((reply) => (
                           <div key={reply.id} className="space-y-1">
                             <div className="flex justify-between items-center">
                               <span className="font-bold text-xs text-black">
                                 {reply.adminName || 'Quản trị viên'}
                               </span>
                               <span className="text-[9px] text-gray-400 font-bold">
-                                {reply.createdAt ? format(new Date(reply.createdAt), 'dd/MM/yyyy') : ''}
+                                {reply.createdAt ? format(new Date(reply.createdAt), 'dd/MM/yyyy HH:mm') : ''}
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 leading-relaxed font-medium">
@@ -331,6 +333,21 @@ const ProductReviews = ({ product }: ProductReviewsProps) => {
                             </p>
                           </div>
                         ))}
+                        {review.reply && (
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="font-bold text-xs text-black">
+                                {review.reply.repliedBy?.name || 'Quản trị viên'}
+                              </span>
+                              <span className="text-[9px] text-gray-400 font-bold">
+                                {review.reply.createdAt ? format(new Date(review.reply.createdAt), 'dd/MM/yyyy HH:mm') : ''}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                              {review.reply.content}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

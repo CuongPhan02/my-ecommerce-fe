@@ -14,6 +14,7 @@ import { ScrollArea, ScrollBar } from '~/components/ui/core/scroll-area'
 import { columns } from './components/product-list/columns'
 import { ArrowDown, ArrowUp, ChevronsUpDown, SearchIcon } from 'lucide-react'
 import { Button } from '~/components/ui/core/button'
+import { cn } from '~/lib/utils'
 import { Product, ProductParams, TableMeta } from './types'
 import { TableToolbar } from './components/product-list/table-toolbar'
 import { _productService } from './product.query'
@@ -64,6 +65,33 @@ const ProductTable = () => {
   const { data: productsData, isLoading } = _productService.useProducts(params)
 
   logger.info('Products data:', productsData)
+
+  const getPageNumbers = () => {
+    const total = pageCount
+    const current = pageIndex + 1
+    const delta = 2
+    const range: (number | string)[] = []
+
+    for (
+      let i = Math.max(2, current - delta);
+      i <= Math.min(total - 1, current + delta);
+      i++
+    ) {
+      range.push(i)
+    }
+
+    if (current - delta > 2) {
+      range.unshift('...')
+    }
+    if (current + delta < total - 1) {
+      range.push('...')
+    }
+
+    range.unshift(1)
+    if (total > 1) range.push(total)
+
+    return range
+  }
 
   const deleteProductMutation = _productService.useDeleteProduct()
   const deleteManyMutation = _productService.useDeleteManyProducts()
@@ -266,37 +294,63 @@ const ProductTable = () => {
           <ScrollBar orientation='horizontal' />
         </ScrollArea>
 
-        <div className='flex items-center justify-between py-6 px-2'>
-          <div className='text-sm font-medium text-slate-500'>
-            Đang hiển thị{' '}
-            <span className='text-slate-500'>{data.length}</span> sản phẩm
-            (Trang{' '}
-            <span className='text-slate-500'>
-              {table.getState().pagination.pageIndex + 1}
-            </span>{' '}
-            trên {table.getPageCount()})
+        {data.length > 0 && (
+          <div className='flex items-center justify-between py-6 px-2 border-t mt-4'>
+            <div className='text-sm font-medium text-slate-500'>
+              Đang hiển thị{' '}
+              <span className='font-bold text-slate-700'>{data.length}</span> sản phẩm
+              (Trang{' '}
+              <span className='font-bold text-slate-700'>
+                {pageIndex + 1}
+              </span>{' '}
+              trên {pageCount})
+            </div>
+            <div className='flex items-center gap-1.5'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className='bg-white shadow-sm rounded-xl font-bold text-xs h-9'
+              >
+                Trước
+              </Button>
+              <div className='flex items-center gap-1.5'>
+                {getPageNumbers().map((p, idx) =>
+                  p === '...' ? (
+                    <span key={idx} className='px-2 text-slate-400 text-sm font-bold'>
+                      ...
+                    </span>
+                  ) : (
+                    <Button
+                      key={idx}
+                      variant={pageIndex + 1 === p ? 'default' : 'outline'}
+                      size='sm'
+                      onClick={() => table.setPageIndex((p as number) - 1)}
+                      className={cn(
+                        'h-9 w-9 rounded-xl font-bold text-xs shadow-sm',
+                        pageIndex + 1 === p
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : 'bg-white hover:bg-slate-50'
+                      )}
+                    >
+                      {p}
+                    </Button>
+                  )
+                )}
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className='bg-white shadow-sm rounded-xl font-bold text-xs h-9'
+              >
+                Sau
+              </Button>
+            </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className='bg-white shadow-sm'
-            >
-              Trước
-            </Button>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className='bg-white shadow-sm'
-            >
-              Sau
-            </Button>
-          </div>
-        </div>
+        )}
       </div>
 
       <ProductFormAction
