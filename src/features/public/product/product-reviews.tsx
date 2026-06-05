@@ -8,12 +8,14 @@ import { _productService } from './product.query'
 import { getAccessToken } from '~/config/https'
 import { toast } from 'react-toastify'
 import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 interface ProductReviewsProps {
   product: Product
 }
 
 const ProductReviews = ({ product }: ProductReviewsProps) => {
+  const router = useRouter()
   const [page, setPage] = useState(1)
   const [activeRatingFilter, setActiveRatingFilter] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -228,6 +230,7 @@ const ProductReviews = ({ product }: ProductReviewsProps) => {
               onClick={() => {
                 if (!isLoggedIn) {
                   toast.warning('Vui lòng đăng nhập để viết đánh giá!')
+                  router.push('/login')
                   return
                 }
                 setIsOpenModal(true)
