@@ -36,15 +36,37 @@ const ListFolderUi = ({ className, scrollAreaClassName }: ListFolderUiProps) => 
 
   const { mutate: deleteFolder } = _mediaService.useMediaFolderDelete()
 
+  const sortedFolders = React.useMemo(() => {
+    if (!mediaFolderData?.result) return []
+
+    const folders = mediaFolderData.result
+
+    const buildTreeList = (
+      parentId: string | null,
+      path: string = '',
+      level: number = 0,
+    ): any[] => {
+      const nodes = folders.filter((f: any) => f.parentId === parentId)
+      let result: any[] = []
+      nodes.forEach((node: any) => {
+        const currentPath = path ? `${path} / ${node.name}` : node.name
+        result.push({ ...node, path: currentPath, level })
+        result = result.concat(buildTreeList(node.id, currentPath, level + 1))
+      })
+      return result
+    }
+
+    return buildTreeList(null)
+  }, [mediaFolderData])
+
   useEffect(() => {
     if (
-      folderMedia === undefined ||
-      folderMedia === null ||
-      folderMedia === ''
+      (folderMedia === undefined || folderMedia === null || folderMedia === '') &&
+      sortedFolders.length > 0
     ) {
-      setFolderMedia(mediaFolderData?.result?.[0]?.id ?? '')
+      setFolderMedia(sortedFolders[0].id)
     }
-  }, [folderMedia, mediaFolderData])
+  }, [folderMedia, sortedFolders])
 
   const handleUpdateValue = (id: string, value: string) => {
     const payload = {
@@ -80,29 +102,6 @@ const ListFolderUi = ({ className, scrollAreaClassName }: ListFolderUiProps) => 
       setFolderMedia(id)
     }
   }
-
-  const sortedFolders = React.useMemo(() => {
-    if (!mediaFolderData?.result) return []
-
-    const folders = mediaFolderData.result
-
-    const buildTreeList = (
-      parentId: string | null,
-      path: string = '',
-      level: number = 0,
-    ): any[] => {
-      const nodes = folders.filter((f: any) => f.parentId === parentId)
-      let result: any[] = []
-      nodes.forEach((node: any) => {
-        const currentPath = path ? `${path} / ${node.name}` : node.name
-        result.push({ ...node, path: currentPath, level })
-        result = result.concat(buildTreeList(node.id, currentPath, level + 1))
-      })
-      return result
-    }
-
-    return buildTreeList(null)
-  }, [mediaFolderData])
 
   const hasSubfolders = React.useMemo(() => {
     if (!selectedFolder || !mediaFolderData?.result) return false

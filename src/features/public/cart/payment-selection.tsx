@@ -19,7 +19,7 @@ interface PaymentSelectionProps {
 const PaymentSelection = ({ value, onChange }: PaymentSelectionProps) => {
   return (
     <div className="flex flex-col gap-8">
-      <h2 className="text-2xl font-black uppercase tracking-tight">Hình thức thanh toán</h2>
+      <h2 className="text-xl font-black uppercase tracking-tight text-[#231f20]">Hình thức thanh toán</h2>
       
       <div className="flex flex-col gap-3">
         {paymentMethods.map((method) => {
@@ -28,12 +28,12 @@ const PaymentSelection = ({ value, onChange }: PaymentSelectionProps) => {
             <label
               key={method.id}
               className={cn(
-                "flex items-center gap-4 p-5 border-2 rounded-2xl transition-all group select-none relative",
+                "flex items-center gap-4 p-5 border rounded-sm transition-all group select-none relative",
                 !method.enabled 
-                  ? "border-gray-100 bg-gray-50/50 opacity-60 cursor-not-allowed"
+                  ? "border-[#e8dfd5]/30 bg-neutral-50/50 opacity-60 cursor-not-allowed"
                   : isSelected 
-                    ? "border-black bg-gray-50 shadow-sm cursor-pointer" 
-                    : "border-gray-100 hover:border-gray-200 cursor-pointer"
+                    ? "border-[#5c4e43] bg-[#FBF8F3] shadow-xs cursor-pointer" 
+                    : "border-neutral-200 hover:border-[#e8dfd5] cursor-pointer"
               )}
             >
               <div className="relative flex items-center justify-center">
@@ -42,17 +42,17 @@ const PaymentSelection = ({ value, onChange }: PaymentSelectionProps) => {
                   name="payment"
                   disabled={!method.enabled}
                   className={cn(
-                    "peer appearance-none w-5 h-5 border-2 rounded-full transition-all",
+                    "peer appearance-none w-5 h-5 border rounded-full transition-all",
                     !method.enabled 
-                      ? "border-gray-200 bg-gray-100" 
-                      : "border-gray-200 checked:border-black cursor-pointer"
+                      ? "border-neutral-200 bg-neutral-100" 
+                      : "border-neutral-300 checked:border-[#5c4e43] cursor-pointer"
                   )}
                   checked={isSelected}
                   onChange={() => method.enabled && onChange(method.id)}
                 />
                 {method.enabled && (
                   <div className={cn(
-                    "absolute w-2.5 h-2.5 bg-black rounded-full transition-all scale-0 peer-checked:scale-100 pointer-events-none"
+                    "absolute w-2.5 h-2.5 bg-[#5c4e43] rounded-full transition-all scale-0 peer-checked:scale-100 pointer-events-none"
                   )} />
                 )}
               </div>
@@ -63,7 +63,7 @@ const PaymentSelection = ({ value, onChange }: PaymentSelectionProps) => {
                 <div className="flex items-center gap-2">
                   <p className={cn("font-black text-sm", !method.enabled ? "text-gray-400" : "text-black")}>{method.name}</p>
                   {!method.enabled && (
-                    <span className="text-[8px] font-black uppercase tracking-wider bg-gray-200/60 text-gray-500 px-2 py-0.5 rounded">
+                    <span className="text-[8px] font-black uppercase tracking-wider bg-neutral-200/60 text-gray-500 px-2 py-0.5 rounded-sm">
                       Chưa hỗ trợ
                     </span>
                   )}
@@ -75,10 +75,10 @@ const PaymentSelection = ({ value, onChange }: PaymentSelectionProps) => {
         })}
       </div>
 
-      <div className="bg-gray-50 p-6 rounded-2xl">
-        <p className="text-xs text-gray-500 font-medium leading-relaxed italic">
+      <div className="bg-[#FBF8F3] border border-[#e8dfd5]/65 p-6 rounded-sm">
+        <p className="text-xs text-gray-500 font-semibold leading-relaxed italic">
           Nếu bạn không hài lòng với sản phẩm của chúng tôi? Bạn hoàn toàn có thể trả lại sản phẩm. 
-          <span className="text-blue-600 font-bold hover:underline cursor-pointer ml-1">Tìm hiểu thêm Tại đây</span>
+          <span className="text-[#5c4e43] font-black hover:underline cursor-pointer ml-1">Tìm hiểu thêm Tại đây</span>
         </p>
       </div>
     </div>

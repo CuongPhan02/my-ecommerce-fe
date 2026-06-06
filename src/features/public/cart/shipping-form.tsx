@@ -20,25 +20,25 @@ interface ShippingFormProps {
 const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
   return (
     <div className='flex flex-col gap-8'>
-      <h2 className='text-2xl font-black uppercase tracking-tight'>
+      <h2 className='text-xl font-black uppercase tracking-tight text-[#231f20]'>
         Thông tin vận chuyển
       </h2>
 
-      <div className='flex items-start gap-3 p-4 bg-blue-50 rounded-2xl border border-blue-100 mb-2'>
+      <div className='flex items-start gap-3 p-4 bg-[#FBF8F3] rounded-sm border border-[#e8dfd5]/65 mb-2'>
         <div className='pt-1'>
           <input
             type='checkbox'
             defaultChecked
-            className='w-4 h-4 accent-black cursor-pointer'
+            className='w-4 h-4 accent-[#5c4e43] cursor-pointer'
           />
         </div>
-        <p className='text-[10px] text-gray-500 font-medium leading-relaxed'>
+        <p className='text-[10px] text-gray-500 font-semibold leading-relaxed'>
           Bằng việc ấn nút đặt hàng, bạn xác nhận là đã đọc và hiểu về{' '}
-          <span className='text-blue-600 font-bold hover:underline cursor-pointer'>
+          <span className='text-[#5c4e43] font-black hover:underline cursor-pointer'>
             chính sách bảo mật
           </span>{' '}
-          dữ liệu cá nhân của Coolmate.{' '}
-          <span className='text-blue-600 font-bold hover:underline cursor-pointer'>
+          dữ liệu cá nhân của LUNÉ.{' '}
+          <span className='text-[#5c4e43] font-black hover:underline cursor-pointer'>
             Tại đây
           </span>
         </p>
@@ -55,10 +55,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
             onChange={(e) => onChange('shippingName', e.target.value)}
             placeholder='Nhập họ tên của bạn'
             className={cn(
-              'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
               errors.shippingName
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200',
+                : 'border-neutral-200',
             )}
           />
           {errors.shippingName && (
@@ -78,10 +78,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
             onChange={(e) => onChange('shippingPhone', e.target.value)}
             placeholder='Nhập số điện thoại'
             className={cn(
-              'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
               errors.shippingPhone
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200',
+                : 'border-neutral-200',
             )}
           />
           {errors.shippingPhone && (
@@ -102,10 +102,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
           onChange={(e) => onChange('shippingEmail', e.target.value)}
           placeholder='Nhập email của bạn'
           className={cn(
-            'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+            'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
             errors.shippingEmail
               ? 'border-red-500 focus:border-red-500'
-              : 'border-gray-200',
+              : 'border-neutral-200',
           )}
         />
         {errors.shippingEmail && (
@@ -125,10 +125,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
           onChange={(e) => onChange('street', e.target.value)}
           placeholder='Nhập địa chỉ'
           className={cn(
-            'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+            'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
             errors.street
               ? 'border-red-500 focus:border-red-500'
-              : 'border-gray-200',
+              : 'border-neutral-200',
           )}
         />
         {errors.street && (
@@ -149,10 +149,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
             onChange={(e) => onChange('province', e.target.value)}
             placeholder='Ví dụ: Hà Nội'
             className={cn(
-              'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
               errors.province
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200',
+                : 'border-neutral-200',
             )}
           />
           {errors.province && (
@@ -171,10 +171,10 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
             onChange={(e) => onChange('city', e.target.value)}
             placeholder='Ví dụ: Đống Đa'
             className={cn(
-              'w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all bg-white',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
               errors.city
                 ? 'border-red-500 focus:border-red-500'
-                : 'border-gray-200',
+                : 'border-neutral-200',
             )}
           />
           {errors.city && (
@@ -193,7 +193,7 @@ const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
           value={values.note}
           onChange={(e) => onChange('note', e.target.value)}
           placeholder='Ví dụ: Giao giờ hành chính'
-          className='w-full py-3.5 px-6 border rounded-2xl text-sm font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-black focus:outline-none transition-all min-h-[100px] resize-none bg-white border-gray-200'
+          className='w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all min-h-[100px] resize-none bg-white border-neutral-200'
         />
       </div>
     </div>

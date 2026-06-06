@@ -56,20 +56,27 @@ export default function CartPage() {
 
   // Auto-fill form with default address or user info
   useEffect(() => {
-    if (user && !shippingValues.shippingName) {
+    if (user) {
       const defaultAddr = addresses.find(a => a.isDefault) || addresses[0]
 
-      setShippingValues(prev => ({
-        ...prev,
-        shippingName: defaultAddr?.receiverName || user.name || '',
-        shippingEmail: user.email || '',
-        shippingPhone: defaultAddr?.phone || user.phone || '',
-        ...(defaultAddr ? {
-          street: defaultAddr.street,
-          city: defaultAddr.city,
-          province: defaultAddr.province,
-        } : {})
-      }))
+      setShippingValues(prev => {
+        const nextValues = { ...prev }
+        if (!nextValues.shippingName) {
+          nextValues.shippingName = defaultAddr?.receiverName || user.name || ''
+        }
+        if (!nextValues.shippingEmail) {
+          nextValues.shippingEmail = user.email || ''
+        }
+        if (!nextValues.shippingPhone) {
+          nextValues.shippingPhone = defaultAddr?.phone || user.phone || ''
+        }
+        if (defaultAddr) {
+          if (!nextValues.street) nextValues.street = defaultAddr.street || ''
+          if (!nextValues.city) nextValues.city = defaultAddr.city || ''
+          if (!nextValues.province) nextValues.province = defaultAddr.province || ''
+        }
+        return nextValues
+      })
     }
   }, [user, addresses])
 
@@ -278,7 +285,7 @@ export default function CartPage() {
         </p>
         <Link
           href='/shop'
-          className='bg-black text-white px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest hover:bg-primary transition-all shadow-md'
+          className='bg-[#231f20] text-white px-8 py-3 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-[#5c4e43] transition-all shadow-md'
         >
           Quay lại cửa hàng
         </Link>
@@ -287,30 +294,30 @@ export default function CartPage() {
   }
 
   return (
-    <div className='bg-white min-h-screen pb-20'>
+    <div className='bg-[#FAF9F6] min-h-screen pb-24'>
       {/* Top Banner */}
-      <div className='bg-gray-50 border-b'>
+      <div className='bg-[#FBF8F3] border-b border-[#e8dfd5]/60'>
         <div className='main-container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-6'>
           <div className='flex-1'>
-            <h1 className='text-3xl font-black uppercase tracking-tight mb-2'>
-              Giỏ hàng
+            <h1 className='text-2xl font-black uppercase tracking-tight text-[#231f20] mb-2'>
+              Giỏ hàng & Thanh toán
             </h1>
-            <p className='text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2'>
-              <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
+            <p className='text-xs font-semibold text-[#5c4e43]/85 uppercase tracking-widest flex items-center gap-2'>
+              <span className='w-2 h-2 bg-[#3d7a5c] rounded-full animate-pulse' />
               Có {cartItems.length > 0 ? cartItems.length * 2 : 4} người đang
               thêm cùng sản phẩm giống bạn vào giỏ hàng.
             </p>
           </div>
-          <div className='bg-blue-600 text-white p-6 rounded-3xl flex items-center gap-6 shadow-xl shadow-blue-600/20'>
+          <div className='bg-[#231f20] text-white p-6 rounded-sm flex items-center gap-6 shadow-md'>
             <div>
-              <p className='text-sm font-black uppercase tracking-widest mb-1'>
-                Gia nhập COOLCLUB ngay
+              <p className='text-xs font-black uppercase tracking-widest mb-1'>
+                Gia nhập LUNÉ CLUB ngay
               </p>
               <p className='text-[10px] opacity-80 font-medium'>
                 Nhận ngay Voucher -15% cho đơn hàng đầu tiên
               </p>
             </div>
-            <button className='bg-white text-blue-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-50 transition-all'>
+            <button className='bg-white text-[#231f20] px-5 py-3 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#FAF6F0] transition-all border-none cursor-pointer'>
               Tham gia
             </button>
           </div>
@@ -319,70 +326,151 @@ export default function CartPage() {
 
       <div className='main-container mx-auto px-4 py-12'>
         {cartItems.length === 0 ? (
-          <div className='flex flex-col items-center justify-center py-20 gap-6'>
-            <div className='w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center text-gray-300'>
-              <ShoppingBag className='w-10 h-10' />
+          <div className='flex flex-col items-center justify-center py-24 gap-6 bg-white border border-[#e8dfd5]/60 rounded-sm shadow-xs max-w-2xl mx-auto'>
+            <div className='w-16 h-16 bg-[#FBF8F3] rounded-sm flex items-center justify-center text-neutral-300 border border-[#e8dfd5]/60'>
+              <ShoppingBag className='w-8 h-8' />
             </div>
-            <div className='text-center'>
-              <h2 className='text-xl font-black uppercase tracking-tight mb-2'>
+            <div className='text-center space-y-2'>
+              <h2 className='text-lg font-black uppercase tracking-tight text-[#231f20]'>
                 Giỏ hàng trống
               </h2>
-              <p className='text-sm text-gray-500 font-medium max-w-sm mx-auto leading-relaxed'>
+              <p className='text-xs text-neutral-500 font-semibold max-w-sm mx-auto leading-relaxed'>
                 Giỏ hàng của bạn đang trống. Hãy quay lại cửa hàng và chọn các
                 sản phẩm yêu thích của bạn!
               </p>
             </div>
             <Link
               href='/shop'
-              className='bg-black text-white px-10 py-4 rounded-full font-black text-xs uppercase tracking-widest hover:bg-primary transition-all shadow-lg hover:scale-105 duration-200'
+              className='bg-[#231f20] text-white px-8 py-3.5 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-[#5c4e43] transition-all shadow-xs duration-200'
             >
               Tiếp tục mua sắm
             </Link>
           </div>
         ) : (
-          <div className='grid grid-cols-1 lg:grid-cols-12 gap-20 items-start'>
-            {/* Left Column: Form & Payment */}
-            <div className='lg:col-span-7 flex flex-col gap-16'>
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 items-start'>
+            {/* Left Column: Form & Payment Steps */}
+            <div className='lg:col-span-8 flex flex-col gap-10'>
+              {/* Step indicator */}
+              <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-200/50 pb-4">
+                <span className="text-black">01. Giỏ hàng & Thanh toán</span>
+                <span>/</span>
+                <span>02. Xác nhận</span>
+                <span>/</span>
+                <span>03. Hoàn tất</span>
+              </div>
+
+              {/* Step 1: Cart Items */}
+              <div className="bg-white border border-[#e8dfd5]/55 rounded-sm p-6 md:p-8 flex flex-col gap-6 shadow-xs">
+                <div className='flex items-center justify-between border-b border-neutral-100 pb-4'>
+                  <div className='flex items-center gap-3'>
+                    <div className="w-6 h-6 rounded-full bg-[#5c4e43] text-white flex items-center justify-center text-xs font-black">1</div>
+                    <h2 className='text-xs font-black uppercase tracking-widest text-[#231f20]'>
+                      Sản phẩm trong giỏ hàng ({cartItems.length})
+                    </h2>
+                  </div>
+                  <button
+                    onClick={handleClearCart}
+                    className='text-[9px] font-bold text-neutral-400 hover:text-red-500 transition-colors uppercase tracking-widest cursor-pointer border-none bg-transparent'
+                  >
+                    Xóa tất cả
+                  </button>
+                </div>
+
+                <div className='bg-[#FBF8F3] border border-[#e8dfd5]/65 p-4 rounded-sm flex items-center justify-between group'>
+                  <div className='flex items-center gap-3 text-[10px] font-bold text-[#5c4e43] uppercase tracking-widest'>
+                    <Info className='w-4 h-4' />
+                    Yên tâm 60 ngày đổi trả - Freeship đơn từ 200k
+                  </div>
+                  <button className='text-neutral-400 hover:text-[#5c4e43] transition-colors border-none bg-transparent cursor-pointer'>
+                    <X className='w-4 h-4' />
+                  </button>
+                </div>
+
+                {/* Item List */}
+                <div className='flex flex-col divide-y divide-neutral-100'>
+                  {cartItems.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      onUpdateQuantity={(q) => handleUpdateQuantity(item.id, q)}
+                      onRemove={() => handleRemoveItem(item.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Step 2: Shipping Form */}
+              <div className="bg-white border border-[#e8dfd5]/55 rounded-sm p-6 md:p-8 shadow-xs">
+                <div className="flex items-center gap-3 border-b border-neutral-100 pb-4 mb-6">
+                  <div className="w-6 h-6 rounded-full bg-[#5c4e43] text-white flex items-center justify-center text-xs font-black">2</div>
+                  <h2 className='text-xs font-black uppercase tracking-widest text-[#231f20]'>
+                    Thông tin giao hàng
+                  </h2>
+                </div>
+                <ShippingForm
+                  values={shippingValues}
+                  onChange={handleShippingChange}
+                  errors={errors}
+                />
+              </div>
+
+              {/* Step 3: Payment Selection */}
+              <div className="bg-white border border-[#e8dfd5]/55 rounded-sm p-6 md:p-8 shadow-xs">
+                <div className="flex items-center gap-3 border-b border-neutral-100 pb-4 mb-6">
+                  <div className="w-6 h-6 rounded-full bg-[#5c4e43] text-white flex items-center justify-center text-xs font-black">3</div>
+                  <h2 className='text-xs font-black uppercase tracking-widest text-[#231f20]'>
+                    Phương thức thanh toán
+                  </h2>
+                </div>
+                <PaymentSelection
+                  value={paymentMethod}
+                  onChange={setPaymentMethod}
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Address Selection & Cart Summary */}
+            <div className='lg:col-span-4 flex flex-col gap-8 lg:sticky lg:top-28'>
               {/* Address Selection Dropdown for logged in users */}
               {user && addresses.length > 0 && (
-                <div className="mb-8 relative">
-                  <button 
+                <div className="relative">
+                  <button
                     onClick={() => setShowAddressList(!showAddressList)}
-                    className="w-full flex items-center justify-between p-6 bg-blue-50/50 border border-blue-100 rounded-[2rem] hover:bg-blue-50 transition-all group"
+                    className="w-full flex items-center justify-between p-5 bg-[#FBF8F3] border border-[#e8dfd5]/65 rounded-sm hover:bg-[#FAF6F0] transition-all group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
-                        <MapPin className="w-5 h-5" />
+                      <div className="w-10 h-10 bg-[#5c4e43] text-white rounded-sm flex items-center justify-center shadow-xs">
+                        <MapPin className="w-4.5 h-4.5" />
                       </div>
                       <div className="text-left">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Sổ địa chỉ</p>
-                        <p className="text-sm font-black text-blue-900">Chọn từ địa chỉ đã lưu của bạn</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#5c4e43]">Sổ địa chỉ</p>
+                        <p className="text-xs font-black text-[#231f20]">Chọn từ địa chỉ đã lưu</p>
                       </div>
                     </div>
-                    <ChevronDown className={cn("w-5 h-5 text-blue-600 transition-transform duration-300", showAddressList && "rotate-180")} />
+                    <ChevronDown className={cn("w-4 h-4 text-[#5c4e43] transition-transform duration-300", showAddressList && "rotate-180")} />
                   </button>
 
                   {showAddressList && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-[2rem] shadow-2xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#e8dfd5]/60 rounded-sm shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                       <div className="p-2 max-h-80 overflow-y-auto no-scrollbar">
                         {addresses.map((addr) => (
                           <button
                             key={addr.id}
                             onClick={() => handleSelectAddress(addr)}
-                            className="w-full text-left p-4 hover:bg-gray-50 rounded-2xl transition-all border border-transparent hover:border-gray-100 flex items-start gap-4"
+                            className="w-full text-left p-4 hover:bg-[#FBF8F3] rounded-sm transition-all border border-transparent hover:border-neutral-100 flex items-start gap-4"
                           >
                             <div className={cn(
-                              "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1",
-                              addr.isDefault ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-400"
+                              "w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 mt-1",
+                              addr.isDefault ? "bg-[#5c4e43] text-white" : "bg-neutral-100 text-neutral-400"
                             )}>
-                              <MapPin className="w-4 h-4" />
+                              <MapPin className="w-4.5 h-4.5" />
                             </div>
                             <div className="space-y-0.5">
-                              <p className="text-xs font-black text-gray-900">{addr.receiverName} • {addr.phone}</p>
-                              <p className="text-[10px] font-bold text-gray-400">{addr.street}</p>
-                              <p className="text-[10px] font-bold text-gray-400">{addr.city}, {addr.province}</p>
+                              <p className="text-xs font-black text-[#231f20]">{addr.receiverName} • {addr.phone}</p>
+                              <p className="text-[10px] font-bold text-neutral-400">{addr.street}</p>
+                              <p className="text-[10px] font-bold text-neutral-400">{addr.city}, {addr.province}</p>
                               {addr.isDefault && (
-                                <span className="text-[8px] font-black uppercase tracking-widest text-blue-600">Mặc định</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest text-[#5c4e43]">Mặc định</span>
                               )}
                             </div>
                           </button>
@@ -392,64 +480,6 @@ export default function CartPage() {
                   )}
                 </div>
               )}
-
-              <ShippingForm
-                values={shippingValues}
-                onChange={handleShippingChange}
-                errors={errors}
-              />
-              <div className='h-px bg-gray-100' />
-              <PaymentSelection
-                value={paymentMethod}
-                onChange={setPaymentMethod}
-              />
-            </div>
-
-            {/* Right Column: Cart items & Summary */}
-            <div className='lg:col-span-5 flex flex-col gap-10'>
-              {/* Cart Header */}
-              <div className='flex flex-col gap-6'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center gap-3'>
-                    <input
-                      type='checkbox'
-                      defaultChecked
-                      className='w-5 h-5 accent-black cursor-pointer'
-                    />
-                    <span className='text-sm font-black uppercase tracking-widest'>
-                      Tất cả sản phẩm ({cartItems.length})
-                    </span>
-                  </div>
-                  <button
-                    onClick={handleClearCart}
-                    className='text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest'
-                  >
-                    Xóa tất cả
-                  </button>
-                </div>
-
-                <div className='bg-blue-50/50 border border-blue-50 p-4 rounded-2xl flex items-center justify-between group'>
-                  <div className='flex items-center gap-3 text-[10px] font-bold text-blue-600 uppercase tracking-widest'>
-                    <Info className='w-4 h-4' />
-                    Yên tâm 60 ngày đổi trả - Freeship đơn từ 200k
-                  </div>
-                  <button className='text-blue-300 hover:text-blue-600 transition-colors'>
-                    <X className='w-4 h-4' />
-                  </button>
-                </div>
-              </div>
-
-              {/* Item List */}
-              <div className='flex flex-col'>
-                {cartItems.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    item={item}
-                    onUpdateQuantity={(q) => handleUpdateQuantity(item.id, q)}
-                    onRemove={() => handleRemoveItem(item.id)}
-                  />
-                ))}
-              </div>
 
               {/* Summary & Voucher */}
               <CartSummary
