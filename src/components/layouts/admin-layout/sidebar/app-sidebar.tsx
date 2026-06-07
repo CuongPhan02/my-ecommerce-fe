@@ -14,7 +14,32 @@ import { SidebarMenuButton } from './nav-sidebar'
 import { SidebarRail } from './nav-sidebar'
 import { SidebarFooter } from './nav-sidebar'
 
+import { useRouter } from 'next/navigation'
+import { useAuthStore } from '~/store/auth-store'
+import { AUTH_QUERY } from '~/features/public/auth/auth.query'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-toastify'
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter()
+  const { logout } = useAuthStore()
+  const queryClient = useQueryClient()
+  const { mutate: logoutMutation } = AUTH_QUERY.useLogout(queryClient)
+
+  const handleLogout = () => {
+    logoutMutation(undefined, {
+      onSuccess: () => {
+        logout()
+        toast.success('Đăng xuất thành công')
+        router.push('/admin/login')
+      },
+      onError: () => {
+        logout()
+        router.push('/admin/login')
+      },
+    })
+  }
+
   return (
     <Sidebar collapsible='icon' variant='sidebar' {...props}>
       <SidebarHeader>
@@ -22,9 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           size='lg'
           className='data-[state=open]:bg-primary/10 data-[state=open]:text-primary'
         >
-          <Link href={'/'} className='inline-block'>
-            <LogoUi />
-          </Link>
+          <LogoUi onClick={() => router.push('/admin/dashboard')} />
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
@@ -36,7 +59,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenuButton className='font-medium gap-3 h-9 rounded-md bg-muted dark:bg-background hover:bg-primary/10 hover:text-primary [&>svg]:size-auto'>
+        <SidebarMenuButton 
+          onClick={handleLogout}
+          className='font-medium gap-3 h-9 rounded-md bg-muted dark:bg-background hover:bg-primary/10 hover:text-primary [&>svg]:size-auto'
+        >
           <IconLogout2
             className='text-muted-foreground/60 group-data-[active=true]/menu-button:text-primary'
             size={22}

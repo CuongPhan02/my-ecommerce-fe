@@ -2,26 +2,24 @@
 
 import Image from 'next/image'
 import { useAuthStore } from '~/store/auth-store'
-import { useRole } from '~/hooks/use-role'
 import { User } from 'lucide-react'
 import { Link } from 'next-view-transitions'
 import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 
 export function AvatarIcon() {
   const { user } = useAuthStore()
-  const { isManagement } = useRole()
   const { data: meData } = AUTH_QUERY.useMe()
 
   // Prefer fresh server data for avatar, fall back to store
   const avatarUrl = meData?.result?.avatarUrl || user?.avatarUrl
   const name = meData?.result?.name || user?.name || ''
 
-  const href = isManagement ? '/admin/dashboard' : '/profile'
+  const href = '/profile'
 
   return (
     <Link
       href={href}
-      title={isManagement ? 'Vào trang quản trị' : 'Trang cá nhân'}
+      title='Trang cá nhân'
       className="relative p-0.5 rounded-full hover:ring-2 hover:ring-primary hover:ring-offset-1 transition-all duration-200"
     >
       {avatarUrl ? (

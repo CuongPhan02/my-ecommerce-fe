@@ -1,3 +1,5 @@
+import { Role } from '~/lib/auth-utils'
+
 interface User {
   name: string
   email: string
@@ -14,6 +16,7 @@ interface BaseNavItem {
   title: string
   badge?: string
   icon?: React.ElementType
+  roles?: Role[]
 }
 
 type NavLink = BaseNavItem & {

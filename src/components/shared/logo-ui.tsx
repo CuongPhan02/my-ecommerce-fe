@@ -7,10 +7,12 @@ const LogoUi = ({
   className,
   logoUrl,
   logoAlt,
+  onClick,
 }: {
   className?: string
   logoUrl?: string | null
   logoAlt?: string | null
+  onClick?: () => void
 }) => {
   const router = useTransitionRouter()
 
@@ -21,9 +23,17 @@ const LogoUi = ({
     logoAlt === 'L U N É'
   const displayText = isLune ? 'L U N É' : logoAlt
 
+  const handleLogoClick = () => {
+    if (onClick) {
+      onClick()
+    } else {
+      router.push('/')
+    }
+  }
+
   return (
     <div
-      onClick={() => router.push('/')}
+      onClick={handleLogoClick}
       className={cn(
         'whitespace-nowrap flex items-center gap-2 cursor-pointer select-none transition-opacity hover:opacity-85',
         className,

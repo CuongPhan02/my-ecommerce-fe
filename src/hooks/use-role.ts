@@ -14,7 +14,7 @@ export const useRole = () => {
     isSuperAdmin: userRole === ROLES.SUPER_ADMIN,
     isStaff: userRole === ROLES.STAFF,
     isManagement: isManagementRole(userRole),
-    isUser: userRole === ROLES.USER,
+    isCustomer: userRole === ROLES.CUSTOMER,
     hasRole: (roles: Role[]) => {
       if (!userRole) return false
       return roles.includes(userRole as Role)

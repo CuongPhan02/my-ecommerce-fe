@@ -1,16 +1,24 @@
 export const ROLES = {
-  ADMIN: 'ADMIN',
   SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
   STAFF: 'STAFF',
-  USER: 'USER',
+  VENDOR: 'VENDOR',
+  SALES: 'SALES',
+  INVENTORY: 'INVENTORY',
+  EDITOR: 'EDITOR',
+  CUSTOMER: 'CUSTOMER',
 } as const
 
 export type Role = (typeof ROLES)[keyof typeof ROLES]
 
 export const MANAGEMENT_ROLES: Role[] = [
-  ROLES.ADMIN,
   ROLES.SUPER_ADMIN,
+  ROLES.ADMIN,
   ROLES.STAFF,
+  ROLES.VENDOR,
+  ROLES.SALES,
+  ROLES.INVENTORY,
+  ROLES.EDITOR,
 ]
 
 /**

@@ -21,6 +21,8 @@ import {
 } from '~/components/ui/core/dropdown-menu'
 
 import { usePathname } from 'next/navigation'
+import { useRole } from '~/hooks/use-role'
+import { Role } from '~/lib/auth-utils'
 
 import { NavCollapsible, NavGroupType, NavItem, NavLink } from '../types'
 import {
@@ -38,11 +40,39 @@ import {
 export function NavGroup({ title, items }: NavGroupType) {
   const { state, isMobile } = useSidebar()
   const pathname = usePathname()
+  const { role } = useRole()
+
+  const visibleItems = items
+    .map((item) => {
+      if (item.items) {
+        const filteredSubItems = item.items.filter((sub) => {
+          if (sub.roles) {
+            return role && sub.roles.includes(role as Role)
+          }
+          return true
+        })
+        if (filteredSubItems.length === 0) return null
+        return {
+          ...item,
+          items: filteredSubItems,
+        }
+      }
+
+      if (item.roles) {
+        return role && item.roles.includes(role as Role) ? item : null
+      }
+
+      return item
+    })
+    .filter(Boolean) as NavItem[]
+
+  if (visibleItems.length === 0) return null
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const key = `${item.title}-${item.url}`
 
           if (!item.items)

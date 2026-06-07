@@ -4,6 +4,7 @@ import { AppSidebar } from '~/components/layouts/admin-layout/sidebar/app-sideba
 import { SidebarProvider } from '~/components/layouts/admin-layout/sidebar/nav-sidebar'
 import 'filepond/dist/filepond.min.css'
 import { SearchProvider } from '~/providers/search-context'
+import { AdminGuard } from '~/components/shared/admin-guard'
 
 const Layout = ({
   children,
@@ -11,14 +12,16 @@ const Layout = ({
   children: React.ReactNode
 }>) => {
   return (
-    <div className='min-h-screen'>
-      <SearchProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <LayoutAdmin>{children}</LayoutAdmin>
-        </SidebarProvider>
-      </SearchProvider>
-    </div>
+    <AdminGuard>
+      <div className='min-h-screen'>
+        <SearchProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <LayoutAdmin>{children}</LayoutAdmin>
+          </SidebarProvider>
+        </SearchProvider>
+      </div>
+    </AdminGuard>
   )
 }
 

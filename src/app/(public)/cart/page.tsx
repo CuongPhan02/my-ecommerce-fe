@@ -46,6 +46,7 @@ export default function CartPage() {
   const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showAddressList, setShowAddressList] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const [isClearCartModalOpen, setIsClearCartModalOpen] = useState(false)
   const [itemToRemove, setItemToRemove] = useState<string | null>(null)
@@ -56,29 +57,21 @@ export default function CartPage() {
 
   // Auto-fill form with default address or user info
   useEffect(() => {
-    if (user) {
+    if (user && !isInitialized) {
       const defaultAddr = addresses.find(a => a.isDefault) || addresses[0]
 
-      setShippingValues(prev => {
-        const nextValues = { ...prev }
-        if (!nextValues.shippingName) {
-          nextValues.shippingName = defaultAddr?.receiverName || user.name || ''
-        }
-        if (!nextValues.shippingEmail) {
-          nextValues.shippingEmail = user.email || ''
-        }
-        if (!nextValues.shippingPhone) {
-          nextValues.shippingPhone = defaultAddr?.phone || user.phone || ''
-        }
-        if (defaultAddr) {
-          if (!nextValues.street) nextValues.street = defaultAddr.street || ''
-          if (!nextValues.city) nextValues.city = defaultAddr.city || ''
-          if (!nextValues.province) nextValues.province = defaultAddr.province || ''
-        }
-        return nextValues
+      setShippingValues({
+        shippingName: defaultAddr?.receiverName || user.name || '',
+        shippingEmail: user.email || '',
+        shippingPhone: defaultAddr?.phone || user.phone || '',
+        street: defaultAddr?.street || '',
+        city: defaultAddr?.city || '',
+        province: defaultAddr?.province || '',
+        note: '',
       })
+      setIsInitialized(true)
     }
-  }, [user, addresses])
+  }, [user, addresses, isInitialized])
 
   const handleSelectAddress = (addr: any) => {
     setShippingValues(prev => ({
