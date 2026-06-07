@@ -25,7 +25,7 @@ import { _menuService } from '../menu.query'
 import { _categoryService } from '~/features/admin/category/category.query'
 import { _collectionService } from '~/features/admin/collection/collection.query'
 import { _attributeService } from '~/features/admin/product/attribute.query'
-import MultipleSelector, { Option } from '~/components/ui/core/multiselect'
+import { cn } from '~/lib/utils'
 
 interface MenuFormDialogProps {
   open: boolean
@@ -52,32 +52,15 @@ const MenuFormDialog = ({
   const collections = (collectionsData?.result as any)?.data || []
   const attributes = attributesData?.result || []
 
-  // 2. Map options for selector
-  const categoryOptions = React.useMemo<Option[]>(() => {
-    return categories.map((c: any) => ({
-      label: c.name,
-      value: c.id,
-    }))
-  }, [categories])
-
-  const collectionOptions = React.useMemo<Option[]>(() => {
-    return collections.map((c: any) => ({
-      label: c.name,
-      value: c.id,
-    }))
-  }, [collections])
-
-  const attributeOptions = React.useMemo<Option[]>(() => {
-    return attributes.map((a: any) => ({
-      label: a.name,
-      value: a.id,
-    }))
-  }, [attributes])
-
-  // 3. Selection States for Mega Menu contents
+  // 2. Selection States for Mega Menu contents
   const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<string[]>([])
   const [selectedCollectionIds, setSelectedCollectionIds] = React.useState<string[]>([])
   const [selectedAttributeIds, setSelectedAttributeIds] = React.useState<string[]>([])
+
+  // 3. Search States for panels
+  const [categorySearch, setCategorySearch] = React.useState('')
+  const [collectionSearch, setCollectionSearch] = React.useState('')
+  const [attributeSearch, setAttributeSearch] = React.useState('')
 
   const {
     register,
@@ -114,6 +97,9 @@ const MenuFormDialog = ({
       setSelectedCategoryIds(selectedMenu.megaMenu?.categories?.map((c) => c.id) || [])
       setSelectedCollectionIds(selectedMenu.megaMenu?.collections?.map((c) => c.id) || [])
       setSelectedAttributeIds(selectedMenu.megaMenu?.attributes?.map((a) => a.id) || [])
+      setCategorySearch('')
+      setCollectionSearch('')
+      setAttributeSearch('')
     } else {
       reset({
         type: 'MAIN_LINK',
@@ -128,10 +114,49 @@ const MenuFormDialog = ({
       setSelectedCategoryIds([])
       setSelectedCollectionIds([])
       setSelectedAttributeIds([])
+      setCategorySearch('')
+      setCollectionSearch('')
+      setAttributeSearch('')
     }
   }, [selectedMenu, reset, parentId, open])
 
   const isMegaMenu = watch('isMegaMenu')
+
+  const filteredCategories = React.useMemo(() => {
+    return categories.filter((c: any) =>
+      c.name.toLowerCase().includes(categorySearch.toLowerCase())
+    )
+  }, [categories, categorySearch])
+
+  const filteredCollections = React.useMemo(() => {
+    return collections.filter((c: any) =>
+      c.name.toLowerCase().includes(collectionSearch.toLowerCase())
+    )
+  }, [collections, collectionSearch])
+
+  const filteredAttributes = React.useMemo(() => {
+    return attributes.filter((a: any) =>
+      a.name.toLowerCase().includes(attributeSearch.toLowerCase())
+    )
+  }, [attributes, attributeSearch])
+
+  const handleToggleCategory = (id: string) => {
+    setSelectedCategoryIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const handleToggleCollection = (id: string) => {
+    setSelectedCollectionIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const handleToggleAttribute = (id: string) => {
+    setSelectedAttributeIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
 
   const onSubmit = async (data: MenuInput) => {
     const fullCategories = categories
@@ -192,7 +217,7 @@ const MenuFormDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`rounded-3xl transition-all duration-300 ${isMegaMenu ? 'sm:max-w-[750px]' : 'sm:max-w-[500px]'}`}>
+      <DialogContent className={`rounded-3xl transition-all duration-300 ${isMegaMenu ? 'sm:max-w-[1050px]' : 'sm:max-w-[500px]'}`}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>{selectedMenu ? 'Chỉnh sửa Menu' : 'Thêm Menu mới'}</DialogTitle>
@@ -201,8 +226,8 @@ const MenuFormDialog = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className={`grid gap-6 py-6 transition-all duration-300 ${isMegaMenu ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
-            <div className='grid gap-6'>
+          <div className={`grid gap-6 py-6 transition-all duration-300 ${isMegaMenu ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
+            <div className={`grid gap-6 ${isMegaMenu ? 'lg:col-span-4' : ''}`}>
               <div className='grid gap-2'>
                 <Label htmlFor='label'>Nhãn hiển thị</Label>
                 <Input
@@ -306,50 +331,137 @@ const MenuFormDialog = ({
             </div>
 
             {isMegaMenu && (
-              <div className='flex flex-col gap-5 border-t md:border-t-0 md:border-l pt-6 md:pt-0 md:pl-6 border-gray-100'>
-                <div className='flex flex-col gap-1 pb-3 border-b'>
+              <div className='lg:col-span-8 flex flex-col gap-4 border-t lg:border-t-0 lg:border-l pt-6 lg:pt-0 lg:pl-6 border-gray-100'>
+                <div className='flex flex-col gap-0.5 pb-2 border-b'>
                   <h4 className='font-bold text-sm text-foreground'>Cấu hình Nội dung Mega Menu</h4>
                   <p className='text-xs text-muted-foreground'>Chọn các danh mục, bộ sưu tập và thuộc tính hiển thị</p>
                 </div>
 
-                <div className='grid gap-4 max-h-[360px] overflow-y-auto pr-1'>
-                  <div className='grid gap-2'>
-                    <Label className='text-xs font-semibold text-gray-500 uppercase tracking-wider'>Danh mục</Label>
-                    <MultipleSelector
-                      commandProps={{ label: 'Chọn danh mục...' }}
-                      options={categoryOptions}
-                      value={categoryOptions.filter(opt => selectedCategoryIds.includes(opt.value))}
-                      onChange={(opts) => setSelectedCategoryIds(opts.map(o => o.value))}
-                      placeholder='Tìm kiếm danh mục...'
-                      emptyIndicator={<p className='text-center text-xs text-muted-foreground py-2'>Không tìm thấy danh mục</p>}
-                      className='bg-white'
+                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  {/* Danh mục Column */}
+                  <div className='flex flex-col border rounded-2xl p-3 bg-slate-50/50 h-[320px]'>
+                    <div className='flex items-center justify-between mb-2 px-1'>
+                      <span className='font-bold text-xs text-slate-500 uppercase tracking-wider'>Danh mục</span>
+                      <span className='text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full'>
+                        {selectedCategoryIds.length}
+                      </span>
+                    </div>
+                    <Input
+                      placeholder='Tìm danh mục...'
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className='mb-2 h-8 text-xs bg-white rounded-xl'
                     />
+                    <div className='flex-1 overflow-y-auto space-y-1 pr-1 text-xs'>
+                      {filteredCategories.length === 0 ? (
+                        <div className='text-center text-slate-400 py-10 text-[11px]'>Không tìm thấy</div>
+                      ) : (
+                        filteredCategories.map((c: any) => {
+                          const isChecked = selectedCategoryIds.includes(c.id)
+                          return (
+                            <label
+                              key={c.id}
+                              className={cn(
+                                'flex items-center gap-2 p-2 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors border border-transparent select-none',
+                                isChecked && 'bg-primary/5 border-primary/10 font-semibold text-primary'
+                              )}
+                            >
+                              <input
+                                type='checkbox'
+                                checked={isChecked}
+                                onChange={() => handleToggleCategory(c.id)}
+                                className='rounded border-slate-300 text-primary focus:ring-primary size-3.5'
+                              />
+                              <span className='truncate'>{c.name}</span>
+                            </label>
+                          )
+                        })
+                      )}
+                    </div>
                   </div>
 
-                  <div className='grid gap-2'>
-                    <Label className='text-xs font-semibold text-gray-500 uppercase tracking-wider'>Bộ sưu tập</Label>
-                    <MultipleSelector
-                      commandProps={{ label: 'Chọn bộ sưu tập...' }}
-                      options={collectionOptions}
-                      value={collectionOptions.filter(opt => selectedCollectionIds.includes(opt.value))}
-                      onChange={(opts) => setSelectedCollectionIds(opts.map(o => o.value))}
-                      placeholder='Tìm kiếm bộ sưu tập...'
-                      emptyIndicator={<p className='text-center text-xs text-muted-foreground py-2'>Không tìm thấy bộ sưu tập</p>}
-                      className='bg-white'
+                  {/* Bộ sưu tập Column */}
+                  <div className='flex flex-col border rounded-2xl p-3 bg-slate-50/50 h-[320px]'>
+                    <div className='flex items-center justify-between mb-2 px-1'>
+                      <span className='font-bold text-xs text-slate-500 uppercase tracking-wider'>Bộ sưu tập</span>
+                      <span className='text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full'>
+                        {selectedCollectionIds.length}
+                      </span>
+                    </div>
+                    <Input
+                      placeholder='Tìm bộ sưu tập...'
+                      value={collectionSearch}
+                      onChange={(e) => setCollectionSearch(e.target.value)}
+                      className='mb-2 h-8 text-xs bg-white rounded-xl'
                     />
+                    <div className='flex-1 overflow-y-auto space-y-1 pr-1 text-xs'>
+                      {filteredCollections.length === 0 ? (
+                        <div className='text-center text-slate-400 py-10 text-[11px]'>Không tìm thấy</div>
+                      ) : (
+                        filteredCollections.map((c: any) => {
+                          const isChecked = selectedCollectionIds.includes(c.id)
+                          return (
+                            <label
+                              key={c.id}
+                              className={cn(
+                                'flex items-center gap-2 p-2 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors border border-transparent select-none',
+                                isChecked && 'bg-primary/5 border-primary/10 font-semibold text-primary'
+                              )}
+                            >
+                              <input
+                                type='checkbox'
+                                checked={isChecked}
+                                onChange={() => handleToggleCollection(c.id)}
+                                className='rounded border-slate-300 text-primary focus:ring-primary size-3.5'
+                              />
+                              <span className='truncate'>{c.name}</span>
+                            </label>
+                          )
+                        })
+                      )}
+                    </div>
                   </div>
 
-                  <div className='grid gap-2'>
-                    <Label className='text-xs font-semibold text-gray-500 uppercase tracking-wider'>Thuộc tính sản phẩm</Label>
-                    <MultipleSelector
-                      commandProps={{ label: 'Chọn thuộc tính...' }}
-                      options={attributeOptions}
-                      value={attributeOptions.filter(opt => selectedAttributeIds.includes(opt.value))}
-                      onChange={(opts) => setSelectedAttributeIds(opts.map(o => o.value))}
-                      placeholder='Chọn thuộc tính...'
-                      emptyIndicator={<p className='text-center text-xs text-muted-foreground py-2'>Không tìm thấy thuộc tính</p>}
-                      className='bg-white'
+                  {/* Thuộc tính Column */}
+                  <div className='flex flex-col border rounded-2xl p-3 bg-slate-50/50 h-[320px]'>
+                    <div className='flex items-center justify-between mb-2 px-1'>
+                      <span className='font-bold text-xs text-slate-500 uppercase tracking-wider'>Thuộc tính lọc</span>
+                      <span className='text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full'>
+                        {selectedAttributeIds.length}
+                      </span>
+                    </div>
+                    <Input
+                      placeholder='Tìm thuộc tính...'
+                      value={attributeSearch}
+                      onChange={(e) => setAttributeSearch(e.target.value)}
+                      className='mb-2 h-8 text-xs bg-white rounded-xl'
                     />
+                    <div className='flex-1 overflow-y-auto space-y-1 pr-1 text-xs'>
+                      {filteredAttributes.length === 0 ? (
+                        <div className='text-center text-slate-400 py-10 text-[11px]'>Không tìm thấy</div>
+                      ) : (
+                        filteredAttributes.map((a: any) => {
+                          const isChecked = selectedAttributeIds.includes(a.id)
+                          return (
+                            <label
+                              key={a.id}
+                              className={cn(
+                                'flex items-center gap-2 p-2 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors border border-transparent select-none',
+                                isChecked && 'bg-primary/5 border-primary/10 font-semibold text-primary'
+                              )}
+                            >
+                              <input
+                                type='checkbox'
+                                checked={isChecked}
+                                onChange={() => handleToggleAttribute(a.id)}
+                                className='rounded border-slate-300 text-primary focus:ring-primary size-3.5'
+                              />
+                              <span className='truncate'>{a.name}</span>
+                            </label>
+                          )
+                        })
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

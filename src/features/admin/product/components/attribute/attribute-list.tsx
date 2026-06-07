@@ -8,7 +8,6 @@ import {
   MoreVertical,
   Plus,
   Search,
-  Calendar,
   Layers,
   Sparkles,
 } from 'lucide-react'
@@ -131,17 +130,6 @@ const AttributeList = () => {
     }
   }
 
-  // Format date cleanly
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '-'
-    const d = new Date(dateStr)
-    return d.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-  }
-
   return (
     <div className='w-full bg-accent/30 p-4 md:p-8 min-h-screen rounded-[2.5rem]'>
       <div className='flex flex-col gap-6 max-w-7xl mx-auto'>
@@ -218,9 +206,7 @@ const AttributeList = () => {
                     <th className='p-5 font-bold text-slate-850 dark:text-slate-100 align-middle'>
                       Các giá trị
                     </th>
-                    <th className='p-5 font-bold text-slate-850 dark:text-slate-100 align-middle w-40'>
-                      Ngày tạo
-                    </th>
+
                     <th className={cn(
                       'p-5 font-bold text-slate-850 dark:text-slate-100 align-middle w-24 text-center sticky right-0 z-20 bg-slate-50 dark:bg-slate-900 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]'
                     )}>
@@ -235,13 +221,12 @@ const AttributeList = () => {
                         <td className='p-5 text-center'><div className='h-4 w-4 bg-slate-200 dark:bg-slate-800 rounded mx-auto' /></td>
                         <td className='p-5'><div className='h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded' /></td>
                         <td className='p-5'><div className='flex gap-2'><div className='h-6 w-12 bg-slate-200 dark:bg-slate-800 rounded-full' /><div className='h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded-full' /></div></td>
-                        <td className='p-5'><div className='h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded' /></td>
                         <td className='p-5'><div className='h-8 w-8 bg-slate-200 dark:bg-slate-800 rounded-full mx-auto' /></td>
                       </tr>
                     ))
                   ) : attributes.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className='p-0'>
+                      <td colSpan={4} className='p-0'>
                         <div className='flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-slate-950'>
                           <div className='p-4 bg-muted rounded-full mb-4 dark:bg-slate-800'>
                             <Layers className='h-12 w-12 text-muted-foreground/60' />
@@ -310,12 +295,7 @@ const AttributeList = () => {
                               )}
                             </div>
                           </td>
-                          <td className='p-5 align-middle text-muted-foreground font-medium'>
-                            <div className='flex items-center gap-1.5 text-xs'>
-                              <Calendar className='h-3.5 w-3.5 text-slate-400' />
-                              <span>{formatDate(attr.createdAt)}</span>
-                            </div>
-                          </td>
+
                           <td className={cn(
                             'p-5 align-middle text-center sticky right-0 z-10 shadow-[-4px_0_8px_rgba(0,0,0,0.05)]',
                             isSelected ? 'bg-indigo-50/10' : 'bg-white dark:bg-slate-950',

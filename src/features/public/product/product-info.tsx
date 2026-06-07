@@ -49,14 +49,17 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
 
   // Extract color attribute values
   const colorAttrGroup = useMemo(() => {
-    const list: { id: string; value: string }[] = []
+    const list: { id: string; value: string; name: string }[] = []
     product.variants?.forEach((v) => {
       const colorAttr = v.attributes?.find((a: any) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
         return name.includes('màu') || name.includes('color')
       })
-      if (colorAttr && !list.some((item) => item.value === colorAttr.value)) {
-        list.push({ id: colorAttr.id, value: colorAttr.value })
+      const val = colorAttr?.attributeValue?.value || colorAttr?.value
+      const name = colorAttr?.attributeValue?.name || (colorAttr as any)?.name || val || ''
+      const id = colorAttr?.attributeValue?.id || colorAttr?.id
+      if (colorAttr && val && id && !list.some((item) => item.value === val)) {
+        list.push({ id, value: val, name })
       }
     })
     return list
@@ -64,14 +67,17 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
 
   // Extract size attribute values
   const sizeAttrGroup = useMemo(() => {
-    const list: { id: string; value: string }[] = []
+    const list: { id: string; value: string; name: string }[] = []
     product.variants?.forEach((v) => {
       const sizeAttr = v.attributes?.find((a: any) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
         return name.includes('kích thước') || name.includes('size')
       })
-      if (sizeAttr && !list.some((item) => item.value === sizeAttr.value)) {
-        list.push({ id: sizeAttr.id, value: sizeAttr.value })
+      const val = sizeAttr?.attributeValue?.value || sizeAttr?.value
+      const name = sizeAttr?.attributeValue?.name || (sizeAttr as any)?.name || val || ''
+      const id = sizeAttr?.attributeValue?.id || sizeAttr?.id
+      if (sizeAttr && val && id && !list.some((item) => item.value === val)) {
+        list.push({ id, value: val, name })
       }
     })
     return list
@@ -83,7 +89,7 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
       return name.includes('màu') || name.includes('color')
     })
-    return colorAttr?.value || ''
+    return colorAttr?.attributeValue?.value || colorAttr?.value || ''
   })
 
   const [selectedSize, setSelectedSize] = useState<string>(() => {
@@ -92,8 +98,13 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
       return name.includes('kích thước') || name.includes('size')
     })
-    return sizeAttr?.value || ''
+    return sizeAttr?.attributeValue?.value || sizeAttr?.value || ''
   })
+
+  const selectedColorName = useMemo(() => {
+    const matched = colorAttrGroup.find(item => item.value === selectedColor)
+    return matched ? matched.name : selectedColor
+  }, [colorAttrGroup, selectedColor])
 
   // Select matching variant based on selections
   const activeVariant = useMemo(() => {
@@ -102,11 +113,13 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
     let match = product.variants.find((v) => {
       const hasColor = !selectedColor || v.attributes?.some((a: any) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return (name.includes('màu') || name.includes('color')) && a.value === selectedColor
+        const val = a.attributeValue?.value || a.value
+        return (name.includes('màu') || name.includes('color')) && val === selectedColor
       })
       const hasSize = !selectedSize || v.attributes?.some((a: any) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return (name.includes('kích thước') || name.includes('size')) && a.value === selectedSize
+        const val = a.attributeValue?.value || a.value
+        return (name.includes('kích thước') || name.includes('size')) && val === selectedSize
       })
       return hasColor && hasSize
     })
@@ -115,7 +128,8 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       match = product.variants.find((v) => {
         return v.attributes?.some((a: any) => {
           const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-          return (name.includes('màu') || name.includes('color')) && a.value === selectedColor
+          const val = a.attributeValue?.value || a.value
+          return (name.includes('màu') || name.includes('color')) && val === selectedColor
         })
       })
     }
@@ -130,16 +144,18 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
         return name.includes('màu') || name.includes('color')
       })
-      if (colorAttr && colorAttr.value !== selectedColor) {
-        setSelectedColor(colorAttr.value)
+      const colorVal = colorAttr?.attributeValue?.value || colorAttr?.value
+      if (colorAttr && colorVal && colorVal !== selectedColor) {
+        setSelectedColor(colorVal)
       }
 
       const sizeAttr = activeVariant.attributes?.find((a: any) => {
         const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
         return name.includes('kích thước') || name.includes('size')
       })
-      if (sizeAttr && sizeAttr.value !== selectedSize) {
-        setSelectedSize(sizeAttr.value)
+      const sizeVal = sizeAttr?.attributeValue?.value || sizeAttr?.value
+      if (sizeAttr && sizeVal && sizeVal !== selectedSize) {
+        setSelectedSize(sizeVal)
       }
     }
   }, [activeVariant])
@@ -247,7 +263,7 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       {colorAttrGroup.length > 0 && (
         <div className='space-y-3 pt-2'>
           <span className='text-xs font-black uppercase tracking-wider text-black block'>
-            Màu sắc: <span className='font-medium text-neutral-500 normal-case'>{selectedColor}</span>
+            Màu sắc: <span className='font-medium text-neutral-500 normal-case'>{selectedColorName}</span>
           </span>
           <div className='flex flex-wrap gap-2.5 pt-0.5'>
             {colorAttrGroup.map((option) => {
@@ -262,7 +278,7 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
                     isChecked && 'ring-1 ring-black ring-offset-2'
                   )}
                   style={{ backgroundColor: hex }}
-                  title={option.value}
+                  title={option.name}
                   type='button'
                 />
               )

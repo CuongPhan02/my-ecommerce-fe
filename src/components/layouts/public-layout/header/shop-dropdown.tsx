@@ -11,8 +11,10 @@ interface ShopDropdownProps {
 const ShopDropdown = ({ config }: ShopDropdownProps) => {
   if (!config) return null
 
-  // 1. Find top-level categories (parentId is null)
-  const parentCategories = config.categories?.filter((c) => !c.parentId) || []
+  // 1. Find parent categories (either truly top-level or their parent is not in the configuration)
+  const parentCategories = config.categories?.filter(
+    (c) => !c.parentId || !config.categories?.some((parent) => parent.id === c.parentId)
+  ) || []
 
   // 2. Helper to resolve sub-categories of a parent
   const getSubCategories = (parentId: string) => {

@@ -1,6 +1,10 @@
 export type Variant = {
   attributes: {
     attributeValue: {
+      id: string
+      value: string
+      name: string | null
+      attributeId: string
       attribute: {
         id: string
         name: string

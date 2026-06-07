@@ -49,11 +49,18 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
                SKU: {variant.sku}
              </span>
            )}
-           {variant.attributes?.map((attr, idx) => (
-             <span key={attr.id || `${attr.name}-${idx}`} className="px-2 py-0.5 bg-[#FBF8F3] border border-[#e8dfd5]/45 rounded-sm text-[8px] font-bold text-neutral-500 uppercase tracking-widest">
-               {attr.name}: {attr.value}
-             </span>
-           ))}
+           {variant.attributes?.map((attr, idx) => {
+             const attrName = attr.attributeValue?.attribute?.name || attr.name || ''
+             const isColor = attrName.toLowerCase().includes('màu') || attrName.toLowerCase().includes('color')
+             const displayValue = isColor
+               ? (attr.attributeValue?.name || attr.name || attr.attributeValue?.value || attr.value || '')
+               : (attr.attributeValue?.value || attr.value || attr.attributeValue?.name || attr.name || '')
+             return (
+               <span key={attr.id || `${attrName}-${idx}`} className="px-2 py-0.5 bg-[#FBF8F3] border border-[#e8dfd5]/45 rounded-sm text-[8px] font-bold text-neutral-500 uppercase tracking-widest">
+                 {attrName}: {displayValue}
+               </span>
+             )
+           })}
         </div>
 
         <div className="flex items-center justify-between mt-1">

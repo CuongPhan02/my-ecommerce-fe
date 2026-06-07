@@ -2,6 +2,16 @@ export interface CartAttribute {
   id: string
   value: string
   name: string
+  attributeValue?: {
+    id: string
+    value: string
+    name: string | null
+    attributeId: string
+    attribute: {
+      id: string
+      name: string
+    }
+  }
 }
 
 export interface CartVariant {

@@ -84,7 +84,7 @@ const ProductFormAction = ({
             attributes:
               v.attributes?.map((attr: any) => ({
                 name: attr.attributeValue?.attribute?.name || '',
-                value: attr.value || '',
+                value: attr.attributeValue?.value || attr.value || '',
               })) || [],
           })) || [],
       }

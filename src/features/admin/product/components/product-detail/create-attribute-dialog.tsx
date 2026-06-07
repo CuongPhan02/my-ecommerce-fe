@@ -30,6 +30,7 @@ export function CreateAttributeDialog({
   const [nameInput, setNameInput] = useState('')
   const [valueInput, setValueInput] = useState('')
   const [values, setValues] = useState<{ value: string; name?: string }[]>([])
+  const isColorAttribute = name.toLowerCase().includes('màu') || name.toLowerCase().includes('color')
   
   const createMutation = _attributeService.useCreateAttribute()
 
@@ -123,9 +124,19 @@ export function CreateAttributeDialog({
               </div>
               <div className="space-y-1">
                 <span className="text-[11px] font-medium text-slate-500">Giá trị thực tế <span className="text-red-500">*</span></span>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center w-full">
+                  {isColorAttribute && (
+                    <div className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 relative overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                      <input
+                        type="color"
+                        value={valueInput.startsWith('#') && valueInput.length === 7 ? valueInput : '#000000'}
+                        onChange={(e) => setValueInput(e.target.value)}
+                        className="absolute -inset-2 w-[150%] h-[150%] p-0 m-0 border-none cursor-pointer"
+                      />
+                    </div>
+                  )}
                   <Input
-                    placeholder="Ví dụ: #ff0000, XL..."
+                    placeholder={isColorAttribute ? "Ví dụ: #ff0000..." : "Ví dụ: XL..."}
                     value={valueInput}
                     onChange={(e) => setValueInput(e.target.value)}
                     onKeyDown={handleKeyDown}

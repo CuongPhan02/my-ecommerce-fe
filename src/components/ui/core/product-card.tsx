@@ -5,12 +5,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { Star, ShoppingCart, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '~/lib/utils'
-import { toast } from 'react-toastify'
 import { Product } from '~/features/admin/product/types'
-import { _cartService } from '~/features/public/cart/cart.query'
-import { getAccessToken } from '~/config/https'
 
 export interface SimpleProduct {
   id: string | number
@@ -34,33 +31,10 @@ interface ProductCardProps {
   product: Product | SimpleProduct
 }
 
-// Extract a color hex from a variant value string like "Đỏ (#FF0000)"
-const extractColorHex = (value: string): string | null => {
-  const match = value?.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/)
-  return match ? match[0] : null
-}
-
-// Clean a value string by stripping parenthesized hex codes
-const cleanValue = (value: string): string =>
-  value?.replace(/\s*\([^)]*\)/g, '').trim() || value
-
-// Build a short label for a variant for display in quick-select panel
-const getVariantQuickLabel = (variant: any): string => {
-  if (variant.attributes && variant.attributes.length > 0) {
-    return variant.attributes
-      .map((a: any) => cleanValue(a.value || ''))
-      .join(' / ')
-  }
-  return variant.sku || ''
-}
-
 const ProductCard = ({ product }: ProductCardProps) => {
   const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [addingVariantId, setAddingVariantId] = useState<string | null>(null)
-
-  const addToCartMutation = _cartService.useAddToCart()
 
   const isDbProduct = 'slug' in product
 
@@ -139,16 +113,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return (product as Product).variants || []
   }, [product, isDbProduct])
 
-  // Determine if variants are size-only, color-only, or mixed
-  const hasColorVariants = useMemo(() => {
-    return variants.some((v) =>
-      v.attributes?.some((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return name.includes('màu') || name.includes('color')
-      })
-    )
-  }, [variants])
-
   // --- Image navigation ---
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
@@ -159,62 +123,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
     setActiveImageIndex((prev) => (prev + 1) % allImages.length)
   }
 
-  // --- Quick Add to Cart ---
-  const handleQuickAdd = async (e: React.MouseEvent, variantId: string) => {
+  // --- Redirect to Details page ---
+  const handleFloatingCartClick = (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation()
-
-    const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken()
-    if (!isLoggedIn) {
-      toast.warning('Vui lòng đăng nhập để thêm vào giỏ hàng!')
-      router.push('/auth/sign-in')
-      return
-    }
-
-    setAddingVariantId(variantId)
-    try {
-      await addToCartMutation.mutateAsync({ productVariantId: variantId, quantity: 1 })
-      toast.success('Đã thêm vào giỏ hàng!')
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Không thể thêm vào giỏ hàng')
-    } finally {
-      setAddingVariantId(null)
-    }
+    router.push(`/product/${product.id}`)
   }
-
-  // --- Quick add for floating button: add first in-stock variant ---
-  const handleFloatingCartClick = async (e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation()
-
-    const isLoggedIn = typeof window !== 'undefined' && !!getAccessToken()
-    if (!isLoggedIn) {
-      toast.warning('Vui lòng đăng nhập để thêm vào giỏ hàng!')
-      router.push('/auth/sign-in')
-      return
-    }
-
-    if (variants.length === 0) {
-      toast.info('Sản phẩm này không có phiên bản nào để thêm')
-      return
-    }
-
-    const firstInStock = variants.find((v) => (v.stockQuantity ?? 0) > 0)
-    if (!firstInStock) {
-      toast.error('Sản phẩm đã hết hàng')
-      return
-    }
-
-    setAddingVariantId(firstInStock.id)
-    try {
-      await addToCartMutation.mutateAsync({ productVariantId: firstInStock.id, quantity: 1 })
-      toast.success('Đã thêm vào giỏ hàng!')
-    } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Không thể thêm vào giỏ hàng')
-    } finally {
-      setAddingVariantId(null)
-    }
-  }
-
-  const isAnyAdding = addToCartMutation.isPending
 
   return (
     <motion.div
@@ -270,15 +183,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         )}>
           <button
             onClick={handleFloatingCartClick}
-            disabled={isAnyAdding}
-            className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn disabled:opacity-60"
-            title="Thêm vào giỏ hàng"
+            className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn"
+            title="Xem chi tiết"
           >
-            {isAnyAdding ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
-            )}
+            <ShoppingCart className="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110" />
           </button>
         </div>
 
@@ -316,69 +224,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           </div>
         )}
 
-        {/* Quick Variant Select Panel */}
-        <div className={cn(
-          "absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 z-20 flex flex-col items-center justify-end transition-all duration-500",
-          isHovered && variants.length > 0 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
-        )}>
-          <p className="text-[9px] font-black text-center mb-2 text-white/80 uppercase tracking-widest">
-            {hasColorVariants ? 'Chọn màu & thêm giỏ' : 'Chọn size & thêm giỏ'}
-          </p>
-          <div className={cn(
-            "w-full gap-1.5",
-            // For 5 or fewer: single row grid; for more show 2 rows
-            variants.length <= 5
-              ? `grid grid-cols-${Math.min(variants.length, 5)}`
-              : "grid grid-cols-4"
-          )}>
-            {variants.slice(0, 8).map((v) => {
-              const label = getVariantQuickLabel(v)
-              const colorHex = extractColorHex(
-                v.attributes?.map((a: any) => a.value).join(' ') || v.sku || ''
-              )
-              const outOfStock = (v.stockQuantity ?? 0) <= 0
-              const isAdding = addingVariantId === v.id && isAnyAdding
 
-              return (
-                <button
-                  key={v.id}
-                  onClick={(e) => !outOfStock && handleQuickAdd(e, v.id)}
-                  disabled={outOfStock || isAnyAdding}
-                  title={outOfStock ? `${label} - Hết hàng` : `Thêm ${label}`}
-                  className={cn(
-                    "py-1.5 px-1 border border-white/20 rounded flex items-center justify-center gap-1 text-[10px] font-black transition-all duration-300 backdrop-blur-sm active:scale-95 shadow-sm uppercase tracking-wider",
-                    outOfStock
-                      ? "opacity-40 cursor-not-allowed bg-white/5 text-white/40 line-through"
-                      : "bg-white/10 hover:bg-white text-white hover:text-slate-900"
-                  )}
-                >
-                  {isAdding ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <>
-                      {colorHex && (
-                        <span
-                          className="w-3 h-3 rounded-full border border-white/40 shrink-0"
-                          style={{ backgroundColor: colorHex }}
-                        />
-                      )}
-                      <span className="truncate">{label}</span>
-                    </>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-          {variants.length > 8 && (
-            <Link
-              href={`/product/${product.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="mt-2 text-[9px] text-white/60 hover:text-white font-bold uppercase tracking-widest transition-colors"
-            >
-              +{variants.length - 8} phiên bản khác →
-            </Link>
-          )}
-        </div>
       </div>
 
       {/* Product Info */}

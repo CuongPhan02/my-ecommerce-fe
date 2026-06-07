@@ -14,7 +14,6 @@ import {
 import { Button } from '~/components/ui/core/button'
 import { Input } from '~/components/ui/core/input'
 import { Label } from '~/components/ui/core/label'
-import { Badge } from '~/components/ui/core/badge'
 import { cn } from '~/lib/utils'
 import { AttributeValidate, AttributeSchemaType } from '../../attribute.validate'
 import { _attributeService } from '../../attribute.query'
@@ -58,6 +57,7 @@ const AddAttributeModal = ({
   const updateAttributeMutation = _attributeService.useUpdateAttribute()
 
   const values = watch('values') || []
+  const isColorAttribute = (watch('name') || '').toLowerCase().includes('màu') || (watch('name') || '').toLowerCase().includes('color')
 
   // Load details when editing
   useEffect(() => {
@@ -224,12 +224,22 @@ const AddAttributeModal = ({
               </div>
               <div className='space-y-1.5'>
                 <span className='text-[11px] font-semibold text-slate-500'>Giá trị thực tế <span className='text-red-500'>*</span></span>
-                <div className='flex gap-2'>
+                <div className='flex gap-2 items-center w-full'>
+                  {isColorAttribute && (
+                    <div className='w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 relative overflow-hidden focus-within:ring-2 focus-within:ring-primary/20 transition-all'>
+                      <input
+                        type='color'
+                        value={valueInput.startsWith('#') && valueInput.length === 7 ? valueInput : '#000000'}
+                        onChange={(e) => setValueInput(e.target.value)}
+                        className='absolute -inset-2 w-[150%] h-[150%] p-0 m-0 border-none cursor-pointer'
+                      />
+                    </div>
+                  )}
                   <Input
                     value={valueInput}
                     onChange={(e) => setValueInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder='Ví dụ: #ff0000, L...'
+                    placeholder={isColorAttribute ? 'Ví dụ: #ff0000...' : 'Ví dụ: L...'}
                     className='rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 transition-all font-medium flex-1'
                   />
                   {editingIndex !== null ? (
@@ -282,18 +292,24 @@ const AddAttributeModal = ({
                 </div>
               ) : (
                 values.map((val, idx) => (
-                  <Badge
+                  <div
                     key={idx}
-                    variant='secondary'
-                    size='sm'
-                    type='button'
+                    role='button'
+                    tabIndex={0}
                     className={cn(
-                      'rounded-lg py-1 pl-2.5 pr-1 gap-1 border shadow-sm flex items-center cursor-pointer transition-all',
+                      'inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                      'text-xs rounded-lg py-1 pl-2.5 pr-1 gap-1 border shadow-sm flex items-center cursor-pointer transition-all',
                       editingIndex === idx
                         ? 'border-primary bg-primary/10 text-primary hover:bg-primary/20 ring-2 ring-primary/20'
                         : 'border-none bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
                     )}
                     onClick={() => handleSelectValueToEdit(idx)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleSelectValueToEdit(idx)
+                      }
+                    }}
                   >
                     <span>
                       {val.name || val.value}{' '}
@@ -307,12 +323,12 @@ const AddAttributeModal = ({
                         e.stopPropagation()
                         handleRemoveValue(idx)
                       }}
-                      className='p-0.5 rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors'
+                      className='p-0.5 rounded-md hover:bg-black/10 dark:hover:bg-white/10 transition-colors ml-1'
                       title='Xóa giá trị'
                     >
                       <X className='h-3 w-3' />
                     </button>
-                  </Badge>
+                  </div>
                 ))
               )}
             </div>
