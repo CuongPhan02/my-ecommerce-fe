@@ -116,7 +116,7 @@ const getCombinations = (
     const newResult: string[][] = []
     for (const res of result) {
       for (const item of arr) {
-        newResult.push([...res, item.label])
+        newResult.push([...res, item.value])
       }
     }
     result = newResult
@@ -186,20 +186,32 @@ const ProductVariantForm = () => {
   // Initialize variations from form options (for editing)
   useEffect(() => {
     const formOptions = watch('options')
-    if (formOptions && formOptions.length > 0) {
+    if (formOptions && formOptions.length > 0 && attributesData?.result) {
       // Check if variations actually need initializing from options
       const hasUninitializedVariations =
         variations.length === 1 && variations[0].name === ''
       if (hasUninitializedVariations) {
-        const initialVariations = formOptions.map((opt, index) => ({
-          id: `init-${index}`,
-          name: opt.name,
-          values: opt.values.map((v) => ({ label: v, value: v })),
-        }))
+        const initialVariations = formOptions.map((opt, index) => {
+          const displayAttr = attributesData.result?.find(
+            (a) => a.name === opt.name,
+          )
+          return {
+            id: `init-${index}`,
+            name: opt.name,
+            values: opt.values.map((v) => {
+              const displayVal = displayAttr?.values?.find((val) => val.value === v)
+              const label =
+                displayVal?.name && displayVal.name !== displayVal.value
+                  ? `${displayVal.name} (${displayVal.value})`
+                  : v
+              return { label, value: v }
+            }),
+          }
+        })
         setVariations(initialVariations)
       }
     }
-  }, [watch('options')])
+  }, [watch('options'), attributesData, variations])
 
   useEffect(() => {
     if (productType === 'VARIANT') {
@@ -210,7 +222,7 @@ const ProductVariantForm = () => {
       // Update options field in form
       const optionsData = activeVariations.map((v) => ({
         name: v.name,
-        values: v.values.map((val) => val.label),
+        values: v.values.map((val) => val.value),
       }))
       setValue('options', optionsData)
 

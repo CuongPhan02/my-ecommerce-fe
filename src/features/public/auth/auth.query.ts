@@ -38,8 +38,13 @@ export const AUTH_QUERY = {
   },
   useRegister: (queryClient: QueryClient) => {
     return useMutation({
-      mutationFn: async (payload: SignUpSchemaType) =>
-        await AUTH_API.register(payload),
+      mutationFn: async (payload: SignUpSchemaType) => {
+        const clientUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth` : undefined;
+        return await AUTH_API.register({
+          ...payload,
+          urlRedirect: clientUrl || payload.urlRedirect,
+        });
+      },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: [AUTH_QUERY_KEY.register] })
       },
@@ -64,8 +69,13 @@ export const AUTH_QUERY = {
   },
   useForgotPassword: () => {
     return useMutation({
-      mutationFn: async (payload: ForgotPasswordSchemaType) =>
-        await AUTH_API.forgotPassword(payload),
+      mutationFn: async (payload: ForgotPasswordSchemaType) => {
+        const clientUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth` : undefined;
+        return await AUTH_API.forgotPassword({
+          ...payload,
+          urlRedirect: clientUrl || payload.urlRedirect,
+        });
+      },
     })
   },
   useResetPassword: () => {
@@ -76,8 +86,13 @@ export const AUTH_QUERY = {
   },
   useLoginWithGoogle: (queryClient: QueryClient) => {
     return useMutation({
-      mutationFn: async (payload: GoogleLoginSchemaType) =>
-        await AUTH_API.loginWithGoogle(payload),
+      mutationFn: async (payload: GoogleLoginSchemaType) => {
+        const clientUrl = typeof window !== 'undefined' ? `${window.location.origin}/auth` : undefined;
+        return await AUTH_API.loginWithGoogle({
+          ...payload,
+          urlRedirect: clientUrl || payload.urlRedirect,
+        });
+      },
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: [AUTH_QUERY_KEY.loginWithGoogle],

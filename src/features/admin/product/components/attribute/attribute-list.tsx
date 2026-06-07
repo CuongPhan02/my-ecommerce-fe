@@ -23,6 +23,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/core/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/core/dialog'
 import { useDebounce } from '~/hooks/use-debounce'
 import { _attributeService } from '../../attribute.query'
 import AddAttributeModal from './add-attribute'
@@ -37,6 +45,23 @@ const AttributeList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [page, setPage] = useState(1)
   const pageSize = 10
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    title: string
+    description: string
+    actionText: string
+    onConfirm: () => void
+  } | null>(null)
+
+  const triggerConfirm = (config: {
+    title: string
+    description: string
+    actionText: string
+    onConfirm: () => void
+  }) => {
+    setConfirmConfig(config)
+    setConfirmOpen(true)
+  }
 
   // Fetch paginated attributes
   const { data: attributeResponse, isLoading } = _attributeService.useAttributes({
@@ -58,28 +83,38 @@ const AttributeList = () => {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Bạn có chắc chắn muốn xóa thuộc tính này không? Tất cả các sản phẩm sử dụng thuộc tính này có thể bị ảnh hưởng.')) {
-      try {
-        await deleteAttributeMutation.mutateAsync(id)
-        setSelectedIds((prev) => prev.filter((i) => i !== id))
-      } catch (error) {
-        console.error(error)
-      }
-    }
+  const handleDelete = (id: string) => {
+    triggerConfirm({
+      title: 'Xóa thuộc tính sản phẩm',
+      description: 'Bạn có chắc chắn muốn xóa thuộc tính này không? Tất cả các sản phẩm sử dụng thuộc tính này có thể bị ảnh hưởng.',
+      actionText: 'XÓA THUỘC TÍNH',
+      onConfirm: async () => {
+        try {
+          await deleteAttributeMutation.mutateAsync(id)
+          setSelectedIds((prev) => prev.filter((i) => i !== id))
+        } catch (error) {
+          console.error(error)
+        }
+      },
+    })
   }
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     if (selectedIds.length === 0) return
 
-    if (confirm(`Bạn có chắc chắn muốn xóa ${selectedIds.length} thuộc tính đã chọn?`)) {
-      try {
-        await deleteManyMutation.mutateAsync(selectedIds)
-        setSelectedIds([])
-      } catch (error) {
-        console.error(error)
-      }
-    }
+    triggerConfirm({
+      title: 'Xóa nhiều thuộc tính',
+      description: `Bạn có chắc chắn muốn xóa ${selectedIds.length} thuộc tính đã chọn? Hành động này không thể hoàn tác và có thể ảnh hưởng đến sản phẩm sử dụng chúng.`,
+      actionText: `XÓA ${selectedIds.length} THUỘC TÍNH`,
+      onConfirm: async () => {
+        try {
+          await deleteManyMutation.mutateAsync(selectedIds)
+          setSelectedIds([])
+        } catch (error) {
+          console.error(error)
+        }
+      },
+    })
   }
 
   const toggleSelect = (id: string) => {
@@ -379,6 +414,40 @@ const AttributeList = () => {
         onOpenChange={setIsModalOpen}
         attributeId={editId}
       />
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className='sm:max-w-[425px] bg-slate-900 border-slate-800 text-white rounded-2xl'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-black uppercase tracking-tighter italic text-red-500'>
+              {confirmConfig?.title}
+            </DialogTitle>
+            <DialogDescription className='text-slate-400 mt-2 text-sm leading-relaxed'>
+              {confirmConfig?.description}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className='mt-6 gap-3 sm:gap-0'>
+            <Button
+              variant='outline'
+              onClick={() => setConfirmOpen(false)}
+              className='bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl'
+            >
+              HỦY
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={async () => {
+                if (confirmConfig?.onConfirm) {
+                  await confirmConfig.onConfirm()
+                }
+                setConfirmOpen(false)
+              }}
+              className='bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold uppercase tracking-tighter'
+            >
+              {confirmConfig?.actionText}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

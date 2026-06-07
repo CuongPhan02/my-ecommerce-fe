@@ -68,7 +68,7 @@ const ProductFormAction = ({
         discountType: (product.discountType as any) || 'FIXED',
         discountValue: product.discountValue ?? 0,
         collectionIds:
-          product.collections?.map((c: any) => c.collectionId) || [],
+          product.collections?.map((c: any) => c.id || c.collectionId) || [],
         mediaIds: product.images?.map((img: any) => img.mediaId) || [],
         media: product.images?.map((img: any) => img.media) || [],
         options: product.options || [],

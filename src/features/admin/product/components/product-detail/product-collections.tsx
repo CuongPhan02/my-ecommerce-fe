@@ -29,25 +29,21 @@ import { toast } from 'react-toastify'
 import { generateRandomId, generateSlug } from '~/lib/utils'
 
 const ProductCollections = () => {
-  const { control } = useFormContext<ProductSchemaType>()
+  const { control, setValue, getValues } = useFormContext<ProductSchemaType>()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState('')
 
-  const [collectionLimit, setCollectionLimit] = useState(20)
-
-  // 1. Lấy danh sách collection từ API
+  // 1. Lấy danh sách collection từ API (limit 1000 để load toàn bộ, tránh lỗi phân trang và thiếu chip hiển thị)
   const {
     data: collectionsRes,
     isLoading,
-    isFetching,
     refetch,
-  } = _collectionService.useCollections({ page: 1, limit: collectionLimit })
+  } = _collectionService.useCollections({ page: 1, limit: 1000 })
   const createCollectionMutation = _collectionService.useCreateCollection()
 
   const [collectionOptions, setCollectionOptions] = useState<Option[]>([])
 
   const collections = (collectionsRes?.result as any)?.data || []
-  const hasMoreCollections = collections.length < ((collectionsRes?.result as any)?.meta?.totalItems || 0)
 
   useEffect(() => {
     const collectionOptions: Option[] =
@@ -65,17 +61,27 @@ const ProductCollections = () => {
       return
     }
 
-    try {
-      await createCollectionMutation.mutateAsync({
+  try {
+      const newColRes = await createCollectionMutation.mutateAsync({
         name: newCollectionName,
         slug: generateSlug(newCollectionName, generateRandomId()),
         description: '',
         isActive: true,
       } as any)
 
+      const newCol = newColRes?.result
       setNewCollectionName('')
       setIsDialogOpen(false)
-      refetch() // Reload danh sách để hiện collection mới
+      await refetch() // Reload danh sách để hiện collection mới
+
+      // Tự động gán/chọn bộ sưu tập mới tạo vào form sản phẩm
+      if (newCol && newCol.id) {
+        const currentIds = getValues('collectionIds') || []
+        setValue('collectionIds', [...currentIds, newCol.id], {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
     } catch (error) {
       console.error('Quick add failed:', error)
     }
@@ -168,30 +174,6 @@ const ProductCollections = () => {
                     {isLoading ? 'Đang lấy dữ liệu...' : 'Không tìm thấy bộ sưu tập.'}
                   </p>
                 }
-                listFooter={
-                  hasMoreCollections && (
-                    <div className='p-1 border-t'>
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        size='sm'
-                        className='w-full text-xs text-primary font-bold hover:bg-primary/10 py-1.5 h-auto rounded-none justify-center'
-                        onPointerDown={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                        }}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setCollectionLimit((prev) => prev + 20)
-                        }}
-                        disabled={isFetching}
-                      >
-                        {isFetching ? 'Đang tải...' : 'Xem thêm'}
-                      </Button>
-                    </div>
-                  )
-                }
               />
             )}
           />
@@ -209,3 +191,4 @@ const ProductCollections = () => {
 }
 
 export default ProductCollections
+

@@ -90,10 +90,10 @@ export const AddProductToCollection = ({
           </div>
           <div>
             <h3 className='text-2xl font-black  tracking-tighter leading-none'>
-              Assign Products
+              Gán sản phẩm
             </h3>
             <p className=' text-xs italic font-medium mt-1 uppercase tracking-widest opacity-60'>
-              Total Catalog: {allProducts.length} items
+              Tổng danh mục: {allProducts.length} sản phẩm
             </p>
           </div>
         </div>
@@ -105,7 +105,7 @@ export const AddProductToCollection = ({
               size={18}
             />
             <Input
-              placeholder='Search by name...'
+              placeholder='Tìm kiếm theo tên...'
               className='pl-10 h-12 bg-muted rounded-2xl focus:ring-primary focus:border-primary text-slate-200'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -118,8 +118,8 @@ export const AddProductToCollection = ({
               className='h-12 border-primary rounded-2xl font-black px-6 text-[10px text-white'
             >
               {selectedIds.length === filteredProducts.length
-                ? 'Deselect All'
-                : 'Select All'}
+                ? 'Bỏ chọn tất cả'
+                : 'Chọn tất cả'}
             </Button>
           )}
         </div>
@@ -175,11 +175,17 @@ export const AddProductToCollection = ({
               >
                 <div className='flex items-start justify-between relative z-10'>
                   <div className='relative h-20 w-20 flex-shrink-0 group-hover:rotate-3 transition-transform duration-700'>
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className='h-full w-full rounded-2xl object-cover border bg-muted'
-                    />
+                    {product.thumbnail?.url ? (
+                      <img
+                        src={product.thumbnail.url}
+                        alt={product.name}
+                        className='h-full w-full rounded-2xl object-cover border bg-muted'
+                      />
+                    ) : (
+                      <div className='h-full w-full rounded-2xl flex items-center justify-center border bg-slate-100 dark:bg-slate-800 shadow-inner'>
+                        <Package size={24} className='text-slate-400' />
+                      </div>
+                    )}
                   </div>
                   <Checkbox
                     checked={selectedIds.includes(product.id)}
@@ -239,10 +245,10 @@ export const AddProductToCollection = ({
           </div>
           <div>
             <p className='text-2xl font-black tracking-tighter uppercase leading-none'>
-              Ready to Assign
+              Sẵn sàng để gán
             </p>
             <p className='text-slate-500 text-sm font-medium mt-1 italic'>
-              Expanding catalog with {selectedIds.length} items.
+              Mở rộng bộ sưu tập với {selectedIds.length} sản phẩm.
             </p>
           </div>
         </div>
@@ -255,10 +261,10 @@ export const AddProductToCollection = ({
           {addMutation.isPending ? (
             <div className='flex items-center gap-3'>
               <Loader2 className='animate-spin h-6 w-6 text-white' />
-              <span>SYNCHRONIZING...</span>
+              <span>ĐANG ĐỒNG BỘ...</span>
             </div>
           ) : (
-            'CONFIRM & ADD TO COLLECTION'
+            'XÁC NHẬN & THÊM VÀO BỘ SƯU TẬP'
           )}
         </Button>
       </div>

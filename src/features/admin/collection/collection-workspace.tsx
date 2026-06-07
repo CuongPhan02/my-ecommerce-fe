@@ -21,10 +21,35 @@ import {
   PlusSquare,
 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/core/alert'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/core/dialog'
 
 export default function CollectionWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    title: string
+    description: string
+    actionText: string
+    onConfirm: () => void
+  } | null>(null)
+
+  const triggerConfirm = (config: {
+    title: string
+    description: string
+    actionText: string
+    onConfirm: () => void
+  }) => {
+    setConfirmConfig(config)
+    setConfirmOpen(true)
+  }
 
   const {
     data: collectionRes,
@@ -36,27 +61,36 @@ export default function CollectionWorkspace() {
 
   const collection = collectionRes?.result
 
-  const handleDelete = async () => {
-    if (
-      selectedId &&
-      confirm('Are you sure you want to delete this collection?')
-    ) {
-      await deleteMutation.mutateAsync(selectedId)
-      setSelectedId(null)
-    }
+  const handleDelete = () => {
+    if (!selectedId) return
+    triggerConfirm({
+      title: 'Xóa bộ sưu tập',
+      description: 'Bạn có chắc chắn muốn xóa bộ sưu tập này không? Hành động này không thể hoàn tác.',
+      actionText: 'XÓA BỘ SƯU TẬP',
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync(selectedId)
+        setSelectedId(null)
+      },
+    })
   }
 
-  const handleRemoveProduct = async (productId: string) => {
-    if (collection && confirm('Remove this product from collection?')) {
-      const remainingIds = (collection as any).products
-        .filter((p: any) => p.id !== productId)
-        .map((p: any) => p.id)
+  const handleRemoveProduct = (productId: string) => {
+    if (!collection) return
+    triggerConfirm({
+      title: 'Xóa sản phẩm khỏi bộ sưu tập',
+      description: 'Bạn có chắc chắn muốn xóa sản phẩm này khỏi bộ sưu tập không?',
+      actionText: 'XÓA SẢN PHẨM',
+      onConfirm: async () => {
+        const remainingIds = ((collection as any).products || [])
+          .map((p: any) => p.product?.id || p.productId || p.id)
+          .filter((id: string) => id !== productId && !!id)
 
-      await updateMutation.mutateAsync({
-        id: collection.id,
-        data: { productIds: remainingIds },
-      })
-    }
+        await updateMutation.mutateAsync({
+          id: collection.id,
+          data: { productIds: remainingIds },
+        })
+      },
+    })
   }
 
   return (
@@ -80,9 +114,9 @@ export default function CollectionWorkspace() {
           <div className='max-w-4xl mx-auto space-y-6'>
             <div className='flex justify-between items-center bg-muted rounded-2xl border backdrop-blur-xl p-4'>
               <h1 className='text-3xl font-black   tracking-tighter'>
-                NEW COLLECTION
+                BỘ SƯU TẬP MỚI
               </h1>
-              <Button onClick={() => setIsAdding(false)}>CANCEL</Button>
+              <Button onClick={() => setIsAdding(false)}>HỦY</Button>
             </div>
             <div className='bg-muted p-8 rounded-3xl border  backdrop-blur-xl'>
               <CollectionDetailForm onSuccess={() => setIsAdding(false)} />
@@ -123,7 +157,7 @@ export default function CollectionWorkspace() {
                 <div className='flex items-center gap-2 mb-3'>
                   <div className='h-2 w-2 bg-primary rounded-full animate-pulse' />
                   <p className='text-primary font-black text-xs uppercase tracking-[0.3em]'>
-                    COLLECTION WORKSPACE
+                    KHÔNG GIAN LÀM VIỆC BỘ SƯU TẬP
                   </p>
                 </div>
                 <h1 className='text-6xl font-black leading-none tracking-tighter'>
@@ -169,20 +203,20 @@ export default function CollectionWorkspace() {
                   value='settings'
                   className='px-8 h-12 rounded-xl text-xs font-black tracking-widest data-[state=active]:bg-primary data-[state=active] transition-all uppercase'
                 >
-                  <Settings size={16} className='mr-2' /> SETTINGS
+                  <Settings size={16} className='mr-2' /> CÀI ĐẶT
                 </TabsTrigger>
                 <TabsTrigger
                   value='products'
                   className='px-8 h-12 rounded-xl text-xs font-black tracking-widest data-[state=active]:bg-primary data-[state=active] transition-all uppercase'
                 >
-                  <Package size={16} className='mr-2' /> PRODUCTS (
+                  <Package size={16} className='mr-2' /> SẢN PHẨM (
                   {(collection as any).products?.length || 0})
                 </TabsTrigger>
                 <TabsTrigger
                   value='add'
                   className='px-8 h-12 rounded-xl text-xs font-black tracking-widest data-[state=active]:bg-primary data-[state=active] transition-all uppercase'
                 >
-                  <PlusSquare size={16} className='mr-2' /> EXPLORE & ADD
+                  <PlusSquare size={16} className='mr-2' /> TÌM KIẾM & THÊM
                 </TabsTrigger>
               </TabsList>
 
@@ -203,7 +237,11 @@ export default function CollectionWorkspace() {
                 className='focus:outline-none animate-in fade-in slide-in-from-bottom-4 duration-500'
               >
                 <CollectionProducts
-                  products={(collection as any).products || []}
+                  products={
+                    (collection as any).products
+                      ?.map((p: any) => p.product || p)
+                      .filter(Boolean) || []
+                  }
                   onRemove={handleRemoveProduct}
                 />
               </TabsContent>
@@ -215,7 +253,9 @@ export default function CollectionWorkspace() {
                 <AddProductToCollection
                   collectionId={collection.id}
                   existingProductIds={
-                    (collection as any).products?.map((p: any) => p.id) || []
+                    (collection as any).products
+                      ?.map((p: any) => p.product?.id || p.productId || p.id)
+                      .filter(Boolean) || []
                   }
                   onSuccess={refetch}
                 />
@@ -228,13 +268,47 @@ export default function CollectionWorkspace() {
             className='bg-red-500/10 border-red-500/50 text-red-500'
           >
             <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Lỗi</AlertTitle>
             <AlertDescription>
-              Failed to load collection details. Please try again.
+              Không thể tải chi tiết bộ sưu tập. Vui lòng thử lại.
             </AlertDescription>
           </Alert>
         )}
       </div>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className='sm:max-w-[425px] bg-slate-900 border-slate-800 text-white rounded-2xl'>
+          <DialogHeader>
+            <DialogTitle className='text-xl font-black uppercase tracking-tighter italic text-red-500'>
+              {confirmConfig?.title}
+            </DialogTitle>
+            <DialogDescription className='text-slate-400 mt-2 text-sm leading-relaxed'>
+              {confirmConfig?.description}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className='mt-6 gap-3 sm:gap-0'>
+            <Button
+              variant='outline'
+              onClick={() => setConfirmOpen(false)}
+              className='bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl'
+            >
+              HỦY
+            </Button>
+            <Button
+              variant='destructive'
+              onClick={async () => {
+                if (confirmConfig?.onConfirm) {
+                  await confirmConfig.onConfirm()
+                }
+                setConfirmOpen(false)
+              }}
+              className='bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold uppercase tracking-tighter'
+            >
+              {confirmConfig?.actionText}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
