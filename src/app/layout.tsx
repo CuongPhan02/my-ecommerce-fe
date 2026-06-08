@@ -9,6 +9,7 @@ import GlobalLoadingOverlay from '~/components/shared/global-loading-overlay'
 import ProviderReactQuery from '~/providers/provider-react-query'
 import ProviderGoogle from '~/providers/provider-google'
 import AuthProvider from '~/providers/provider-auth'
+import { WishlistProvider } from '~/providers/wishlist-provider'
 import { ViewTransitions } from 'next-view-transitions'
 
 const font = Roboto({
@@ -45,7 +46,9 @@ export default function RootLayout({
             >
               <ProviderGoogle>
                 <AuthProvider>
-                  <NuqsAdapter>{children}</NuqsAdapter>
+                  <WishlistProvider>
+                    <NuqsAdapter>{children}</NuqsAdapter>
+                  </WishlistProvider>
                 </AuthProvider>
               </ProviderGoogle>
             </ThemeProvider>

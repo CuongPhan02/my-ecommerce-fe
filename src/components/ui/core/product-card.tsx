@@ -5,9 +5,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { Star, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, ShoppingCart, ChevronLeft, ChevronRight, Heart } from 'lucide-react'
 import { cn } from '~/lib/utils'
 import { Product } from '~/features/admin/product/types'
+import { useWishlist } from '~/providers/wishlist-provider'
 
 export interface SimpleProduct {
   id: string | number
@@ -35,6 +36,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const { isWishlisted, toggleWishlist } = useWishlist()
 
   const isDbProduct = 'slug' in product
 
@@ -129,6 +131,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
     router.push(`/product/${product.id}`)
   }
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation()
+    toggleWishlist(String(product.id))
+  }
+
+  const wishlisted = isWishlisted(String(product.id))
+
   return (
     <motion.div
       className="group relative flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-[0_24px_50px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:border-gray-200/60 transition-all duration-500 overflow-hidden"
@@ -176,11 +185,23 @@ const ProductCard = ({ product }: ProductCardProps) => {
           )}
         </div>
 
-        {/* Floating Cart Button */}
+        {/* Floating Action Buttons */}
         <div className={cn(
           "absolute top-3 right-3 flex flex-col gap-2 z-10 transition-all duration-300",
           isHovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-3 pointer-events-none"
         )}>
+          <button
+            onClick={handleWishlistToggle}
+            className={cn(
+              "p-2.5 backdrop-blur-md rounded-full shadow-md transition-all duration-300 active:scale-95",
+              wishlisted
+                ? "bg-rose-500 text-white hover:bg-rose-600"
+                : "bg-white/90 text-slate-800 hover:bg-rose-500 hover:text-white"
+            )}
+            title={wishlisted ? 'Bỏ yêu thích' : 'Thêm yêu thích'}
+          >
+            <Heart className={cn("w-4 h-4 transition-all duration-300", wishlisted && "fill-current")} />
+          </button>
           <button
             onClick={handleFloatingCartClick}
             className="p-2.5 bg-white/90 hover:bg-primary hover:text-white backdrop-blur-md rounded-full shadow-md text-slate-800 transition-all duration-300 active:scale-95 group/btn"

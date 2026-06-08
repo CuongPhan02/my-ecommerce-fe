@@ -16,6 +16,7 @@ import { Menu as DbMenu } from '~/features/admin/menu/types'
 import { _menuService } from '~/features/admin/menu/menu.query'
 import { useMemo } from 'react'
 import { _cartService } from '~/features/public/cart/cart.query'
+import { useWishlist } from '~/providers/wishlist-provider'
 
 const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; logoUrl?: string | null; logoAlt?: string | null }) => {
   const [isLogin, setIsLogin] = useState(false)
@@ -70,6 +71,8 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
     if (!isAuthenticated || !cartData?.result?.items) return 0
     return cartData.result.items.reduce((total, item) => total + item.quantity, 0)
   }, [isAuthenticated, cartData])
+
+  const { count: wishlistCount } = useWishlist()
 
   useEffect(() => {
     setIsLogin(isAuthenticated)
@@ -156,6 +159,11 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
                 className='hover:text-primary transition-colors relative p-1.5 hover:scale-105 duration-200'
               >
                 <Heart className='w-[22px] h-[22px] md:w-6 md:h-6 stroke-[1.8]' />
+                {wishlistCount > 0 && (
+                  <span className='absolute top-1.5 right-1.5 bg-rose-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold scale-90 border border-white'>
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
 
               <Link
