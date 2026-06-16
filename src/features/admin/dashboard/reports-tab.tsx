@@ -16,73 +16,56 @@ import {
 } from '~/components/ui/core/table'
 import { Badge } from '~/components/ui/core/badge'
 
-const recentOrders = [
-  {
-    id: 'ORD-7352',
-    customer: 'Nguyễn Văn An',
-    email: 'an.nguyen@email.com',
-    status: 'Hoàn thành',
-    date: '22-05-2026',
-    amount: '2.500.000 ₫',
-  },
-  {
-    id: 'ORD-7351',
-    customer: 'Trần Thị Bình',
-    email: 'binh.tran@email.com',
-    status: 'Đang xử lý',
-    date: '22-05-2026',
-    amount: '1.200.500 ₫',
-  },
-  {
-    id: 'ORD-7350',
-    customer: 'Lê Văn Cường',
-    email: 'cuong.le@email.com',
-    status: 'Đã hủy',
-    date: '21-05-2026',
-    amount: '450.000 ₫',
-  },
-  {
-    id: 'ORD-7349',
-    customer: 'Phạm Minh Đức',
-    email: 'duc.pham@email.com',
-    status: 'Đang giao hàng',
-    date: '21-05-2026',
-    amount: '7.210.000 ₫',
-  },
-  {
-    id: 'ORD-7348',
-    customer: 'Hoàng Thu Em',
-    email: 'em.hoang@email.com',
-    status: 'Hoàn thành',
-    date: '20-05-2026',
-    amount: '550.000 ₫',
-  },
-  {
-    id: 'ORD-7347',
-    customer: 'Võ Quốc Thịnh',
-    email: 'thinh.vo@email.com',
-    status: 'Đang giao hàng',
-    date: '20-05-2026',
-    amount: '3.420.200 ₫',
-  },
-]
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'PENDING':
+      return 'Chờ xử lý'
+    case 'PROCESSING':
+      return 'Đang xử lý'
+    case 'SHIPPED':
+      return 'Đang giao hàng'
+    case 'DELIVERED':
+      return 'Hoàn thành'
+    case 'CANCELLED':
+      return 'Đã hủy'
+    case 'RETURNED':
+      return 'Trả hàng'
+    default:
+      return status
+  }
+}
 
 const getStatusVariant = (status: string) => {
   switch (status) {
-    case 'Hoàn thành':
+    case 'DELIVERED':
       return 'success'
-    case 'Đang xử lý':
+    case 'PENDING':
       return 'warning'
-    case 'Đang giao hàng':
+    case 'PROCESSING':
+    case 'SHIPPED':
       return 'info'
-    case 'Đã hủy':
+    case 'CANCELLED':
       return 'destructive'
     default:
       return 'default'
   }
 }
 
-export function ReportsTab() {
+const formatDate = (dateStr: string) => {
+  try {
+    const d = new Date(dateStr)
+    const day = String(d.getDate()).padStart(2, '0')
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const year = d.getFullYear()
+    return `${day}-${month}-${year}`
+  } catch (e) {
+    return dateStr
+  }
+}
+
+export function ReportsTab({ orders }: { orders?: any[] }) {
+  const ordersList = orders || []
+
   return (
     <Card className='h-full border-muted/50 shadow-sm'>
       <CardHeader>
@@ -92,39 +75,49 @@ export function ReportsTab() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className='w-[100px]'>Mã đơn</TableHead>
-              <TableHead>Khách hàng</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Ngày</TableHead>
-              <TableHead className='text-right'>Số tiền</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentOrders.map((order) => (
-              <TableRow key={order.id} className='hover:bg-muted/30 transition-colors'>
-                <TableCell className='font-bold text-slate-800 dark:text-slate-200'>{order.id}</TableCell>
-                <TableCell>
-                  <div>
-                    <p className='font-medium text-sm'>{order.customer}</p>
-                    <p className='text-muted-foreground text-xs font-mono'>
-                      {order.email}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={getStatusVariant(order.status)}>
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className='text-xs text-muted-foreground'>{order.date}</TableCell>
-                <TableCell className='text-right font-bold text-slate-900 dark:text-slate-50'>{order.amount}</TableCell>
+        {ordersList.length === 0 ? (
+          <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">
+            Không có đơn hàng nào gần đây
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className='w-[100px]'>Mã đơn</TableHead>
+                <TableHead>Khách hàng</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Ngày</TableHead>
+                <TableHead className='text-right'>Số tiền</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {ordersList.map((order) => (
+                <TableRow key={order.id} className='hover:bg-muted/30 transition-colors'>
+                  <TableCell className='font-bold text-slate-800 dark:text-slate-200 max-w-[100px] truncate' title={order.id}>
+                    {order.id}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <p className='font-medium text-sm'>{order.customer?.name || 'Khách vãng lai'}</p>
+                      <p className='text-muted-foreground text-xs font-mono truncate max-w-[180px]' title={order.customer?.email}>
+                        {order.customer?.email || '—'}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={getStatusVariant(order.status)}>
+                      {getStatusLabel(order.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className='text-xs text-muted-foreground'>{formatDate(order.createdAt)}</TableCell>
+                  <TableCell className='text-right font-bold text-slate-900 dark:text-slate-50'>
+                    {order.totalAmountFormatted}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   )

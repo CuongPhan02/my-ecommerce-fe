@@ -4,10 +4,11 @@ import { UserParams, UserRole, UserStatus } from './types'
 import { toast } from 'react-toastify'
 
 export const _userService = {
-  useUsers: (params: UserParams) => {
-    return useQuery({
+  useUsers: (params: UserParams, options?: any) => {
+    return useQuery<any>({
       queryKey: ['users', params],
       queryFn: () => _userApi.fetchUsers(params),
+      ...options,
     })
   },
 

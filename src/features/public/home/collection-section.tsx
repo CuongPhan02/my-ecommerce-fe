@@ -66,8 +66,8 @@ const CollectionSection = () => {
           const isEmpty = productsList.length === 0
           const showControls = productsList.length > 4
 
-          return (
-            <div key={collection.id} className={colIdx > 0 ? 'mt-24' : ''}>
+          const content = (
+            <>
               {/* Section Header */}
               <div className='flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 border-b pb-6 border-gray-100'>
                 <div>
@@ -128,27 +128,37 @@ const CollectionSection = () => {
                 </motion.div>
               ) : (
                 /* Product Carousel */
-                <Carousel opts={{ align: 'start', loop: true }} className='w-full'>
-                  <CarouselContent className='-ml-4'>
-                    {productsList.map((item, idx) => {
-                      const product = (item as any).product || item
-                      return (
-                        <CarouselItem
-                          key={product.id || idx}
-                          className='pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4'
+                <CarouselContent className='-ml-4'>
+                  {productsList.map((item, idx) => {
+                    const product = (item as any).product || item
+                    return (
+                      <CarouselItem
+                        key={product.id || idx}
+                        className='pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4'
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: idx * 0.08 }}
                         >
-                          <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.08 }}
-                          >
-                            <ProductCard product={product} />
-                          </motion.div>
-                        </CarouselItem>
-                      )
-                    })}
-                  </CarouselContent>
+                          <ProductCard product={product} />
+                        </motion.div>
+                      </CarouselItem>
+                    )
+                  })}
+                </CarouselContent>
+              )}
+            </>
+          )
+
+          return (
+            <div key={collection.id} className={colIdx > 0 ? 'mt-24' : ''}>
+              {isEmpty ? (
+                content
+              ) : (
+                <Carousel opts={{ align: 'start', loop: true }} className='w-full'>
+                  {content}
                 </Carousel>
               )}
             </div>

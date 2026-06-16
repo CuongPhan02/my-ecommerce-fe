@@ -28,7 +28,6 @@ import { OrderHistory } from '~/features/public/profile/order-history'
 import { useAuthStore } from '~/store/auth-store'
 import { useRouter } from 'next/navigation'
 import { https, logout } from '~/config/https'
-import Image from 'next/image'
 
 const ProfilePage = () => {
   const router = useRouter()
@@ -54,6 +53,57 @@ const ProfilePage = () => {
   const [isEditingProfile, setIsEditingProfile] = useState(false)
   const [editName, setEditName] = useState('')
   const [editPhone, setEditPhone] = useState('')
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ảnh đại diện không được vượt quá 5MB')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Chỉ chấp nhận file định dạng hình ảnh')
+      return
+    }
+
+    try {
+      setIsUploadingAvatar(true)
+      const formData = new FormData()
+      formData.append('files', file)
+
+      const response = await https.post('/media/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+
+      const uploadedUrl = response.data?.result?.url
+      if (!uploadedUrl) {
+        throw new Error('Không nhận được URL ảnh từ server')
+      }
+
+      await updateProfileMutation.mutateAsync({
+        avatarUrl: uploadedUrl,
+      })
+
+      toast.success('Cập nhật ảnh đại diện thành công!')
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || err?.message || 'Không thể tải ảnh đại diện lên')
+    } finally {
+      setIsUploadingAvatar(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
 
   // Sync edit fields when user data loads
   useEffect(() => {
@@ -154,10 +204,14 @@ const ProfilePage = () => {
           <div className='w-full lg:w-72 flex flex-col gap-4 shrink-0'>
             <div className='bg-white rounded-sm p-6 border border-neutral-200/60 shadow-xs flex flex-col items-center text-center'>
               {/* Avatar */}
-              <div className='relative mb-4'>
-                <div className='w-20 h-20 rounded-full overflow-hidden border border-neutral-200 shadow-sm bg-[#FBF8F3] flex items-center justify-center'>
+              <div
+                className='relative mb-4 cursor-pointer group'
+                onClick={handleAvatarClick}
+                title='Thay đổi ảnh đại diện'
+              >
+                <div className='w-20 h-20 rounded-full overflow-hidden border border-neutral-200 shadow-sm bg-[#FBF8F3] flex items-center justify-center relative'>
                   {user?.avatarUrl ? (
-                    <Image
+                    <img
                       src={user.avatarUrl}
                       alt={user.name || ''}
                       width={80}
@@ -167,7 +221,31 @@ const ProfilePage = () => {
                   ) : (
                     <User className='w-9 h-9 text-neutral-400' />
                   )}
+
+                  {/* Uploading Overlay */}
+                  {isUploadingAvatar && (
+                    <div className='absolute inset-0 bg-black/50 flex items-center justify-center z-10'>
+                      <div className='w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin' />
+                    </div>
+                  )}
                 </div>
+
+                {/* Hover Camera Overlay */}
+                {!isUploadingAvatar && (
+                  <div className='absolute inset-0 bg-black/30 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-200 z-10'>
+                    <Camera className='w-5 h-5 text-white' />
+                  </div>
+                )}
+
+                {/* Hidden File Input */}
+                <input
+                  type='file'
+                  ref={fileInputRef}
+                  onChange={handleAvatarChange}
+                  accept='image/*'
+                  className='hidden'
+                  disabled={isUploadingAvatar}
+                />
               </div>
 
               <h2 className='text-sm font-bold uppercase tracking-widest text-[#231f20] leading-tight'>

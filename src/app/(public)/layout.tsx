@@ -1,8 +1,40 @@
 import React from 'react'
+import type { Metadata } from 'next'
 import Footer from '~/components/layouts/public-layout/footer'
 import Header from '~/components/layouts/public-layout/header/header'
 import ComingSoonWrapper from '~/components/shared/coming-soon-wrapper'
 import { API_BASE_URL } from '~/constants'
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/settings/seo-meta`, {
+      next: { revalidate: 300 }, // Cache 5 phút
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const seo = data?.result
+      if (seo) {
+        return {
+          title: seo.metaTitle || seo.title || 'Lune Shop',
+          description: seo.metaDescription || seo.description || 'Lune Shop',
+          keywords: seo.metaKeywords || seo.keywords || '',
+          openGraph: seo.ogImage
+            ? {
+                images: [{ url: seo.ogImage }],
+              }
+            : undefined,
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch SEO metadata on server:', error)
+  }
+
+  return {
+    title: 'Lune Shop - Thời Trang Nữ Cao Cấp, Thanh Lịch & Hiện Đại',
+    description: 'Cửa hàng thời trang Lune Shop',
+  }
+}
 
 // Đặt biến này thành true để hiển thị giao diện Coming Soon cho người dùng
 // Đặt thành false để hiển thị đầy đủ giao diện trang chủ/công khai hiện tại

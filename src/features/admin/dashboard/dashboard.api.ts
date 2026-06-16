@@ -17,6 +17,7 @@ export interface DashboardData {
     id: string;
     totalAmount: number;
     totalAmountFormatted: string;
+    status: string;
     createdAt: string;
     customer: {
       name: string;
@@ -24,6 +25,8 @@ export interface DashboardData {
       avatarUrl: string | null;
     };
   }[];
+  salesByCategory: any[];
+  notifications: any[];
 }
 
 export const _dashboardApi = {

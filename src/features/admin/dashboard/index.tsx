@@ -102,7 +102,7 @@ const DashboardPage = () => {
             </Card>
       </div>
       
-      <AnalyticsTab />
+      <AnalyticsTab data={data?.salesByCategory} />
       
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
         <Card className='col-span-1 lg:col-span-4 rounded-2xl'>
@@ -128,10 +128,10 @@ const DashboardPage = () => {
 
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
         <div className='col-span-1 lg:col-span-4'>
-          <ReportsTab />
+          <ReportsTab orders={data?.recentSales} />
         </div>
         <div className='col-span-1 lg:col-span-3'>
-          <NotificationsTab />
+          <NotificationsTab notifications={data?.notifications} />
         </div>
       </div>
     </div>

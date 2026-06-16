@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useAuthStore } from '~/store/auth-store'
 import { User } from 'lucide-react'
 import { Link } from 'next-view-transitions'
@@ -24,7 +23,7 @@ export function AvatarIcon() {
     >
       {avatarUrl ? (
         <div className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border-2 border-gray-200">
-          <Image
+          <img
             src={avatarUrl}
             alt={name}
             width={36}

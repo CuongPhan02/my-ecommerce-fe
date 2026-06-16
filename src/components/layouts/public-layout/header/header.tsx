@@ -78,10 +78,37 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
     setIsLogin(isAuthenticated)
   }, [isAuthenticated])
 
+  const [hoveredMegaMenuId, setHoveredMegaMenuId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (hoveredMegaMenuId) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [hoveredMegaMenuId])
+
   return (
     <>
       <div className='flex flex-col w-full font-heading relative z-50'>
         <TopBar />
+        <AnimatePresence>
+          {hoveredMegaMenuId && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className='fixed inset-0 top-[65px] md:top-[80px] bg-black/40 z-40 backdrop-blur-sm pointer-events-none'
+            />
+          )}
+        </AnimatePresence>
         <motion.header
           className={`w-full z-50 transition-all duration-300 border-b border-neutral-100 ${
             isScrolled
@@ -104,6 +131,16 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
                 <div
                   key={item.id}
                   className={`group h-full flex items-center ${item.isMegaMenu ? '' : 'relative'}`}
+                  onMouseEnter={() => {
+                    if (item.isMegaMenu) {
+                      setHoveredMegaMenuId(item.id)
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (item.isMegaMenu) {
+                      setHoveredMegaMenuId(null)
+                    }
+                  }}
                 >
                   <Link
                     href={item.href || '#'}

@@ -6,35 +6,6 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { _settingsService } from '~/features/admin/settings/settings.query'
 
-const defaultBanners = [
-  {
-    id: 'temp-1779539602821',
-    heading: 'Khám phá Bộ sưu tập Mới',
-    isActive: true,
-    mediaUrl:
-      'https://ik.imagekit.io/aose833et/media-ak-shop/demo/product-angry-vegeta-dragon-5120x2880-17596_-_Copy_20yQcUbiC',
-    mediaType: 'image',
-    buttonLink: '/shop',
-    buttonText: 'Mua ngay',
-    subheading: 'Trải nghiệm phong cách thời thượng và hiện đại bậc nhất',
-    displayOrder: 1,
-    thumbnailUrl: null,
-  },
-  {
-    id: 'temp-1779539561344',
-    heading: 'Thời Trang Cao Cấp',
-    isActive: true,
-    mediaUrl:
-      'https://ik.imagekit.io/aose833et/media-ak-shop/demo/demo-4/product-wallpapersden_e13emXnH4',
-    mediaType: 'image',
-    buttonLink: '/shop',
-    buttonText: 'Khám phá ngay',
-    subheading: 'Nâng tầm phong cách cá nhân với các thiết kế độc quyền',
-    displayOrder: 2,
-    thumbnailUrl: null,
-  },
-]
-
 const HeroSection = () => {
   const { data } = _settingsService.useHeroBannerSettings()
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -42,7 +13,7 @@ const HeroSection = () => {
   // Extract and sort active banners
   const banners = React.useMemo(() => {
     if (!data?.result?.items || data.result.items.length === 0) {
-      return defaultBanners
+      return []
     }
     return data.result.items
       .filter((item) => item.isActive && item.mediaUrl)
@@ -110,8 +81,6 @@ const HeroSection = () => {
                   className='w-full h-full object-cover object-center absolute inset-0 -z-10'
                 />
               )}
-
-
             </motion.div>
           )
         })}

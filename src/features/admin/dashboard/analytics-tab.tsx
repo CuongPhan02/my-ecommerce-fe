@@ -85,7 +85,53 @@ const CustomCategoryTooltip = ({ active, payload, label }: any) => {
   return null
 }
 
-export function AnalyticsTab() {
+const translateMonth = (month: string) => {
+  const mapping: Record<string, string> = {
+    'Jan': 'Thg 1',
+    'Feb': 'Thg 2',
+    'Mar': 'Thg 3',
+    'Apr': 'Thg 4',
+    'May': 'Thg 5',
+    'Jun': 'Thg 6',
+    'Jul': 'Thg 7',
+    'Aug': 'Thg 8',
+    'Sep': 'Thg 9',
+    'Oct': 'Thg 10',
+    'Nov': 'Thg 11',
+    'Dec': 'Thg 12'
+  }
+  return mapping[month] || month
+}
+
+const colors = [
+  '#3b82f6', // blue
+  '#ec4899', // pink
+  '#f59e0b', // amber
+  '#10b981', // emerald
+  '#8b5cf6', // violet
+  '#f43f5e', // rose
+  '#06b6d4', // cyan
+]
+
+export function AnalyticsTab({ data }: { data?: any[] }) {
+  const formattedData = React.useMemo(() => {
+    if (!data) return []
+    return data.map((item: any) => ({
+      ...item,
+      name: translateMonth(item.name)
+    }))
+  }, [data])
+
+  const categoryKeys = React.useMemo(() => {
+    const keys = new Set<string>()
+    formattedData.forEach((item: any) => {
+      Object.keys(item).forEach((key) => {
+        if (key !== 'name') keys.add(key)
+      })
+    })
+    return Array.from(keys)
+  }, [formattedData])
+
   return (
     <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-7'>
       <Card className='col-span-4 border-muted/50 shadow-sm'>
@@ -136,56 +182,47 @@ export function AnalyticsTab() {
       <Card className='col-span-3 border-muted/50 shadow-sm'>
         <CardHeader>
           <CardTitle>Doanh số theo danh mục</CardTitle>
-          <CardDescription>Xu hướng mua sắm 7 tháng qua.</CardDescription>
+          <CardDescription>Xu hướng mua sắm năm nay.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width='100%' height={350}>
-            <AreaChart data={salesByCategoryData}>
-              <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='rgba(0,0,0,0.05)' />
-              <XAxis
-                dataKey='name'
-                stroke='#888888'
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke='#888888'
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `${value / 1000000} Tr`}
-              />
-              <RechartsTooltip content={<CustomCategoryTooltip />} />
-              <Area
-                type='monotone'
-                dataKey='mensFashion'
-                name='Thời trang Nam'
-                stackId='1'
-                stroke='#3b82f6'
-                fill='#3b82f6'
-                fillOpacity={0.15}
-              />
-              <Area
-                type='monotone'
-                dataKey='womensFashion'
-                name='Thời trang Nữ'
-                stackId='1'
-                stroke='#ec4899'
-                fill='#ec4899'
-                fillOpacity={0.15}
-              />
-              <Area
-                type='monotone'
-                dataKey='accessories'
-                name='Phụ kiện & Khác'
-                stackId='1'
-                stroke='#f59e0b'
-                fill='#f59e0b'
-                fillOpacity={0.15}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {formattedData.length === 0 || categoryKeys.length === 0 ? (
+            <div className="h-[350px] flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest text-xs">
+              Chưa có dữ liệu doanh thu
+            </div>
+          ) : (
+            <ResponsiveContainer width='100%' height={350}>
+              <AreaChart data={formattedData}>
+                <CartesianGrid strokeDasharray='3 3' vertical={false} stroke='rgba(0,0,0,0.05)' />
+                <XAxis
+                  dataKey='name'
+                  stroke='#888888'
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke='#888888'
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `${(value / 1000000).toFixed(0)} Tr`}
+                />
+                <RechartsTooltip content={<CustomCategoryTooltip />} />
+                {categoryKeys.map((key, index) => (
+                  <Area
+                    key={key}
+                    type='monotone'
+                    dataKey={key}
+                    name={key}
+                    stackId='1'
+                    stroke={colors[index % colors.length]}
+                    fill={colors[index % colors.length]}
+                    fillOpacity={0.15}
+                  />
+                ))}
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
     </div>
