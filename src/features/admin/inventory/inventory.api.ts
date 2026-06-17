@@ -25,9 +25,13 @@ export const _inventoryApi = {
     return res.data;
   },
 
+  exportStock: async (data: { items: { productVariantId: string; quantity: number }[]; reason?: string }) => {
+    const res = await https.post<ApiResponse<any>>('/inventory/export', data);
+    return res.data;
+  },
+
   getTransactions: async (params?: { page?: number; limit?: number; type?: string; productVariantId?: string }) => {
     const res = await https.get<ApiResponse<{ data: InventoryTransaction[] } & PaginationMeta>>('/inventory/transactions', { params });
     return res.data;
   }
 };
-
