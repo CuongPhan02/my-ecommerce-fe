@@ -1,17 +1,37 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Facebook, Instagram, Youtube, Music, ChevronUp } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 const Footer = () => {
+  const [email, setEmail] = useState('')
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) {
+      toast.error('Vui lòng nhập email của bạn!')
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      toast.error('Email không hợp lệ!')
+      return
+    }
+    
+    // Giả lập API call
+    toast.success('Đăng ký nhận ưu đãi thành công!')
+    setEmail('')
+  }
+
   return (
     <footer className="w-full select-none text-neutral-800">
-      
+
       {/* 1. Top Newsletter Banner (Cream Background) */}
       <div className="bg-[#FBF8F3] border-t border-b border-neutral-200/40 py-10">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -24,9 +44,11 @@ const Footer = () => {
             </p>
           </div>
 
-          <form onSubmit={(e) => e.preventDefault()} className="flex items-center w-full max-w-md">
+          <form onSubmit={handleSubscribe} className="flex items-center w-full max-w-md">
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Nhập email của bạn"
               className="flex-1 bg-white border border-neutral-200 rounded-l-none py-3 px-4 text-xs focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all text-neutral-900 placeholder-neutral-400 font-medium shadow-sm"
             />
@@ -44,7 +66,7 @@ const Footer = () => {
       <div className="bg-white py-14">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12">
-            
+
             {/* Column 1: Brand & Socials (4 columns) */}
             <div className="lg:col-span-4 space-y-4 text-left">
               <h2 className="font-heading tracking-[0.2em] text-2xl font-black text-black">
@@ -53,7 +75,7 @@ const Footer = () => {
               <p className="text-xs text-neutral-500 font-medium leading-relaxed max-w-xs">
                 Thời trang tối giản, tinh tế và bền vững. Dành cho những người phụ nữ hiện đại.
               </p>
-              
+
               <div className="flex items-center gap-4 text-neutral-500 pt-2">
                 <a href="#" className="hover:text-black transition-colors" aria-label="Facebook">
                   <Facebook className="w-4 h-4 stroke-[1.5]" />
@@ -72,7 +94,7 @@ const Footer = () => {
 
             {/* Columns 2-5: Nav columns (8 columns total) */}
             <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
-              
+
               {/* Column 2: VỀ CHÚNG TÔI */}
               <div className="space-y-4 text-left">
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-black">
@@ -182,10 +204,24 @@ const Footer = () => {
 
       {/* Floating Buttons */}
       <div className="fixed bottom-8 right-8 flex flex-col gap-3.5 z-50">
-        <button className="w-12 h-12 bg-[#25d366] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200">
+        <a
+          href="https://www.facebook.com/tmcstyle?locale=vi_VN"  // Bạn thay link Fanpage hoặc Messenger vào đây nhé (VD: https://m.me/tenfanpage)
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-[#1877F2] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
+          aria-label="Facebook"
+        >
+          <Facebook className="w-5 h-5 fill-current" />
+        </a>
+        <a
+          href="https://zalo.me/0769555896" // Bạn thay số điện thoại Zalo của cửa hàng vào đây nhé
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-12 h-12 bg-[#25d366] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
+        >
           <span className="font-black text-xs tracking-tighter uppercase font-heading">Zalo</span>
-        </button>
-        <button 
+        </a>
+        <button
           onClick={scrollToTop}
           className="w-12 h-12 bg-white text-neutral-800 border border-neutral-100 rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white hover:border-black transition-all duration-200 group"
           aria-label="Scroll to top"
