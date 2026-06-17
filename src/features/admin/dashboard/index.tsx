@@ -16,10 +16,26 @@ import { NotificationsTab } from './notifications-tab'
 
 import { CreditCard, ShoppingCart, ShoppingBag, Tag, Loader2 } from 'lucide-react'
 import { _dashboardService } from './dashboard.query'
+import { toast } from 'react-toastify'
+import { exportDashboardToCSV } from './utils/export-report'
 
 const DashboardPage = () => {
   const { data: dashRes, isLoading } = _dashboardService.useDashboardData()
   const data = dashRes?.result
+
+  const handleDownloadReport = () => {
+    if (!data) {
+      toast.error('Không tìm thấy dữ liệu để xuất báo cáo!')
+      return
+    }
+    try {
+      exportDashboardToCSV(data)
+      toast.success('Xuất báo cáo thành công!')
+    } catch (error) {
+      console.error('Export report error:', error)
+      toast.error('Có lỗi xảy ra khi xuất báo cáo!')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -35,7 +51,12 @@ const DashboardPage = () => {
       <div className='mb-2 flex items-center justify-between space-y-2'>
         <h1 className='text-3xl font-black uppercase tracking-tight'>Bảng điều khiển</h1>
         <div className='flex items-center space-x-2'>
-          <Button className="rounded-xl font-bold text-xs uppercase tracking-widest">Tải xuống báo cáo</Button>
+          <Button 
+            onClick={handleDownloadReport}
+            className="rounded-xl font-bold text-xs uppercase tracking-widest"
+          >
+            Tải xuống báo cáo
+          </Button>
         </div>
       </div>
       

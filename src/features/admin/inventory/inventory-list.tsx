@@ -49,7 +49,8 @@ import {
   Layers,
   ArrowUpDown,
   Loader2,
-  MessageSquare
+  MessageSquare,
+  Trash2
 } from 'lucide-react'
 import { _inventoryService } from './inventory.query'
 import { _categoryService } from '~/features/admin/category/category.query'
@@ -90,6 +91,7 @@ export function InventoryList() {
   // Mutations
   const importStockMutation = _inventoryService.useImportStock()
   const adjustStockMutation = _inventoryService.useAdjustStock()
+  const exportStockMutation = _inventoryService.useExportStock()
 
   const inventory = stockRes?.result?.data || []
   const totalItems = stockRes?.result?.total || 0
@@ -108,6 +110,11 @@ export function InventoryList() {
   const [restockQty, setRestockQty] = useState<number>(50)
   const [restockSupplier, setRestockSupplier] = useState<string>('')
   const [restockUnitCost, setRestockUnitCost] = useState<number>(0)
+
+  // Export Receipt Modal State (Xuất kho bán hàng)
+  const [isExportOpen, setIsExportOpen] = useState(false)
+  const [exportItems, setExportItems] = useState<{ id: string; quantity: number }[]>([])
+  const [exportReason, setExportReason] = useState<string>('Xuất kho bán hàng')
 
   // Handle Debounce Search
   React.useEffect(() => {
@@ -166,6 +173,26 @@ export function InventoryList() {
     }
   }
 
+  // Submit Export Receipt
+  const handleSaveExport = async () => {
+    const validItems = exportItems.filter(item => item.id && item.quantity > 0)
+    if (validItems.length === 0) {
+      toast.warning('Vui lòng chọn ít nhất 1 sản phẩm và nhập số lượng hợp lệ!')
+      return
+    }
+
+    try {
+      await exportStockMutation.mutateAsync({
+        items: validItems.map(item => ({ productVariantId: item.id, quantity: item.quantity })),
+        reason: exportReason,
+      })
+      toast.success(`Xuất kho thành công cho ${validItems.length} mặt hàng!`)
+      setIsExportOpen(false)
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Không thể xuất kho')
+    }
+  }
+
   const getStatusBadge = (item: InventoryStockItem) => {
     if (item.stockQuantity === 0) {
       return (
@@ -196,19 +223,32 @@ export function InventoryList() {
           <p className="text-muted-foreground text-sm font-medium">Kiểm kho sản phẩm, theo dõi SKU và lên phiếu nhập hàng loạt.</p>
         </div>
         {activeTab === 'stock' && (
-          <Button 
-            onClick={() => {
-              setRestockProductId(inventory[0]?.id || '')
-              setRestockQty(50)
-              setRestockSupplier('')
-              setRestockUnitCost(0)
-              setIsRestockOpen(true)
-            }}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/10 flex items-center gap-2"
-          >
-            <PackagePlus className='h-4 w-4' />
-            Tạo Phiếu Nhập
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => {
+                setExportItems([{ id: inventory[0]?.id || '', quantity: 1 }])
+                setExportReason('Xuất kho bán hàng')
+                setIsExportOpen(true)
+              }}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-orange-500/10 flex items-center gap-2"
+            >
+              <Minus className='h-4 w-4' />
+              Tạo Phiếu Xuất
+            </Button>
+            <Button 
+              onClick={() => {
+                setRestockProductId(inventory[0]?.id || '')
+                setRestockQty(50)
+                setRestockSupplier('')
+                setRestockUnitCost(0)
+                setIsRestockOpen(true)
+              }}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/10 flex items-center gap-2"
+            >
+              <PackagePlus className='h-4 w-4' />
+              Tạo Phiếu Nhập
+            </Button>
+          </div>
         )}
       </div>
 
@@ -596,6 +636,124 @@ export function InventoryList() {
                 className="rounded-xl font-bold text-sm h-10.5 text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/10"
               >
                 {importStockMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Xác nhận Nhập Hàng'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Export Receipt Dialog */}
+      {isExportOpen && (
+        <Dialog open={isExportOpen} onOpenChange={() => setIsExportOpen(false)}>
+          <DialogContent className="max-w-lg rounded-2xl border border-gray-100 bg-white/95 backdrop-blur-xl shadow-2xl p-6">
+            <DialogHeader className="space-y-2.5">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-xl bg-orange-50 text-orange-600 border border-orange-200/50">
+                  <Minus className="w-6 h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl font-black text-gray-800">Lập Phiếu Xuất Kho</DialogTitle>
+                  <DialogDescription className="text-sm font-medium text-gray-400">Xuất hàng ra khỏi kho để bán hoặc phân phối</DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="my-5 space-y-4 pt-3 border-t border-gray-100">
+              <div className="space-y-3 max-h-[350px] overflow-y-auto">
+                {exportItems.map((exportItem, index) => (
+                  <div key={index} className="space-y-3 p-4 rounded-xl bg-gray-50/70 border border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-400">Mặt hàng #{index + 1}</span>
+                      {exportItems.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const newItems = exportItems.filter((_, i) => i !== index)
+                            setExportItems(newItems)
+                          }}
+                          className="h-7 px-2 text-xs text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 mr-1" />
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Mặt hàng cần xuất *</label>
+                      <Select 
+                        value={exportItem.id} 
+                        onValueChange={(val) => {
+                          const newItems = [...exportItems]
+                          newItems[index].id = val
+                          setExportItems(newItems)
+                        }}
+                      >
+                        <SelectTrigger className="w-full rounded-xl border-gray-200 text-xs font-bold h-10.5 bg-white">
+                          <SelectValue placeholder="Chọn sản phẩm" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {inventory.map((item) => (
+                            <SelectItem key={item.id} value={item.id} disabled={item.stockQuantity === 0}>
+                              {item.product.name} ({item.sku}) - Tồn: {item.stockQuantity}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Số lượng xuất *</label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={exportItem.quantity}
+                        onChange={(e) => {
+                          const newItems = [...exportItems]
+                          newItems[index].quantity = Math.max(1, parseInt(e.target.value) || 0)
+                          setExportItems(newItems)
+                        }}
+                        className="rounded-xl border-gray-200 h-10 text-sm font-bold bg-white"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportItems([...exportItems, { id: inventory[0]?.id || '', quantity: 1 }])}
+                className="w-full border-dashed border-2 border-gray-200 text-gray-500 hover:text-orange-600 hover:border-orange-300 hover:bg-orange-50 font-bold h-10 rounded-xl"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Thêm mặt hàng khác
+              </Button>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lý do xuất kho</label>
+                <div className="relative">
+                  <ClipboardList className="absolute left-3 top-3 h-4.5 w-4.5 text-gray-400" />
+                  <Input
+                    type="text"
+                    value={exportReason}
+                    onChange={(e) => setExportReason(e.target.value)}
+                    placeholder="VD: Xuất kho bán lẻ, xuất cho khách VIP..."
+                    className="pl-9 rounded-xl border-gray-200 h-10.5 text-sm font-semibold bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setIsExportOpen(false)} className="rounded-xl border-gray-200 font-bold text-sm h-10.5 hover:bg-gray-50">Hủy</Button>
+              <Button
+                onClick={handleSaveExport}
+                disabled={exportStockMutation.isPending || exportItems.length === 0}
+                className="rounded-xl font-bold text-sm h-10.5 text-white bg-orange-500 hover:bg-orange-600 shadow-md shadow-orange-500/10"
+              >
+                {exportStockMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Xác nhận Xuất Hàng'}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -32,6 +32,17 @@ export const _inventoryService = {
     });
   },
 
+  useExportStock: () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+      mutationFn: (payload: any) => _inventoryApi.exportStock(payload),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['admin-inventory-stock'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-inventory-transactions'] });
+      },
+    });
+  },
+
   useTransactions: (params?: { page?: number; limit?: number; type?: string; productVariantId?: string }) => {
     return useQuery({
       queryKey: ['admin-inventory-transactions', params],

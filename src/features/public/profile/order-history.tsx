@@ -391,9 +391,12 @@ function OrderDetailModal({
               <Receipt className='w-5 h-5 text-black' />
             </div>
             <div>
-              <p className='text-[10px] font-bold uppercase tracking-widest text-black/50 mb-0.5'>
+              <DialogTitle className='text-[10px] font-bold uppercase tracking-widest text-black/50 mb-0.5'>
                 Chi tiết đơn hàng
-              </p>
+              </DialogTitle>
+              <DialogDescription className='sr-only'>
+                Chi tiết đơn hàng
+              </DialogDescription>
               {order && (
                 <p className='text-sm font-bold text-black uppercase tracking-widest'>
                   #{order.id.slice(-12)}
@@ -433,6 +436,61 @@ function OrderDetailModal({
             </div>
           ) : (
             <>
+              {/* ── Refund Alert ── */}
+              {order.refundRequest && (
+                <div
+                  className={cn(
+                    'p-5 border rounded-sm flex gap-3',
+                    order.refundRequest.status === 'PENDING'
+                      ? 'bg-amber-50 border-amber-200'
+                      : order.refundRequest.status === 'REJECTED'
+                        ? 'bg-red-50 border-red-200'
+                        : 'bg-green-50 border-green-200'
+                  )}
+                >
+                  <AlertCircle
+                    className={cn(
+                      'w-5 h-5 flex-shrink-0',
+                      order.refundRequest.status === 'PENDING'
+                        ? 'text-amber-600'
+                        : order.refundRequest.status === 'REJECTED'
+                          ? 'text-red-600'
+                          : 'text-green-600'
+                    )}
+                  />
+                  <div>
+                    <h4
+                      className={cn(
+                        'text-xs font-bold uppercase tracking-widest mb-1',
+                        order.refundRequest.status === 'PENDING'
+                          ? 'text-amber-800'
+                          : order.refundRequest.status === 'REJECTED'
+                            ? 'text-red-800'
+                            : 'text-green-800'
+                      )}
+                    >
+                      {order.refundRequest.status === 'PENDING' && 'Yêu cầu đổi trả đang chờ xử lý'}
+                      {order.refundRequest.status === 'REJECTED' && 'Yêu cầu đổi trả bị từ chối'}
+                      {order.refundRequest.status === 'APPROVED' && 'Đổi trả thành công'}
+                    </h4>
+                    <p
+                      className={cn(
+                        'text-[11px] font-medium leading-relaxed',
+                        order.refundRequest.status === 'PENDING'
+                          ? 'text-amber-700/80'
+                          : order.refundRequest.status === 'REJECTED'
+                            ? 'text-red-700/80'
+                            : 'text-green-700/80'
+                      )}
+                    >
+                      {order.refundRequest.status === 'PENDING' && 'Chúng tôi đã nhận được yêu cầu và đang xem xét. Vui lòng chờ phản hồi trong 1-3 ngày làm việc.'}
+                      {order.refundRequest.status === 'REJECTED' && `Lý do từ chối: ${order.refundRequest.rejectReason || 'Không xác định'}`}
+                      {order.refundRequest.status === 'APPROVED' && 'Yêu cầu đã được duyệt. Tiền đang được hoàn lại và sản phẩm đã được thu hồi.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* ── Status Timeline ── */}
               <div className='bg-[#FBF8F3] border border-neutral-100 rounded-sm px-5 py-5'>
                 <p className='text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4'>
@@ -633,7 +691,7 @@ function OrderDetailModal({
                 )}
               </Button>
             )}
-            {order.status === 'DELIVERED' && (
+            {order.status === 'DELIVERED' && !order.refundRequest && (
               <Button
                 variant='outline'
                 onClick={() => onRefund(order)}

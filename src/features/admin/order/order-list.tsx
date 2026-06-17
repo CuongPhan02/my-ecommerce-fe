@@ -53,6 +53,8 @@ import {
   Loader2
 } from 'lucide-react'
 import { _orderService } from './order.query'
+import { _orderApi } from './order.api'
+import { exportOrdersToCSV } from './utils/export-orders'
 import { Order, OrderStatus, PaymentStatus } from './types'
 import { useDebounce } from '~/hooks/use-debounce'
 import { format } from 'date-fns'
@@ -87,6 +89,7 @@ export function OrderList() {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'amount_asc' | 'amount_desc'>('newest')
   const [page, setPage] = useState(1)
   const pageSize = 10
+  const [isExporting, setIsExporting] = useState(false)
 
   // Fetch Orders
   const { data: ordersRes, isLoading } = _orderService.useOrders({
@@ -146,6 +149,37 @@ export function OrderList() {
     }
   }
 
+  const handleExportOrders = async () => {
+    try {
+      setIsExporting(true)
+      toast.info('Đang chuẩn bị dữ liệu xuất báo cáo...', { autoClose: 2000 })
+      
+      const res = await _orderApi.fetchOrders({
+        page: 1,
+        limit: 10000,
+        search: debouncedSearch || undefined,
+        status: statusFilter === 'ALL' ? undefined : statusFilter,
+        paymentStatus: paymentFilter === 'ALL' ? undefined : paymentFilter,
+        sort: sortBy,
+      })
+      
+      const allOrders = res.result?.data || []
+      
+      if (allOrders.length === 0) {
+        toast.warning('Không có dữ liệu đơn hàng để xuất!')
+        return
+      }
+      
+      exportOrdersToCSV(allOrders)
+      toast.success('Xuất dữ liệu đơn hàng thành công!')
+    } catch (error) {
+      console.error('Lỗi khi xuất đơn hàng:', error)
+      toast.error('Có lỗi xảy ra khi xuất dữ liệu!')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   return (
     <div className='flex flex-col gap-4 relative'>
       <div className='flex items-center justify-between'>
@@ -153,7 +187,18 @@ export function OrderList() {
           <h1 className='text-3xl font-black uppercase tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-800 to-gray-600'>Danh sách đơn hàng</h1>
           <p className="text-muted-foreground text-sm font-medium">Theo dõi, kiểm tra chi tiết và cập nhật tiến độ đơn hàng.</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/10">Xuất dữ liệu</Button>
+        <Button 
+          onClick={handleExportOrders}
+          disabled={isExporting}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-600/10"
+        >
+          {isExporting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Đang xuất...
+            </>
+          ) : 'Xuất dữ liệu'}
+        </Button>
       </div>
 
       <Card className="border-gray-200/80 shadow-sm rounded-2xl overflow-hidden bg-white">

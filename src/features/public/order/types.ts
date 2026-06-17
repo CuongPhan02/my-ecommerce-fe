@@ -54,4 +54,10 @@ export interface OrderDetail {
     createdAt: string
   }
   items: OrderItem[]
+  refundRequest?: {
+    id: string
+    status: 'PENDING' | 'APPROVED' | 'REJECTED'
+    reason: string
+    rejectReason: string | null
+  } | null
 }
