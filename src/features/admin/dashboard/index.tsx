@@ -123,7 +123,7 @@ const DashboardPage = () => {
             </Card>
       </div>
       
-      <AnalyticsTab data={data?.salesByCategory} />
+      <AnalyticsTab data={data?.salesByCategory} trafficData={data?.trafficData} />
       
       <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
         <Card className='col-span-1 lg:col-span-4 rounded-2xl'>

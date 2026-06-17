@@ -27,6 +27,7 @@ export interface DashboardData {
   }[];
   salesByCategory: any[];
   notifications: any[];
+  trafficData: any[];
 }
 
 export const _dashboardApi = {

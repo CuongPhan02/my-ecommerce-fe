@@ -420,11 +420,13 @@ export function OrderList() {
         <DialogContent className="max-w-3xl rounded-2xl overflow-hidden p-0 border-0 shadow-2xl bg-white max-h-[95vh] flex flex-col">
           {isLoadingDetail ? (
              <div className="h-96 flex flex-col items-center justify-center gap-4">
+                <DialogTitle className="sr-only">Đang tải chi tiết đơn hàng</DialogTitle>
                 <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
                 <p className="text-sm font-bold text-gray-500">Đang tải chi tiết đơn hàng...</p>
              </div>
           ) : !selectedOrder ? (
             <div className="p-10 text-center">
+               <DialogTitle className="sr-only">Không tìm thấy đơn hàng</DialogTitle>
                <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
                <h3 className="text-lg font-bold">Không tìm thấy đơn hàng</h3>
             </div>

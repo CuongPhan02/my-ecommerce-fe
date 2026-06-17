@@ -18,15 +18,7 @@ import {
   Area,
 } from 'recharts'
 
-const trafficData = [
-  { name: 'Thứ 2', visitors: 4200, pageViews: 8400 },
-  { name: 'Thứ 3', visitors: 3800, pageViews: 7600 },
-  { name: 'Thứ 4', visitors: 5100, pageViews: 11200 },
-  { name: 'Thứ 5', visitors: 4600, pageViews: 9800 },
-  { name: 'Thứ 6', visitors: 4900, pageViews: 10400 },
-  { name: 'Thứ 7', visitors: 6800, pageViews: 14500 },
-  { name: 'Chủ Nhật', visitors: 7500, pageViews: 16800 },
-]
+// Hardcoded data removed, will use dynamic data from props
 
 const salesByCategoryData = [
   { name: 'Thg 1', mensFashion: 14000000, womensFashion: 24000000, accessories: 12000000 },
@@ -113,7 +105,7 @@ const colors = [
   '#06b6d4', // cyan
 ]
 
-export function AnalyticsTab({ data }: { data?: any[] }) {
+export function AnalyticsTab({ data, trafficData = [] }: { data?: any[], trafficData?: any[] }) {
   const formattedData = React.useMemo(() => {
     if (!data) return []
     return data.map((item: any) => ({
