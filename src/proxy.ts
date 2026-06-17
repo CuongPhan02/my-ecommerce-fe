@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const MANAGEMENT_ROLES = ['ADMIN', 'SUPER_ADMIN', 'STAFF']
+const MANAGEMENT_ROLES = [
+  'ADMIN',
+  'SUPER_ADMIN',
+  'STAFF',
+  'SALES',
+  'INVENTORY',
+  'VENDOR',
+  'EDITOR',
+]
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -24,8 +32,8 @@ export async function proxy(request: NextRequest) {
 
   const isProtectedRoute =
     (path.startsWith('/dashboard') ||
-     path.startsWith('/admin') ||
-     path.startsWith('/profile')) &&
+      path.startsWith('/admin') ||
+      path.startsWith('/profile')) &&
     !isAdminAuthRoute
 
   if (path === '/admin/login' && isLoggedIn) {

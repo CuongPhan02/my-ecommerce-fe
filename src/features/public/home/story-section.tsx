@@ -369,7 +369,7 @@ const StorySection = () => {
                 {/* Glassmorphic Product Card details */}
                 {activeProduct && (
                   <Link
-                    href={`/shop`}
+                    href={`/product/${activeProduct.id}`}
                     onClick={() => setIsOpen(false)}
                     className='flex items-center justify-between bg-white/95 hover:bg-white text-neutral-900 p-3.5 rounded-2xl transition-all duration-300 pointer-events-auto active:scale-[0.98] group hover:shadow-lg hover:shadow-white/10 shadow-md'
                   >

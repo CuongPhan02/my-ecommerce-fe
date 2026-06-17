@@ -31,12 +31,12 @@ const ShippingConfiguration = () => {
             )}
           />
         </div>
-        <Link
+        {/* <Link
           href='/'
           className='text-sm font-bold text-gray-500 hover:text-gray-700 underline'
         >
           Cấu hình cài đặt vận chuyển
-        </Link>
+        </Link> */}
       </CardContent>
     </Card>
   )

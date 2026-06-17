@@ -17,7 +17,11 @@ import {
   Shirt,
   Sparkles,
   Globe,
+  Loader2,
 } from 'lucide-react'
+import { _volunteerService } from '~/features/admin/volunteer/volunteer.query'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
 
 /* ─── Animation Presets ─────────────────────────────────────── */
 const containerVariants: Variants = {
@@ -198,6 +202,33 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 /* ─── Main Page ─────────────────────────────────────────────── */
 export default function HanhTrinhYeuThuongPage() {
+  const registerMutation = _volunteerService.useRegisterVolunteer()
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<{ fullName: string; phone: string; email: string; message?: string }>({
+    defaultValues: {
+      fullName: '',
+      phone: '',
+      email: '',
+      message: '',
+    },
+  })
+
+  const onSubmit = (data: { fullName: string; phone: string; email: string; message?: string }) => {
+    registerMutation.mutate(data, {
+      onSuccess: () => {
+        toast.success('Đăng ký tình nguyện viên thành công! Vui lòng kiểm tra hộp thư của bạn.')
+        reset()
+      },
+      onError: (err: any) => {
+        toast.error(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+      },
+    })
+  }
+
   return (
     <main className='bg-white text-black overflow-x-hidden'>
 
@@ -625,7 +656,7 @@ export default function HanhTrinhYeuThuongPage() {
               Để lại thông tin và chúng tôi sẽ liên hệ với bạn khi có chiến dịch tiếp theo.
             </p>
 
-            <form className='space-y-3 text-left pt-2' onSubmit={(e) => e.preventDefault()}>
+            <form className='space-y-3 text-left pt-2' onSubmit={handleSubmit(onSubmit)}>
               <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                 <div className='space-y-1.5'>
                   <label className='text-[10px] font-black uppercase tracking-widest text-neutral-600'>
@@ -634,8 +665,10 @@ export default function HanhTrinhYeuThuongPage() {
                   <input
                     type='text'
                     placeholder='Nguyễn Văn A'
+                    {...register('fullName', { required: 'Vui lòng nhập họ và tên' })}
                     className='w-full border border-neutral-200 bg-white px-4 py-3 text-xs font-medium text-black placeholder:text-neutral-300 focus:outline-none focus:border-[#5c4e43] transition-colors rounded-sm'
                   />
+                  {errors.fullName && <p className='text-[10px] text-red-500 font-bold mt-0.5'>{errors.fullName.message}</p>}
                 </div>
                 <div className='space-y-1.5'>
                   <label className='text-[10px] font-black uppercase tracking-widest text-neutral-600'>
@@ -644,8 +677,10 @@ export default function HanhTrinhYeuThuongPage() {
                   <input
                     type='tel'
                     placeholder='0901 234 567'
+                    {...register('phone', { required: 'Vui lòng nhập số điện thoại' })}
                     className='w-full border border-neutral-200 bg-white px-4 py-3 text-xs font-medium text-black placeholder:text-neutral-300 focus:outline-none focus:border-[#5c4e43] transition-colors rounded-sm'
                   />
+                  {errors.phone && <p className='text-[10px] text-red-500 font-bold mt-0.5'>{errors.phone.message}</p>}
                 </div>
               </div>
               <div className='space-y-1.5'>
@@ -655,8 +690,13 @@ export default function HanhTrinhYeuThuongPage() {
                 <input
                   type='email'
                   placeholder='email@example.com'
+                  {...register('email', { 
+                    required: 'Vui lòng nhập email', 
+                    pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Email không hợp lệ' } 
+                  })}
                   className='w-full border border-neutral-200 bg-white px-4 py-3 text-xs font-medium text-black placeholder:text-neutral-300 focus:outline-none focus:border-[#5c4e43] transition-colors rounded-sm'
                 />
+                {errors.email && <p className='text-[10px] text-red-500 font-bold mt-0.5'>{errors.email.message}</p>}
               </div>
               <div className='space-y-1.5'>
                 <label className='text-[10px] font-black uppercase tracking-widest text-neutral-600'>
@@ -665,15 +705,23 @@ export default function HanhTrinhYeuThuongPage() {
                 <textarea
                   placeholder='Tôi muốn tham gia vì...'
                   rows={3}
+                  {...register('message')}
                   className='w-full border border-neutral-200 bg-white px-4 py-3 text-xs font-medium text-black placeholder:text-neutral-300 focus:outline-none focus:border-[#5c4e43] transition-colors rounded-sm resize-none'
                 />
               </div>
               <button
                 type='submit'
-                className='w-full bg-[#231f20] hover:bg-[#5c4e43] text-white py-4 text-xs font-black uppercase tracking-widest transition-colors rounded-sm flex items-center justify-center gap-2'
+                disabled={registerMutation.isPending}
+                className='w-full bg-[#231f20] hover:bg-[#5c4e43] text-white py-4 text-xs font-black uppercase tracking-widest transition-colors rounded-sm flex items-center justify-center gap-2 disabled:opacity-50'
               >
-                <Heart className='w-3.5 h-3.5 fill-white' />
-                Đăng ký tình nguyện
+                {registerMutation.isPending ? (
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                ) : (
+                  <>
+                    <Heart className='w-3.5 h-3.5 fill-white' />
+                    Đăng ký tình nguyện
+                  </>
+                )}
               </button>
             </form>
           </motion.div>

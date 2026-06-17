@@ -45,7 +45,7 @@ const LogoUi = ({
           alt={logoAlt || 'Logo'}
           width={150}
           height={50}
-          className='max-h-20 w-auto object-contain'
+          className='max-h-7 lg:max-h-20 w-auto object-contain'
         />
       ) : (
         <span className='font-heading tracking-[0.25em] text-2xl font-bold text-[#231f20]'>

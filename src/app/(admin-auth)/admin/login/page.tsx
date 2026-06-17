@@ -49,7 +49,17 @@ const AdminLogin = () => {
 
         toast.success('Đăng nhập thành công')
         login(user, accessToken, refreshToken)
-        router.push('/admin/dashboard')
+        
+        if (role === ROLES.INVENTORY) {
+          router.push('/admin/inventory')
+        } else if (role === ROLES.SALES || role === ROLES.VENDOR) {
+          router.push('/admin/order/list')
+        } else if (role === ROLES.EDITOR) {
+          router.push('/admin/product/list')
+        } else {
+          router.push('/admin/dashboard')
+        }
+        
         router.refresh()
       },
       onError: (error: any) => {

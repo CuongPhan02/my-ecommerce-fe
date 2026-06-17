@@ -12,20 +12,10 @@ interface ShopDropdownProps {
 const ShopDropdown = ({ config }: ShopDropdownProps) => {
   if (!config) return null
 
-  // 1. Find parent categories
-  const parentCategories = config.categories?.filter(
-    (c) => !c.parentId || !config.categories?.some((parent) => parent.id === c.parentId)
-  ) || []
-
-  // 2. Helper to resolve sub-categories of a parent
-  const getSubCategories = (parentId: string) => {
-    return config.categories?.filter((c) => c.parentId === parentId) || []
-  }
-
-  // 3. Find collections that have an image to showcase
+  // 1. Find collections that have an image to showcase
   const featuredCollections = config.collections?.filter((col) => col.imageUrl && col.isActive) || []
   const hasFeatured = featuredCollections.length > 0
-  const displayCollections = featuredCollections.slice(0, 4)
+  const displayCollections = featuredCollections
 
   return (
     <div className='w-full bg-white dark:bg-neutral-950 border-t border-neutral-100 dark:border-neutral-800/80 shadow-[0_35px_70px_-15px_rgba(0,0,0,0.15)] py-12 px-8 lg:px-16 overflow-y-auto max-h-[calc(100vh-100px)] border-b rounded-b-[2rem] transition-all duration-300'>
@@ -34,48 +24,22 @@ const ShopDropdown = ({ config }: ShopDropdownProps) => {
           
           {/* CATALOG NAVIGATION (Left Pane) */}
           <div className={`${hasFeatured ? 'lg:col-span-8 xl:col-span-8' : 'lg:col-span-12'}`}>
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 lg:gap-10'>
-              {parentCategories.map((parent) => {
-                const subCats = getSubCategories(parent.id)
-                return (
-                  <div key={parent.id} className='flex flex-col space-y-4 group/item'>
-                    {/* Parent Category Title */}
-                    <div className='relative'>
-                      <Link
-                        href={`/shop?categoryId=${parent.id}`}
-                        className='font-black text-xs uppercase tracking-[0.2em] text-neutral-900 dark:text-neutral-50 pb-2 flex items-center justify-between group-hover/item:text-primary transition-colors border-b border-neutral-100 dark:border-neutral-800'
-                      >
-                        <span>{parent.name}</span>
-                        <ArrowRight className='w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300 text-primary shrink-0' />
-                      </Link>
-                      <span className='absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover/item:w-full transition-all duration-500' />
-                    </div>
-
-                    {/* Subcategories list */}
-                    {subCats.length > 0 ? (
-                      <div className='flex flex-col space-y-3'>
-                        {subCats.map((sub) => (
-                          <Link
-                            key={sub.id}
-                            href={`/shop?categoryId=${sub.id}`}
-                            className='text-[13px] text-neutral-500 dark:text-neutral-400 hover:text-primary dark:hover:text-primary transition-all duration-300 hover:translate-x-1 flex items-center font-medium group/sub'
-                          >
-                            <span className='h-1 w-1 rounded-full bg-neutral-300 dark:bg-neutral-800 mr-2 group-hover/sub:bg-primary group-hover/sub:scale-125 transition-all' />
-                            <span>{sub.name}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <Link 
-                        href={`/shop?categoryId=${parent.id}`} 
-                        className='text-[10px] text-neutral-400 dark:text-neutral-500 hover:text-primary transition-colors flex items-center gap-0.5 font-bold uppercase tracking-wider'
-                      >
-                        Khám phá <ArrowUpRight className='w-3 h-3' />
-                      </Link>
-                    )}
+            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-4 gap-4'>
+              {config.categories?.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/shop?categoryId=${cat.id}`}
+                  className='flex items-center justify-between group/cat-item p-4.5 bg-neutral-50/50 dark:bg-neutral-900/40 hover:bg-primary/[0.04] dark:hover:bg-primary/[0.04] border border-neutral-100 dark:border-neutral-800/80 hover:border-primary/20 rounded-2xl transition-all duration-300'
+                >
+                  <div className='flex items-center gap-3 min-w-0'>
+                    <span className='h-1.5 w-1.5 rounded-full bg-neutral-300 dark:bg-neutral-700 group-hover/cat-item:bg-primary group-hover/cat-item:scale-125 transition-all shrink-0' />
+                    <span className='font-bold text-xs uppercase tracking-wider text-neutral-800 dark:text-neutral-200 group-hover/cat-item:text-primary transition-colors truncate'>
+                      {cat.name}
+                    </span>
                   </div>
-                )
-              })}
+                  <ArrowUpRight className='w-3.5 h-3.5 text-neutral-400 group-hover/cat-item:text-primary group-hover/cat-item:translate-x-0.5 group-hover/cat-item:-translate-y-0.5 transition-all duration-300 shrink-0' />
+                </Link>
+              ))}
             </div>
           </div>
 

@@ -96,7 +96,7 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
 
   return (
     <>
-      <div className='flex flex-col w-full font-heading relative z-50'>
+      <div className='flex flex-col w-full font-heading relative z-[999]'>
         <TopBar />
         <AnimatePresence>
           {hoveredMegaMenuId && (
@@ -105,12 +105,12 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className='fixed inset-0 top-[65px] md:top-[80px] bg-black/40 z-40 backdrop-blur-sm pointer-events-none'
+              className='fixed inset-0 top-[65px] md:top-[80px] bg-black/40 z-[998] backdrop-blur-sm pointer-events-none'
             />
           )}
         </AnimatePresence>
         <motion.header
-          className={`w-full z-50 transition-all duration-300 border-b border-neutral-100 ${
+          className={`w-full z-[999] transition-all duration-300 border-b border-neutral-100 ${
             isScrolled
               ? 'fixed top-0 left-0 bg-white/95 backdrop-blur-md shadow-sm'
               : 'relative bg-white'
@@ -158,7 +158,7 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
                     )}
                   </Link>
                   {item.isMegaMenu && (
-                    <div className='absolute left-0 right-0 w-full top-full invisible group-hover:visible z-50 transition-all duration-300 opacity-0 transform translate-y-2 group-hover:translate-y-0 group-hover:opacity-100'>
+                    <div className='absolute left-0 right-0 w-full top-full invisible group-hover:visible z-[1000] transition-all duration-300 opacity-0 transform translate-y-2 group-hover:translate-y-0 group-hover:opacity-100'>
                       <ShopDropdown config={item.megaMenu} />
                     </div>
                   )}

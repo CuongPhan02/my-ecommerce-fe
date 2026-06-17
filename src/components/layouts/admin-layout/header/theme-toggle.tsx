@@ -11,7 +11,7 @@ export default function ThemeToggle() {
 
   const smartToggle = () => {
     const prefersDarkScheme = window.matchMedia(
-      '(prefers-color-scheme: dark)'
+      '(prefers-color-scheme: dark)',
     ).matches
     if (theme === 'system') {
       setTheme(prefersDarkScheme ? 'light' : 'dark')
@@ -29,7 +29,7 @@ export default function ThemeToggle() {
   }
 
   return (
-    <div className='flex flex-col justify-center'>
+    <div className='flex flex-col justify-center hidden'>
       <input
         type='checkbox'
         name='theme-toggle'

@@ -5,6 +5,7 @@ import { cn } from '~/lib/utils'
 import { _cartService } from '~/features/public/cart/cart.query'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
+import { useWishlist } from '~/providers/wishlist-provider'
 
 interface ProductInfoProps {
   product: Product
@@ -45,6 +46,7 @@ const colorHexMap: Record<string, string> = {
 
 const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
   const router = useRouter()
+  const { isWishlisted, toggleWishlist } = useWishlist()
   const [quantity, setQuantity] = useState(1)
 
   // Extract color attribute values
@@ -358,17 +360,40 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
 
       {/* CTA Buttons */}
       <div className='space-y-3 pt-4 border-t border-neutral-100'>
-        <button
-          onClick={handleAddToCart}
-          disabled={addToCartMutation.isPending || isOutOfStock || quantity > stockQuantity}
-          className='w-full h-12 bg-black hover:bg-neutral-800 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest transition-colors disabled:opacity-50'
-        >
-          {addToCartMutation.isPending ? (
-            <Loader2 className='w-4 h-4 animate-spin' />
-          ) : (
-            'Thêm vào giỏ hàng'
-          )}
-        </button>
+        <div className='flex gap-3'>
+          <button
+            onClick={handleAddToCart}
+            disabled={addToCartMutation.isPending || isOutOfStock || quantity > stockQuantity}
+            className='flex-1 h-12 bg-black hover:bg-neutral-800 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest transition-colors disabled:opacity-50'
+          >
+            {addToCartMutation.isPending ? (
+              <Loader2 className='w-4 h-4 animate-spin' />
+            ) : (
+              'Thêm vào giỏ hàng'
+            )}
+          </button>
+          <button
+            onClick={() => {
+              const isCurrentlyWishlisted = isWishlisted(product.id)
+              toggleWishlist(product.id)
+              if (isCurrentlyWishlisted) {
+                toast.success('Đã xóa khỏi danh sách yêu thích')
+              } else {
+                toast.success('Đã thêm vào danh sách yêu thích!')
+              }
+            }}
+            type='button'
+            className={cn(
+              'w-12 h-12 border flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 rounded-sm',
+              isWishlisted(product.id)
+                ? 'border-rose-500 bg-rose-50/50 text-rose-500 hover:bg-rose-100/50'
+                : 'border-neutral-200 bg-white text-neutral-600 hover:border-black hover:text-black'
+            )}
+            title={isWishlisted(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+          >
+            <Heart className={cn('w-5 h-5 transition-transform duration-200 active:scale-90', isWishlisted(product.id) && 'fill-current')} />
+          </button>
+        </div>
         <button
           onClick={() => {
             if (!isOutOfStock) {
