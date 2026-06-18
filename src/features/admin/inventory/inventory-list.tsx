@@ -501,11 +501,11 @@ export function InventoryList() {
               </div>
             </DialogHeader>
 
-            <div className="my-5 space-y-4 pt-3 border-t border-gray-100">
+            <div className="my-5 space-y-4 pt-3 border-t border-gray-100 min-w-0">
               <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-700 space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-500">Sản phẩm:</span>
-                  <span className="font-bold text-gray-800">{selectedItem.product.name}</span>
+                <div className="flex justify-between items-center gap-4">
+                  <span className="font-semibold text-gray-500 shrink-0">Sản phẩm:</span>
+                  <span className="font-bold text-gray-800 truncate text-right">{selectedItem.product.name}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-gray-500">SKU:</span>
@@ -574,7 +574,7 @@ export function InventoryList() {
               </div>
             </DialogHeader>
 
-            <div className="my-5 space-y-4 pt-3 border-t border-gray-100">
+            <div className="my-5 space-y-4 pt-3 border-t border-gray-100 min-w-0">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Mặt hàng cần nhập *</label>
                 <Select value={restockProductId} onValueChange={setRestockProductId}>
@@ -658,7 +658,7 @@ export function InventoryList() {
               </div>
             </DialogHeader>
 
-            <div className="my-5 space-y-4 pt-3 border-t border-gray-100">
+            <div className="my-5 space-y-4 pt-3 border-t border-gray-100 min-w-0">
               <div className="space-y-3 max-h-[350px] overflow-y-auto">
                 {exportItems.map((exportItem, index) => (
                   <div key={index} className="space-y-3 p-4 rounded-xl bg-gray-50/70 border border-gray-100">
@@ -691,7 +691,7 @@ export function InventoryList() {
                         }}
                       >
                         <SelectTrigger className="w-full rounded-xl border-gray-200 text-xs font-bold h-10.5 bg-white">
-                          <SelectValue placeholder="Chọn sản phẩm" />
+                          <SelectValue placeholder="Chọn sản phẩm" className="truncate min-w-0" />
                         </SelectTrigger>
                         <SelectContent>
                           {inventory.map((item) => (
