@@ -357,13 +357,13 @@ export default function AIChatbot() {
       }
 
       const response = await https.post('/ai/chat', payload)
-      const data: AIResponse = response.data.data
+      const data: AIResponse = response.data.result || {}
 
       setMessages((prev) => [
         ...prev,
         {
           role: 'model',
-          message: data.text,
+          message: data.text || 'Dạ, em chưa nhận được câu trả lời từ hệ thống. Anh/chị vui lòng thử lại nhé!',
           timestamp: new Date().toLocaleTimeString('vi-VN', {
             hour: '2-digit',
             minute: '2-digit',
