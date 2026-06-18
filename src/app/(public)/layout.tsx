@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Footer from '~/components/layouts/public-layout/footer'
 import Header from '~/components/layouts/public-layout/header/header'
 import ComingSoonWrapper from '~/components/shared/coming-soon-wrapper'
+import AIChatbot from '~/components/shared/ai-chatbot'
 import { API_BASE_URL } from '~/constants'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -75,10 +76,11 @@ export default async function Layout({
 
   return (
     <ComingSoonWrapper isEnabled={isComingSoon}>
-      <div className='flex flex-col min-h-screen'>
+      <div className='flex flex-col min-h-screen relative'>
         <Header initialMenus={initialMenus} logoUrl={logoUrl} logoAlt={logoAlt} />
         <main className='w-full h-fit flex-1'>{children}</main>
         <Footer />
+        <AIChatbot />
       </div>
     </ComingSoonWrapper>
   )
