@@ -20,9 +20,11 @@ import { Voucher } from '~/features/public/voucher/types'
 
 export default function CartPage() {
   const router = useRouter()
-  const { data: cartData, isLoading, isError } = _cartService.useCart()
+  const { data: cartData, isLoading: cartLoading, isError } = _cartService.useCart()
   const { data: addressesRes } = _profileService.useMyAddresses()
   const { data: profileRes } = AUTH_QUERY.useMe()
+  const { data: shippingConfigData, isLoading: shippingConfigLoading } = _cartService.useShippingConfig()
+  const { data: shippingMethodsData, isLoading: shippingMethodsLoading } = _cartService.useActiveShippingMethods()
 
   const updateCartItemMutation = _cartService.useUpdateCartItem()
   const removeCartItemMutation = _cartService.useRemoveCartItem()
@@ -30,6 +32,9 @@ export default function CartPage() {
   const createOrderMutation = _cartService.useCreateOrder()
   const createPaymentUrlMutation = _cartService.useCreatePaymentUrl()
   const applyVoucherMutation = _voucherService.useApplyVoucher()
+
+  const enableShipping = shippingConfigData?.result?.enableShipping || false
+  const shippingMethods = shippingMethodsData?.result || []
 
   const [shippingValues, setShippingValues] = useState({
     shippingName: '',
@@ -39,7 +44,18 @@ export default function CartPage() {
     province: '',
     city: '',
     note: '',
+    shippingMethodId: '',
   })
+
+  // Auto-select first shipping method if enabled
+  useEffect(() => {
+    if (enableShipping && shippingMethods.length > 0 && !shippingValues.shippingMethodId) {
+      setShippingValues(prev => ({
+        ...prev,
+        shippingMethodId: shippingMethods[0].id
+      }))
+    }
+  }, [enableShipping, shippingMethods, shippingValues.shippingMethodId])
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
   const [couponCode, setCouponCode] = useState('')
@@ -60,15 +76,15 @@ export default function CartPage() {
     if (user && !isInitialized) {
       const defaultAddr = addresses.find(a => a.isDefault) || addresses[0]
 
-      setShippingValues({
+      setShippingValues(prev => ({
+        ...prev,
         shippingName: defaultAddr?.receiverName || user.name || '',
         shippingEmail: user.email || '',
         shippingPhone: defaultAddr?.phone || user.phone || '',
         street: defaultAddr?.street || '',
         city: defaultAddr?.city || '',
         province: defaultAddr?.province || '',
-        note: '',
-      })
+      }))
       setIsInitialized(true)
     }
   }, [user, addresses, isInitialized])
@@ -85,6 +101,7 @@ export default function CartPage() {
     setShowAddressList(false)
     toast.info('Đã áp dụng địa chỉ đã chọn')
   }
+
   const cartItems = cart?.items || []
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.variant.price * item.quantity,
@@ -99,7 +116,18 @@ export default function CartPage() {
       discount = appliedVoucher.discountValue
     }
   }
-  const finalTotal = Math.max(0, subtotal - discount)
+
+  let shippingFee = 0
+  if (enableShipping && shippingValues.shippingMethodId) {
+    const selectedMethod = shippingMethods.find(m => m.id === shippingValues.shippingMethodId)
+    if (selectedMethod) {
+      shippingFee = selectedMethod.fee
+    }
+  }
+
+  const finalTotal = Math.max(0, subtotal - discount + shippingFee)
+
+  const isLoading = cartLoading || shippingConfigLoading || shippingMethodsLoading
 
   const isSubmitting =
     createOrderMutation.isPending ||
@@ -196,6 +224,10 @@ export default function CartPage() {
       newErrors.city = 'Quận / Huyện không được để trống'
     }
 
+    if (enableShipping && !shippingValues.shippingMethodId) {
+      newErrors.shippingMethodId = 'Vui lòng chọn phương thức vận chuyển'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -218,6 +250,7 @@ export default function CartPage() {
         province: shippingValues.province,
         city: shippingValues.city,
         note: shippingValues.note || undefined,
+        shippingMethodId: enableShipping ? shippingValues.shippingMethodId : undefined,
       }
 
       const orderRes = await createOrderMutation.mutateAsync(payload)
@@ -404,6 +437,8 @@ export default function CartPage() {
                   values={shippingValues}
                   onChange={handleShippingChange}
                   errors={errors}
+                  enableShipping={enableShipping}
+                  shippingMethods={shippingMethods}
                 />
               </div>
 
@@ -479,6 +514,7 @@ export default function CartPage() {
                 subtotal={subtotal}
                 total={finalTotal}
                 discountAmount={discount}
+                shippingFee={shippingFee}
                 onApplyVoucher={handleApplyVoucher}
                 isApplyingVoucher={applyVoucherMutation.isPending}
                 appliedVoucherCode={appliedVoucher?.code}

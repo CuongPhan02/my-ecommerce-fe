@@ -41,7 +41,9 @@ import {
   Settings2,
   FileImage,
   Upload,
+  Truck,
 } from 'lucide-react'
+import { ShippingSettings } from './components/shipping-settings'
 
 export function StoreSettings() {
   // 1. Fetch & Mutation Hooks for App Settings
@@ -268,11 +270,14 @@ export function StoreSettings() {
       </div>
 
       <Tabs defaultValue='general' className='w-full'>
-        <TabsList className='grid w-full grid-cols-3 lg:w-[600px] bg-muted/60 p-1 rounded-2xl'>
+        <TabsList className='grid w-full grid-cols-4 lg:w-[700px] bg-muted/60 p-1 rounded-2xl'>
           <TabsTrigger value='general' className='rounded-xl'>Thông tin chung</TabsTrigger>
           <TabsTrigger value='advanced' className='rounded-xl'>Nâng cao & SEO</TabsTrigger>
           <TabsTrigger value='app' className='rounded-xl flex items-center gap-1.5'>
             <Settings2 className='h-3.5 w-3.5' /> Cấu hình App
+          </TabsTrigger>
+          <TabsTrigger value='shipping' className='rounded-xl flex items-center gap-1.5'>
+            <Truck className='h-3.5 w-3.5' /> Vận chuyển
           </TabsTrigger>
         </TabsList>
 
@@ -876,6 +881,10 @@ export function StoreSettings() {
               </Button>
             </CardFooter>
           </Card>
+        </TabsContent>
+
+        <TabsContent value='shipping' className='space-y-4 mt-4'>
+          <ShippingSettings />
         </TabsContent>
       </Tabs>
     </div>

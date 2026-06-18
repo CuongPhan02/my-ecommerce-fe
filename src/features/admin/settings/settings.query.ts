@@ -128,11 +128,84 @@ export const _settingsService = {
     return useMutation({
       mutationFn: _settingsApi.updateSystemConfig,
       onSuccess: () => {
+        toast.success('Lưu cấu hình hệ thống thành công')
         queryClient.invalidateQueries({ queryKey: ['settings', 'system-config'] })
-        toast.success('Cập nhật cấu hình hệ thống thành công')
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Cập nhật cấu hình hệ thống thất bại')
+        toast.error(error?.response?.data?.message || 'Lỗi khi lưu cấu hình hệ thống')
+      },
+    })
+  },
+
+  // SHIPPING CONFIG
+  useShippingConfig: () => {
+    return useQuery({
+      queryKey: ['settings', 'shipping_config'],
+      queryFn: _settingsApi.fetchShippingConfig,
+    })
+  },
+
+  useUpdateShippingConfig: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _settingsApi.updateShippingConfig,
+      onSuccess: () => {
+        toast.success('Lưu cấu hình vận chuyển thành công')
+        queryClient.invalidateQueries({ queryKey: ['settings', 'shipping_config'] })
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Lỗi khi lưu cấu hình vận chuyển')
+      },
+    })
+  },
+
+  // SHIPPING METHODS
+  useShippingMethods: () => {
+    return useQuery({
+      queryKey: ['settings', 'shipping_methods'],
+      queryFn: _settingsApi.fetchShippingMethods,
+    })
+  },
+
+  useCreateShippingMethod: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _settingsApi.createShippingMethod,
+      onSuccess: () => {
+        toast.success('Tạo phương thức vận chuyển thành công')
+        queryClient.invalidateQueries({ queryKey: ['settings', 'shipping_methods'] })
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Lỗi khi tạo phương thức')
+      },
+    })
+  },
+
+  useUpdateShippingMethod: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: ({ id, data }: { id: string; data: any }) => 
+        _settingsApi.updateShippingMethod(id, data),
+      onSuccess: () => {
+        toast.success('Cập nhật phương thức vận chuyển thành công')
+        queryClient.invalidateQueries({ queryKey: ['settings', 'shipping_methods'] })
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Lỗi khi cập nhật phương thức')
+      },
+    })
+  },
+
+  useDeleteShippingMethod: () => {
+    const queryClient = useQueryClient()
+    return useMutation({
+      mutationFn: _settingsApi.deleteShippingMethod,
+      onSuccess: () => {
+        toast.success('Xóa phương thức vận chuyển thành công')
+        queryClient.invalidateQueries({ queryKey: ['settings', 'shipping_methods'] })
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Lỗi khi xóa phương thức')
       },
     })
   },

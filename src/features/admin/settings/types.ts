@@ -49,3 +49,17 @@ export interface SystemConfig {
   maintenanceMode: boolean
   enableEmailVerification: boolean
 }
+
+export interface ShippingConfig {
+  enableShipping: boolean
+}
+
+export interface ShippingMethod {
+  id: string
+  name: string
+  fee: number
+  estimatedDays: string | null
+  isActive: boolean
+  createdAt?: string
+  updatedAt?: string
+}

@@ -46,6 +46,18 @@ export interface Cart {
   items: CartItem[]
 }
 
+export interface ShippingMethod {
+  id: string
+  name: string
+  fee: number
+  estimatedDays: string | null
+  isActive: boolean
+}
+
+export interface ShippingConfig {
+  enableShipping: boolean
+}
+
 export interface AddToCartPayload {
   productVariantId: string
   quantity: number

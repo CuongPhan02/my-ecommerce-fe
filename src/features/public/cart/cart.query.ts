@@ -107,5 +107,19 @@ export const _cartService = {
     return useMutation({
       mutationFn: (payload: CreatePaymentUrlPayload) => _cartApi.createPaymentUrl(payload)
     })
+  },
+
+  useShippingConfig: () => {
+    return useQuery({
+      queryKey: ['cart', 'shipping-config'],
+      queryFn: _cartApi.getShippingConfig,
+    })
+  },
+
+  useActiveShippingMethods: () => {
+    return useQuery({
+      queryKey: ['cart', 'shipping-methods-active'],
+      queryFn: _cartApi.getActiveShippingMethods,
+    })
   }
 }

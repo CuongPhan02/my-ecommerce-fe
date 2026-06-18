@@ -69,4 +69,36 @@ export const _settingsApi = {
     const res = await https.post<ApiResponse<SystemConfig>>('/settings/system-config', data)
     return res.data
   },
+
+  // SHIPPING CONFIG
+  fetchShippingConfig: async () => {
+    const res = await https.get<ApiResponse<ShippingConfig>>('/settings/shipping_config')
+    return res.data
+  },
+
+  updateShippingConfig: async (data: ShippingConfig) => {
+    const res = await https.post<ApiResponse<ShippingConfig>>('/settings/shipping_config', data)
+    return res.data
+  },
+
+  // SHIPPING METHODS
+  fetchShippingMethods: async () => {
+    const res = await https.get<ApiResponse<ShippingMethod[]>>('/shipping-methods')
+    return res.data
+  },
+
+  createShippingMethod: async (data: Omit<ShippingMethod, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const res = await https.post<ApiResponse<ShippingMethod>>('/shipping-methods', data)
+    return res.data
+  },
+
+  updateShippingMethod: async (id: string, data: Partial<ShippingMethod>) => {
+    const res = await https.put<ApiResponse<ShippingMethod>>(`/shipping-methods/${id}`, data)
+    return res.data
+  },
+
+  deleteShippingMethod: async (id: string) => {
+    const res = await https.delete<ApiResponse<null>>(`/shipping-methods/${id}`)
+    return res.data
+  },
 }

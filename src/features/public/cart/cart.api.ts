@@ -36,6 +36,16 @@ export const _cartApi = {
   createPaymentUrl: async (payload: CreatePaymentUrlPayload) => {
     const res = await https.post<ApiResponse<{ paymentUrl: string }>>('/payments/create-payment-url', payload)
     return res.data
+  },
+
+  getShippingConfig: async () => {
+    const res = await https.get<ApiResponse<ShippingConfig>>('/settings/shipping_config')
+    return res.data
+  },
+
+  getActiveShippingMethods: async () => {
+    const res = await https.get<ApiResponse<ShippingMethod[]>>('/shipping-methods/active')
+    return res.data
   }
 }
 

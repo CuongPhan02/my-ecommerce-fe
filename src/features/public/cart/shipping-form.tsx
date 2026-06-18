@@ -3,6 +3,8 @@
 import React from 'react'
 import { cn } from '~/lib/utils'
 
+import { ShippingMethod } from './types'
+
 interface ShippingFormProps {
   values: {
     shippingName: string
@@ -12,17 +14,66 @@ interface ShippingFormProps {
     province: string
     city: string
     note: string
+    shippingMethodId?: string
   }
   onChange: (field: string, value: string) => void
   errors?: Record<string, string>
+  shippingMethods?: ShippingMethod[]
+  enableShipping?: boolean
 }
 
-const ShippingForm = ({ values, onChange, errors = {} }: ShippingFormProps) => {
+const ShippingForm = ({ values, onChange, errors = {}, shippingMethods = [], enableShipping = false }: ShippingFormProps) => {
   return (
     <div className='flex flex-col gap-8'>
       <h2 className='text-xl font-black uppercase tracking-tight text-[#231f20]'>
         Thông tin vận chuyển
       </h2>
+
+      {enableShipping && shippingMethods.length > 0 && (
+        <div className='flex flex-col gap-4 mb-4'>
+          <h3 className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+            Phương thức vận chuyển
+          </h3>
+          <div className='grid grid-cols-1 gap-3'>
+            {shippingMethods.map((method) => (
+              <label 
+                key={method.id} 
+                className={cn(
+                  'flex items-center justify-between p-4 border rounded-sm cursor-pointer transition-all',
+                  values.shippingMethodId === method.id 
+                    ? 'border-[#5c4e43] bg-[#FBF8F3]' 
+                    : 'border-neutral-200 hover:border-[#5c4e43]/50'
+                )}
+              >
+                <div className='flex items-center gap-3'>
+                  <input
+                    type='radio'
+                    name='shippingMethod'
+                    value={method.id}
+                    checked={values.shippingMethodId === method.id}
+                    onChange={() => onChange('shippingMethodId', method.id)}
+                    className='w-4 h-4 accent-[#5c4e43] cursor-pointer'
+                  />
+                  <div>
+                    <p className='text-xs font-black text-[#231f20]'>{method.name}</p>
+                    {method.estimatedDays && (
+                      <p className='text-[10px] text-gray-500 font-semibold'>Thời gian: {method.estimatedDays}</p>
+                    )}
+                  </div>
+                </div>
+                <div className='text-xs font-black text-[#5c4e43]'>
+                  {method.fee === 0 ? 'Miễn phí' : `${method.fee.toLocaleString('vi-VN')}đ`}
+                </div>
+              </label>
+            ))}
+          </div>
+          {errors.shippingMethodId && (
+            <p className='text-red-500 text-[10px] font-bold uppercase tracking-wider'>
+              {errors.shippingMethodId}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className='flex items-start gap-3 p-4 bg-[#FBF8F3] rounded-sm border border-[#e8dfd5]/65 mb-2'>
         <div className='pt-1'>

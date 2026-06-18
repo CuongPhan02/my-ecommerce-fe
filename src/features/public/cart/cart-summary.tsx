@@ -14,6 +14,7 @@ interface CartSummaryProps {
   isApplyingVoucher?: boolean
   appliedVoucherCode?: string
   isSubmitting?: boolean
+  shippingFee?: number
   onOrder: () => void
 }
 
@@ -25,6 +26,7 @@ const CartSummary = ({
   isApplyingVoucher,
   appliedVoucherCode,
   isSubmitting,
+  shippingFee = 0,
   onOrder,
 }: CartSummaryProps) => {
   const [tempCode, setTempCode] = useState('')
@@ -140,7 +142,12 @@ const CartSummary = ({
             )}
             <div className="flex justify-between font-medium text-neutral-500">
                <span>Phí giao hàng</span>
-               <span className="font-bold text-black uppercase text-[9px] tracking-widest">Miễn phí</span>
+               <span className={cn(
+                 "font-bold uppercase tracking-widest",
+                 shippingFee === 0 ? "text-black text-[9px]" : "text-black text-xs"
+               )}>
+                 {shippingFee === 0 ? 'Miễn phí' : `${shippingFee.toLocaleString('vi-VN')} ₫`}
+               </span>
             </div>
          </div>
 
