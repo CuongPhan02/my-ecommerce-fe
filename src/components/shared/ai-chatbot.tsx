@@ -200,6 +200,34 @@ function VoucherChipRow({ vouchers }: { vouchers: AIVoucherChip[] }) {
   )
 }
 
+// ─── Quick Suggestions ───────────────────────────────────────────
+const QUICK_SUGGESTIONS = [
+  { icon: '🔥', label: 'Sản phẩm hot nhất', message: 'Sản phẩm nổi bật nhất hiện tại là gì?' },
+  { icon: '🏷️', label: 'Mã giảm giá', message: 'Có voucher hay mã giảm giá nào đang hoạt động không?' },
+  { icon: '👗', label: 'Tư vấn phối đồ', message: 'Tư vấn giúp tôi cách phối đồ đi làm thanh lịch nhé!' },
+  { icon: '📦', label: 'Tra đơn hàng', message: 'Tôi muốn kiểm tra tình trạng đơn hàng của mình.' },
+  { icon: '🌊', label: 'Outfit đi biển', message: 'Gợi ý outfit đi biển mùa hè cho tôi nhé!' },
+  { icon: '📷', label: 'Tư vấn qua ảnh', message: 'Tôi muốn tải ảnh lên để được tư vấn trang phục phù hợp.' },
+]
+
+function QuickSuggestions({ onSelect, disabled }: { onSelect: (msg: string) => void; disabled: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 px-1 py-1">
+      {QUICK_SUGGESTIONS.map((s) => (
+        <button
+          key={s.label}
+          onClick={() => onSelect(s.message)}
+          disabled={disabled}
+          className="flex items-center gap-1 bg-white border border-solid border-[#e8e0d6] text-[#231f20] text-[11px] font-semibold px-2.5 py-1.5 rounded-full hover:bg-[#231f20] hover:text-white hover:border-[#231f20] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95"
+        >
+          <span>{s.icon}</span>
+          <span>{s.label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ─── Main Component ──────────────────────────────────────────────
 export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false)
@@ -275,14 +303,25 @@ export default function AIChatbot() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  // Quick suggestion click → send directly
+  const handleQuickSend = (msg: string) => {
+    if (isLoading) return
+    setInputValue('')
+    // Trigger send with the suggestion text directly
+    sendMessage(msg, null)
+  }
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
     if ((!inputValue.trim() && !pendingImage) || isLoading) return
-
-    const userMsg = inputValue.trim() || 'Phân tích trang phục trong ảnh này và gợi ý sản phẩm tương tự nhé!'
-    const imageSnapshot = pendingImage
+    sendMessage(inputValue.trim() || 'Phân tích trang phục trong ảnh này và gợi ý sản phẩm tương tự nhé!', pendingImage)
     setInputValue('')
     setPendingImage(null)
+  }
+
+  const sendMessage = async (userMsg: string, imageData: typeof pendingImage) => {
+
+    const imageSnapshot = imageData
 
     const timestamp = new Date().toLocaleTimeString('vi-VN', {
       hour: '2-digit',
@@ -505,6 +544,13 @@ export default function AIChatbot() {
                 </div>
               )
             })}
+
+            {/* Quick Suggestions — hiện sau tin nhắn AI cuối, ẩn khi đang loading */}
+            {!isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'model' && (
+              <div className="self-start w-full pl-9">
+                <QuickSuggestions onSelect={handleQuickSend} disabled={isLoading} />
+              </div>
+            )}
 
             {/* Loading indicator */}
             {isLoading && (
