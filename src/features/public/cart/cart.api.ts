@@ -1,6 +1,6 @@
 import { ApiResponse } from '~/@types/api'
 import { https } from '~/config/https'
-import { Cart, AddToCartPayload, UpdateCartItemPayload, CreateOrderPayload, CreatePaymentUrlPayload } from './types'
+import { Cart, AddToCartPayload, UpdateCartItemPayload, CreateOrderPayload, CreatePaymentUrlPayload, ShippingConfig, ShippingMethod } from './types'
 
 export const _cartApi = {
   getCart: async () => {

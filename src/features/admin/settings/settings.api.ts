@@ -6,7 +6,9 @@ import {
   StoreInfo, 
   SocialLinks, 
   SeoMeta, 
-  SystemConfig 
+  SystemConfig,
+  ShippingConfig,
+  ShippingMethod
 } from './types'
 
 export const _settingsApi = {
