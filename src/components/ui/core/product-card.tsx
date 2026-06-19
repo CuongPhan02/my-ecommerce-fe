@@ -73,9 +73,13 @@ const ProductCard = ({ product }: ProductCardProps) => {
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : 0
 
-  // --- Rating ---
-  const rating = !isDbProduct ? (product as SimpleProduct).rating || 5 : 5
-  const reviews = !isDbProduct ? (product as SimpleProduct).reviews || 0 : 0
+  // --- Rating --- (dùng dữ liệu thực tế từ API nếu là sản phẩm DB)
+  const rating = isDbProduct
+    ? (product as any).ratingAverage ?? 0
+    : (product as SimpleProduct).rating || 5
+  const reviews = isDbProduct
+    ? (product as any).reviewsCount ?? 0
+    : (product as SimpleProduct).reviews || 0
 
   // --- Badge ---
   const badge = isDbProduct

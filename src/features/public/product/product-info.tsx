@@ -239,21 +239,34 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       {/* Star Ratings Row */}
       <div className='flex items-center gap-3 text-xs text-neutral-500 font-medium pb-2 border-b border-neutral-100'>
         <div className='flex items-center gap-0.5'>
-          {[1, 2, 3, 4, 5].map((s) => (
-            <Star
-              key={s}
-              className='w-3.5 h-3.5 fill-black text-black stroke-[1]'
-            />
-          ))}
+          {[1, 2, 3, 4, 5].map((s) => {
+            const ratingAvg = (product as any).ratingAverage ?? 0
+            const filled = s <= Math.floor(ratingAvg)
+            const half = !filled && s === Math.ceil(ratingAvg) && ratingAvg % 1 >= 0.5
+            return (
+              <Star
+                key={s}
+                className={cn(
+                  'w-3.5 h-3.5 stroke-[1]',
+                  filled || half ? 'fill-black text-black' : 'fill-neutral-200 text-neutral-200'
+                )}
+              />
+            )
+          })}
         </div>
-        <button 
-          onClick={onReviewsClick} 
+        <button
+          onClick={onReviewsClick}
           className='hover:underline font-bold text-neutral-800'
         >
-          4.9 (128 đánh giá)
+          {(() => {
+            const ratingAvg = (product as any).ratingAverage ?? 0
+            const reviewsCount = (product as any).reviewsCount ?? 0
+            if (reviewsCount === 0) return 'Chưa có đánh giá'
+            return `${ratingAvg.toFixed(1)} (${reviewsCount} đánh giá)`
+          })()}
         </button>
         <span className='text-neutral-300'>|</span>
-        <span>Đã bán 356</span>
+        <span>Đã bán {(product as any).soldCount ?? 0}</span>
       </div>
 
       {/* Summary Description */}
