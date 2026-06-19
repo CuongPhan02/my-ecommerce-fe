@@ -57,7 +57,7 @@ export default async function Layout({
       }),
       fetch(`${API_BASE_URL}/settings/logo`, {
         next: { revalidate: 300 }, // Cache 5 phút để có tốc độ phản hồi tối ưu
-      })
+      }),
     ])
 
     if (menusRes.ok) {
@@ -77,7 +77,11 @@ export default async function Layout({
   return (
     <ComingSoonWrapper isEnabled={isComingSoon}>
       <div className='flex flex-col min-h-screen relative'>
-        <Header initialMenus={initialMenus} logoUrl={logoUrl} logoAlt={logoAlt} />
+        <Header
+          initialMenus={initialMenus}
+          logoUrl={logoUrl}
+          logoAlt={logoAlt}
+        />
         <main className='w-full h-fit flex-1'>{children}</main>
         <Footer />
         <AIChatbot />

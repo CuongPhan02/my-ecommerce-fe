@@ -6,7 +6,6 @@ import {
   X,
   SendHorizontal,
   Trash2,
-  Sparkles,
   Bot,
   User,
   ImagePlus,
@@ -375,7 +374,7 @@ export default function AIChatbot() {
     if ((!inputValue.trim() && !pendingImage) || isLoading) return
     sendMessage(
       inputValue.trim() ||
-      'Phân tích trang phục trong ảnh này và gợi ý sản phẩm tương tự nhé!',
+        'Phân tích trang phục trong ảnh này và gợi ý sản phẩm tương tự nhé!',
       pendingImage,
     )
     setInputValue('')
@@ -493,97 +492,100 @@ export default function AIChatbot() {
 
       {/* Floating Action Menu (Speed Dial) */}
       {!isOpen && (
-        <div className='relative w-14 h-14'>
-          {/* Scroll to Top (Separate button, shown on scroll, placed left) */}
-          <button
-            onClick={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' })
-              setIsMenuOpen(false)
-            }}
-            className={`absolute right-16 top-1 w-12 h-12 bg-white text-neutral-800 border border-solid border-neutral-200 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-black hover:text-white transition-all duration-300 ease-out z-10 select-none group ${
-              showScrollTop
-                ? 'opacity-100 scale-100 pointer-events-auto'
-                : 'opacity-0 scale-50 pointer-events-none'
-            }`}
-            title='Cuộn lên đầu trang'
-          >
-            <ChevronUp className='w-5 h-5 group-hover:-translate-y-0.5 transition-transform' />
-          </button>
-
-          {/* Zalo (90 deg) */}
-          <a
-            href='https://zalo.me/0769555896'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='absolute left-1 top-1 w-12 h-12 bg-[#0068ff] text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-300 ease-out z-10 select-none'
-            style={{
-              transform: isMenuOpen
-                ? 'translate(0px, -95px) scale(1)'
-                : 'translate(0px, 0px) scale(0)',
-              opacity: isMenuOpen ? 1 : 0,
-              transitionDelay: isMenuOpen ? '0ms' : '80ms',
-              pointerEvents: isMenuOpen ? 'auto' : 'none',
-            }}
-            title='Chat Zalo'
-          >
-            <span className='font-bold text-xs tracking-wider'>Zalo</span>
-          </a>
-
-          {/* Facebook (60 deg) */}
-          <a
-            href='https://www.facebook.com/tmcstyle?locale=vi_VN'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='absolute left-1 top-1 w-12 h-12 bg-[#1877F2] text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#166fe5] transition-all duration-300 ease-out z-10 select-none'
-            style={{
-              transform: isMenuOpen
-                ? 'translate(-48px, -82px) scale(1)'
-                : 'translate(0px, 0px) scale(0)',
-              opacity: isMenuOpen ? 1 : 0,
-              transitionDelay: isMenuOpen ? '40ms' : '40ms',
-              pointerEvents: isMenuOpen ? 'auto' : 'none',
-            }}
-            title='Ghé thăm Facebook'
-          >
-            <Facebook className='h-5 w-5 fill-current' />
-          </a>
-
-          {/* AI Chatbot (30 deg) */}
+        <div className='flex flex-col items-end gap-3'>
+          {/* AI Chatbot Button (Always visible outside) */}
           <button
             onClick={() => {
               setIsOpen(true)
               setIsMenuOpen(false)
             }}
-            className='absolute left-1 top-1 w-12 h-12 bg-[#231f20] hover:bg-[#5c4e43] text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 ease-out border border-solid border-white/10 z-10 select-none'
-            style={{
-              transform: isMenuOpen
-                ? 'translate(-82px, -48px) scale(1)'
-                : 'translate(0px, 0px) scale(0)',
-              opacity: isMenuOpen ? 1 : 0,
-              transitionDelay: isMenuOpen ? '80ms' : '0ms',
-              pointerEvents: isMenuOpen ? 'auto' : 'none',
-            }}
+            className='w-16 lg:w-40 lg:h-40 bg-transparent rounded-full shadow-2xl flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 select-none relative group'
             title='Trò chuyện với AI LUNÉ'
           >
-            <span className='absolute -top-0.5 -right-0.5 flex h-3 w-3'>
+            <span className='absolute -top-0.5 -right-0.5 flex h-3 w-3 z-10'>
               <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75'></span>
               <span className='relative inline-flex rounded-full h-3 w-3 bg-amber-500'></span>
             </span>
-            <Sparkles className='h-5 w-5 text-amber-400 animate-pulse' />
+            <div className='relative w-18 lg:w-30 h-20'>
+              <Image
+                src='/chatbot.svg'
+                alt='AI Chatbot'
+                fill
+                className='object-contain scale-200 lg:scale-240 transition-transform duration-300'
+                unoptimized
+              />
+            </div>
           </button>
 
-          {/* Main Toggle Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className='absolute inset-0 bg-[#231f20] hover:bg-[#5c4e43] text-white rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center cursor-pointer border border-solid border-white/10 z-20 select-none'
-            title='Liên hệ với chúng tôi'
-          >
-            {isMenuOpen ? (
-              <X className='h-6 w-6 transition-transform duration-300 rotate-90' />
-            ) : (
-              <MessageSquare className='h-6 w-6 transition-transform duration-300' />
-            )}
-          </button>
+          {/* Contact Menu & Scroll to Top */}
+          <div className='relative w-14 h-14'>
+            {/* Scroll to Top (Separate button, shown on scroll, placed left) */}
+            <button
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+                setIsMenuOpen(false)
+              }}
+              className={`absolute right-16 top-1 w-12 h-12 bg-white text-neutral-800 border border-solid border-neutral-200 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-black hover:text-white transition-all duration-300 ease-out z-10 select-none group ${
+                showScrollTop
+                  ? 'opacity-100 scale-100 pointer-events-auto'
+                  : 'opacity-0 scale-50 pointer-events-none'
+              }`}
+              title='Cuộn lên đầu trang'
+            >
+              <ChevronUp className='w-5 h-5 group-hover:-translate-y-0.5 transition-transform' />
+            </button>
+
+            {/* Zalo (90 deg) */}
+            <a
+              href='https://zalo.me/0769555896'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='absolute left-1 top-1 w-12 h-12 bg-[#0068ff] text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-all duration-300 ease-out z-10 select-none'
+              style={{
+                transform: isMenuOpen
+                  ? 'translate(0px, -95px) scale(1)'
+                  : 'translate(0px, 0px) scale(0)',
+                opacity: isMenuOpen ? 1 : 0,
+                transitionDelay: isMenuOpen ? '0ms' : '80ms',
+                pointerEvents: isMenuOpen ? 'auto' : 'none',
+              }}
+              title='Chat Zalo'
+            >
+              <span className='font-bold text-xs tracking-wider'>Zalo</span>
+            </a>
+
+            {/* Facebook (60 deg) */}
+            <a
+              href='https://www.facebook.com/tmcstyle?locale=vi_VN'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='absolute left-1 top-1 w-12 h-12 bg-[#1877F2] text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#166fe5] transition-all duration-300 ease-out z-10 select-none'
+              style={{
+                transform: isMenuOpen
+                  ? 'translate(-48px, -82px) scale(1)'
+                  : 'translate(0px, 0px) scale(0)',
+                opacity: isMenuOpen ? 1 : 0,
+                transitionDelay: isMenuOpen ? '40ms' : '40ms',
+                pointerEvents: isMenuOpen ? 'auto' : 'none',
+              }}
+              title='Ghé thăm Facebook'
+            >
+              <Facebook className='h-5 w-5 fill-current' />
+            </a>
+
+            {/* Main Toggle Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className='absolute inset-0 bg-[#231f20] hover:bg-[#5c4e43] text-white rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center cursor-pointer border border-solid border-white/10 z-20 select-none'
+              title='Liên hệ với chúng tôi'
+            >
+              {isMenuOpen ? (
+                <X className='h-6 w-6 transition-transform duration-300 rotate-90' />
+              ) : (
+                <MessageSquare className='h-6 w-6 transition-transform duration-300' />
+              )}
+            </button>
+          </div>
         </div>
       )}
 
@@ -637,10 +639,11 @@ export default function AIChatbot() {
                 >
                   {/* Avatar */}
                   <div
-                    className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 border border-solid mt-0.5 ${isAI
-                      ? 'bg-[#231f20] text-amber-400 border-white/10'
-                      : 'bg-[#5c4e43] text-white border-black/10'
-                      }`}
+                    className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 border border-solid mt-0.5 ${
+                      isAI
+                        ? 'bg-[#231f20] text-amber-400 border-white/10'
+                        : 'bg-[#5c4e43] text-white border-black/10'
+                    }`}
                   >
                     {isAI ? (
                       <Bot className='h-4 w-4' />
@@ -669,10 +672,11 @@ export default function AIChatbot() {
 
                     {/* Message bubble */}
                     <div
-                      className={`py-2.5 px-3.5 rounded-2xl text-[13px] leading-[1.6] border border-solid shadow-sm ${isAI
-                        ? 'bg-white text-[#231f20] border-[#eeeeee] rounded-tl-none'
-                        : 'bg-[#231f20] text-white border-[#231f20] rounded-tr-none'
-                        }`}
+                      className={`py-2.5 px-3.5 rounded-2xl text-[13px] leading-[1.6] border border-solid shadow-sm ${
+                        isAI
+                          ? 'bg-white text-[#231f20] border-[#eeeeee] rounded-tl-none'
+                          : 'bg-[#231f20] text-white border-[#231f20] rounded-tr-none'
+                      }`}
                     >
                       {msg.message.split('\n').map((line, lIdx) => (
                         <p key={lIdx} className='m-0 min-h-[1em]'>
