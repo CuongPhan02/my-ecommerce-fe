@@ -242,12 +242,12 @@ const Header = ({ initialMenus, logoUrl, logoAlt }: { initialMenus?: DbMenu[]; l
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder='Tìm kiếm sản phẩm...'
-                      className='w-full bg-white border border-neutral-200 rounded-full py-2 px-5 pr-12 text-xs focus:outline-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium placeholder-neutral-400 text-neutral-900 shadow-sm'
+                      className='w-full bg-white border border-neutral-200 rounded-full py-2 px-5 pr-12 text-xs outline-none focus:border-black transition-all font-medium placeholder-neutral-400 text-neutral-900 shadow-sm'
                       autoFocus
                     />
                     <button
                       type='submit'
-                      className='absolute right-1.5 top-1.5 w-7 h-7 bg-[#231f20] hover:bg-black text-white rounded-full flex items-center justify-center transition-colors shadow-sm'
+                      className='absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 bg-[#231f20] hover:bg-black text-white rounded-full flex items-center justify-center transition-colors shadow-sm cursor-pointer'
                     >
                       <Search className='w-3.5 h-3.5' />
                     </button>

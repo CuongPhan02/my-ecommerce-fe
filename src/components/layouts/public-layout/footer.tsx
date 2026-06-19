@@ -107,22 +107,22 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/about#story" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Story
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/hanh-trinh-yeu-thuong" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Hoạt động thiện nguyện
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/tuyen-dung" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Tuyển dụng
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/contact" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Liên hệ
                     </Link>
                   </li>
@@ -136,27 +136,27 @@ const Footer = () => {
                 </h3>
                 <ul className="space-y-2">
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/huong-dan-mua-hang" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Hướng dẫn mua hàng
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/chinh-sach-doi-tra" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Chính sách đổi trả
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/chinh-sach-bao-mat" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Chính sách bảo mật
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/dieu-khoan-su-dung" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Điều khoản sử dụng
                     </Link>
                   </li>
                   <li>
-                    <Link href="#" className="text-xs text-neutral-500 hover:text-black transition-colors">
+                    <Link href="/faq" className="text-xs text-neutral-500 hover:text-black transition-colors">
                       Câu hỏi thường gặp
                     </Link>
                   </li>
@@ -202,33 +202,7 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Floating Buttons */}
-      <div className="fixed bottom-8 right-8 flex flex-col gap-3.5 z-50">
-        <a
-          href="https://www.facebook.com/tmcstyle?locale=vi_VN"  // Bạn thay link Fanpage hoặc Messenger vào đây nhé (VD: https://m.me/tenfanpage)
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-12 h-12 bg-[#1877F2] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
-          aria-label="Facebook"
-        >
-          <Facebook className="w-5 h-5 fill-current" />
-        </a>
-        <a
-          href="https://zalo.me/0769555896" // Bạn thay số điện thoại Zalo của cửa hàng vào đây nhé
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-12 h-12 bg-[#25d366] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform duration-200"
-        >
-          <span className="font-black text-xs tracking-tighter uppercase font-heading">Zalo</span>
-        </a>
-        <button
-          onClick={scrollToTop}
-          className="w-12 h-12 bg-white text-neutral-800 border border-neutral-100 rounded-full flex items-center justify-center shadow-lg hover:bg-black hover:text-white hover:border-black transition-all duration-200 group"
-          aria-label="Scroll to top"
-        >
-          <ChevronUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-        </button>
-      </div>
+
 
     </footer>
   )
