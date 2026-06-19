@@ -77,16 +77,16 @@ const Footer = () => {
               </p>
 
               <div className="flex items-center gap-4 text-neutral-500 pt-2">
-                <a href="#" className="hover:text-black transition-colors" aria-label="Facebook">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors" aria-label="Facebook">
                   <Facebook className="w-4 h-4 stroke-[1.5]" />
                 </a>
-                <a href="#" className="hover:text-black transition-colors" aria-label="Instagram">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors" aria-label="Instagram">
                   <Instagram className="w-4 h-4 stroke-[1.5]" />
                 </a>
-                <a href="#" className="hover:text-black transition-colors" aria-label="TikTok">
+                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors" aria-label="TikTok">
                   <Music className="w-4 h-4 stroke-[1.5]" />
                 </a>
-                <a href="#" className="hover:text-black transition-colors" aria-label="YouTube">
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors" aria-label="YouTube">
                   <Youtube className="w-4 h-4 stroke-[1.5]" />
                 </a>
               </div>

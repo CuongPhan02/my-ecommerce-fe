@@ -385,7 +385,7 @@ export default function AboutPage() {
                 Tầm nhìn chiến lược và định hướng phát triển thương hiệu bền vững.
               </p>
               <div className="pt-2">
-                <a href="#" className="inline-block text-neutral-400 hover:text-black transition-colors">
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="inline-block text-neutral-400 hover:text-black transition-colors">
                   <Linkedin className="w-4 h-4 fill-current" />
                 </a>
               </div>
@@ -409,7 +409,7 @@ export default function AboutPage() {
                 Định hình phong cách và truyền tải câu chuyện thương hiệu.
               </p>
               <div className="pt-2">
-                <a href="#" className="inline-block text-neutral-400 hover:text-black transition-colors">
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="inline-block text-neutral-400 hover:text-black transition-colors">
                   <Linkedin className="w-4 h-4 fill-current" />
                 </a>
               </div>
@@ -433,7 +433,7 @@ export default function AboutPage() {
                 Sáng tạo nên những thiết kế tinh tế và đầy cảm hứng.
               </p>
               <div className="pt-2">
-                <a href="#" className="inline-block text-neutral-400 hover:text-black transition-colors">
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="inline-block text-neutral-400 hover:text-black transition-colors">
                   <Linkedin className="w-4 h-4 fill-current" />
                 </a>
               </div>
@@ -457,7 +457,7 @@ export default function AboutPage() {
                 Kết nối cộng đồng và triển khai các hoạt động thiện nguyện.
               </p>
               <div className="pt-2">
-                <a href="#" className="inline-block text-neutral-400 hover:text-black transition-colors">
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="inline-block text-neutral-400 hover:text-black transition-colors">
                   <Linkedin className="w-4 h-4 fill-current" />
                 </a>
               </div>
