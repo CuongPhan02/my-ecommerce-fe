@@ -17,6 +17,7 @@ import { ConfirmModal } from '~/components/shared/confirm-modal'
 import { AUTH_QUERY } from '~/features/public/auth/auth.query'
 import { cn } from '~/lib/utils'
 import { Voucher } from '~/features/public/voucher/types'
+import { VIETNAM_PROVINCES } from '~/lib/vietnam-provinces'
 
 export default function CartPage() {
   const router = useRouter()
@@ -219,12 +220,17 @@ export default function CartPage() {
       newErrors.street = 'Địa chỉ chi tiết không được để trống'
     }
 
+    const validProvince = VIETNAM_PROVINCES.find(p => p.name === shippingValues.province)
     if (!shippingValues.province.trim()) {
       newErrors.province = 'Tỉnh / Thành phố không được để trống'
+    } else if (!validProvince) {
+      newErrors.province = 'Tỉnh / Thành phố không hợp lệ'
     }
 
     if (!shippingValues.city.trim()) {
       newErrors.city = 'Quận / Huyện không được để trống'
+    } else if (validProvince && !validProvince.districts.includes(shippingValues.city)) {
+      newErrors.city = 'Quận / Huyện không hợp lệ'
     }
 
     if (enableShipping && !shippingValues.shippingMethodId) {

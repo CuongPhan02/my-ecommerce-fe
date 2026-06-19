@@ -4,6 +4,7 @@ import React from 'react'
 import { cn } from '~/lib/utils'
 
 import { ShippingMethod } from './types'
+import { VIETNAM_PROVINCES } from '~/lib/vietnam-provinces'
 
 interface ShippingFormProps {
   values: {
@@ -194,18 +195,24 @@ const ShippingForm = ({ values, onChange, errors = {}, shippingMethods = [], ena
           <label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
             Tỉnh / Thành phố
           </label>
-          <input
-            type='text'
+          <select
             value={values.province}
-            onChange={(e) => onChange('province', e.target.value)}
-            placeholder='Ví dụ: Hà Nội'
+            onChange={(e) => {
+              onChange('province', e.target.value)
+              onChange('city', '') // Reset city when province changes
+            }}
             className={cn(
-              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
-              errors.province
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-neutral-200',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold focus:border-[#5c4e43] focus:outline-none transition-all bg-white border-neutral-200 cursor-pointer',
+              errors.province ? 'border-red-500 focus:border-red-500' : 'border-neutral-200'
             )}
-          />
+          >
+            <option value="">-- Chọn Tỉnh / Thành phố --</option>
+            {VIETNAM_PROVINCES.map((p) => (
+              <option key={p.name} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
           {errors.province && (
             <p className='text-red-500 text-[10px] font-bold uppercase tracking-wider'>
               {errors.province}
@@ -216,18 +223,23 @@ const ShippingForm = ({ values, onChange, errors = {}, shippingMethods = [], ena
           <label className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
             Quận / Huyện
           </label>
-          <input
-            type='text'
+          <select
             value={values.city}
             onChange={(e) => onChange('city', e.target.value)}
-            placeholder='Ví dụ: Đống Đa'
+            disabled={!values.province}
             className={cn(
-              'w-full py-3 px-5 border rounded-sm text-xs font-bold placeholder:font-medium placeholder:text-gray-300 focus:border-[#5c4e43] focus:outline-none transition-all bg-white',
-              errors.city
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-neutral-200',
+              'w-full py-3 px-5 border rounded-sm text-xs font-bold focus:border-[#5c4e43] focus:outline-none transition-all bg-white border-neutral-200 cursor-pointer disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed',
+              errors.city ? 'border-red-500 focus:border-red-500' : 'border-neutral-200'
             )}
-          />
+          >
+            <option value="">-- Chọn Quận / Huyện --</option>
+            {values.province &&
+              VIETNAM_PROVINCES.find((p) => p.name === values.province)?.districts.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+          </select>
           {errors.city && (
             <p className='text-red-500 text-[10px] font-bold uppercase tracking-wider'>
               {errors.city}
