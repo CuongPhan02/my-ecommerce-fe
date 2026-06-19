@@ -1,5 +1,5 @@
-import { Heart, Minus, Plus, Share2, ShoppingBag, Star, Loader2, Ruler, Truck, RotateCcw, ShieldCheck } from 'lucide-react'
-import { useState, useMemo, useEffect } from 'react'
+import { Heart, Minus, Plus, Star, Loader2, Ruler, Truck, RotateCcw, ShieldCheck } from 'lucide-react'
+import { useState, useMemo } from 'react'
 import { Product } from '~/features/admin/product/types'
 import { cn } from '~/lib/utils'
 import { _cartService } from '~/features/public/cart/cart.query'
@@ -12,6 +12,7 @@ interface ProductInfoProps {
   onReviewsClick?: () => void
 }
 
+// Bảng màu hex cho color swatch
 const colorHexMap: Record<string, string> = {
   'Trắng': '#FFFFFF',
   'Đen': '#000000',
@@ -26,6 +27,7 @@ const colorHexMap: Record<string, string> = {
   'Xanh biển': '#03A9F4',
   'Cam': '#FF9800',
   'Đỏ': '#F44336',
+  'Đỏ tươi': '#DC2626',
   'Vàng': '#FFEB3B',
   'Trắng kem': '#FBF6F0',
   'white': '#FFFFFF',
@@ -44,124 +46,105 @@ const colorHexMap: Record<string, string> = {
   'yellow': '#FFEB3B',
 }
 
+// Helper: kiểm tra tên thuộc tính có phải màu sắc không
+const isColorAttr = (name: string) => {
+  const lower = name.toLowerCase()
+  return lower.includes('màu') || lower.includes('color') || lower.includes('mau')
+}
+
+// Helper: kiểm tra tên thuộc tính có phải kích thước không (để hiển thị nút Hướng dẫn size)
+const isSizeAttr = (name: string) => {
+  const lower = name.toLowerCase()
+  return lower.includes('kích thước') || lower.includes('size') || lower.includes('kich thuoc')
+}
+
+// Kiểu dữ liệu một nhóm thuộc tính
+interface AttrGroup {
+  name: string
+  values: { id: string; value: string }[]
+}
+
 const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
   const router = useRouter()
   const { isWishlisted, toggleWishlist } = useWishlist()
   const [quantity, setQuantity] = useState(1)
 
-  // Extract color attribute values
-  const colorAttrGroup = useMemo(() => {
-    const list: { id: string; value: string; name: string }[] = []
+  // ─── 1. Trích xuất TẤT CẢ nhóm thuộc tính từ variants (color luôn đứng đầu) ──
+  const attrGroups = useMemo<AttrGroup[]>(() => {
+    const groupMap = new Map<string, { id: string; value: string }[]>()
+
     product.variants?.forEach((v) => {
-      const colorAttr = v.attributes?.find((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return name.includes('màu') || name.includes('color')
+      ;(v.attributes as any[])?.forEach((a: any) => {
+        const attrName: string = a.attributeValue?.attribute?.name || ''
+        const val: string = a.attributeValue?.value || ''
+        const id: string = a.attributeValue?.id || ''
+        if (!attrName || !val) return
+
+        if (!groupMap.has(attrName)) groupMap.set(attrName, [])
+        const list = groupMap.get(attrName)!
+        if (!list.some((x) => x.value === val)) list.push({ id, value: val })
       })
-      const val = colorAttr?.attributeValue?.value || colorAttr?.value
-      const name = colorAttr?.attributeValue?.name || (colorAttr as any)?.name || val || ''
-      const id = colorAttr?.attributeValue?.id || colorAttr?.id
-      if (colorAttr && val && id && !list.some((item) => item.value === val)) {
-        list.push({ id, value: val, name })
-      }
     })
-    return list
+
+    // Sắp xếp: màu sắc lên đầu, kích thước lên thứ 2, còn lại theo thứ tự thêm vào
+    return Array.from(groupMap.entries())
+      .map(([name, values]) => ({ name, values }))
+      .sort((a, b) => {
+        const aIsColor = isColorAttr(a.name) ? 0 : isSizeAttr(a.name) ? 1 : 2
+        const bIsColor = isColorAttr(b.name) ? 0 : isSizeAttr(b.name) ? 1 : 2
+        return aIsColor - bIsColor
+      })
   }, [product.variants])
 
-  // Extract size attribute values
-  const sizeAttrGroup = useMemo(() => {
-    const list: { id: string; value: string; name: string }[] = []
-    product.variants?.forEach((v) => {
-      const sizeAttr = v.attributes?.find((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return name.includes('kích thước') || name.includes('size')
-      })
-      const val = sizeAttr?.attributeValue?.value || sizeAttr?.value
-      const name = sizeAttr?.attributeValue?.name || (sizeAttr as any)?.name || val || ''
-      const id = sizeAttr?.attributeValue?.id || sizeAttr?.id
-      if (sizeAttr && val && id && !list.some((item) => item.value === val)) {
-        list.push({ id, value: val, name })
-      }
-    })
-    return list
-  }, [product.variants])
-
-  const [selectedColor, setSelectedColor] = useState<string>(() => {
+  // ─── 2. State chọn dạng Record<attrName, selectedValue> ──────────────────
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {}
     const firstV = product.variants?.[0]
-    const colorAttr = firstV?.attributes?.find((a: any) => {
-      const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-      return name.includes('màu') || name.includes('color')
+    ;(firstV?.attributes as any[])?.forEach((a: any) => {
+      const attrName: string = a.attributeValue?.attribute?.name || ''
+      const val: string = a.attributeValue?.value || ''
+      if (attrName && val) init[attrName] = val
     })
-    return colorAttr?.attributeValue?.value || colorAttr?.value || ''
+    return init
   })
 
-  const [selectedSize, setSelectedSize] = useState<string>(() => {
-    const firstV = product.variants?.[0]
-    const sizeAttr = firstV?.attributes?.find((a: any) => {
-      const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-      return name.includes('kích thước') || name.includes('size')
-    })
-    return sizeAttr?.attributeValue?.value || sizeAttr?.value || ''
-  })
+  const selectAttr = (attrName: string, value: string) => {
+    setSelectedAttrs((prev) => ({ ...prev, [attrName]: value }))
+  }
 
-  const selectedColorName = useMemo(() => {
-    const matched = colorAttrGroup.find(item => item.value === selectedColor)
-    return matched ? matched.name : selectedColor
-  }, [colorAttrGroup, selectedColor])
-
-  // Select matching variant based on selections
+  // ─── 3. Tìm variant khớp TẤT CẢ thuộc tính đã chọn ─────────────────────
   const activeVariant = useMemo(() => {
     if (!product.variants || product.variants.length === 0) return null
 
-    let match = product.variants.find((v) => {
-      const hasColor = !selectedColor || v.attributes?.some((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        const val = a.attributeValue?.value || a.value
-        return (name.includes('màu') || name.includes('color')) && val === selectedColor
-      })
-      const hasSize = !selectedSize || v.attributes?.some((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        const val = a.attributeValue?.value || a.value
-        return (name.includes('kích thước') || name.includes('size')) && val === selectedSize
-      })
-      return hasColor && hasSize
-    })
-
-    if (!match && selectedColor) {
-      match = product.variants.find((v) => {
-        return v.attributes?.some((a: any) => {
-          const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-          const val = a.attributeValue?.value || a.value
-          return (name.includes('màu') || name.includes('color')) && val === selectedColor
+    // Tìm chính xác: khớp tất cả thuộc tính đang chọn
+    const exactMatch = product.variants.find((v) =>
+      attrGroups.every((group) => {
+        const selected = selectedAttrs[group.name]
+        if (!selected) return true
+        return (v.attributes as any[])?.some((a: any) => {
+          const name: string = a.attributeValue?.attribute?.name || ''
+          const val: string = a.attributeValue?.value || ''
+          return name === group.name && val === selected
         })
       })
-    }
+    )
 
-    return match || product.variants[0]
-  }, [product.variants, selectedColor, selectedSize])
+    if (exactMatch) return exactMatch
 
-  // Sync state values when variant details change
-  useEffect(() => {
-    if (activeVariant) {
-      const colorAttr = activeVariant.attributes?.find((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return name.includes('màu') || name.includes('color')
+    // Fallback: tìm variant khớp ít nhất 1 thuộc tính ưu tiên nhất
+    const fallback = product.variants.find((v) =>
+      (v.attributes as any[])?.some((a: any) => {
+        const name: string = a.attributeValue?.attribute?.name || ''
+        const val: string = a.attributeValue?.value || ''
+        const selected = selectedAttrs[name]
+        return selected && val === selected
       })
-      const colorVal = colorAttr?.attributeValue?.value || colorAttr?.value
-      if (colorAttr && colorVal && colorVal !== selectedColor) {
-        setSelectedColor(colorVal)
-      }
+    )
 
-      const sizeAttr = activeVariant.attributes?.find((a: any) => {
-        const name = (a.attributeValue?.attribute?.name || a.name || '').toLowerCase()
-        return name.includes('kích thước') || name.includes('size')
-      })
-      const sizeVal = sizeAttr?.attributeValue?.value || sizeAttr?.value
-      if (sizeAttr && sizeVal && sizeVal !== selectedSize) {
-        setSelectedSize(sizeVal)
-      }
-    }
-  }, [activeVariant])
+    return fallback || product.variants[0]
+  }, [product.variants, selectedAttrs, attrGroups])
 
+  // ─── 4. Các giá trị từ variant đang active ───────────────────────────────
   const variant = activeVariant
   const stockQuantity = variant?.stockQuantity ?? (product as any).stock ?? 0
   const isOutOfStock = stockQuantity <= 0
@@ -176,8 +159,10 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       : price + product.discountValue
     : undefined
 
-  const originalPriceFormatted = (variant as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
+  const originalPriceFormatted =
+    (variant as any)?.originalPriceFormatted || (product as any)?.originalPriceFormatted
 
+  // ─── 5. Add to cart ──────────────────────────────────────────────────────
   const addToCartMutation = _cartService.useAddToCart()
 
   const handleAddToCart = () => {
@@ -185,29 +170,23 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
       toast.error('Vui lòng chọn một phiên bản sản phẩm')
       return
     }
-
     if (quantity > stockQuantity) {
       toast.error(`Rất tiếc, chỉ còn ${stockQuantity} sản phẩm trong kho`)
       return
     }
-
     addToCartMutation.mutate(
+      { productVariantId: variant.id, quantity },
       {
-        productVariantId: variant.id,
-        quantity,
-      },
-      {
-        onSuccess: () => {
-          toast.success('Đã thêm sản phẩm vào giỏ hàng thành công!')
-        },
+        onSuccess: () => toast.success('Đã thêm sản phẩm vào giỏ hàng thành công!'),
         onError: (err: any) => {
           console.error(err)
           toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng')
-        }
+        },
       }
     )
   }
 
+  // ─── 6. Render ───────────────────────────────────────────────────────────
   return (
     <div className='flex flex-col gap-6 text-left'>
       {/* New Arrival Badge */}
@@ -222,7 +201,7 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
         <h1 className='text-3xl font-heading font-black text-[#231f20] tracking-tight uppercase leading-snug'>
           {product.name}
         </h1>
-        
+
         {/* Price */}
         <div className='flex items-baseline gap-4 mt-2'>
           <span className='text-2xl font-black text-black tracking-tight'>
@@ -254,10 +233,7 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
             )
           })}
         </div>
-        <button
-          onClick={onReviewsClick}
-          className='hover:underline font-bold text-neutral-800'
-        >
+        <button onClick={onReviewsClick} className='hover:underline font-bold text-neutral-800'>
           {(() => {
             const ratingAvg = (product as any).ratingAverage ?? 0
             const reviewsCount = (product as any).reviewsCount ?? 0
@@ -271,80 +247,113 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
 
       {/* Summary Description */}
       <p className='text-xs text-neutral-600 font-semibold leading-relaxed'>
-        {product.summary || 'Thiết kế tối giản từ chất liệu cao cấp, mềm mịn và thoáng mát mang đến cảm giác dễ chịu suốt ngày dài. Phù hợp phối cùng nhiều phong cách khác nhau.'}
+        {product.summary ||
+          'Thiết kế tối giản từ chất liệu cao cấp, mềm mịn và thoáng mát mang đến cảm giác dễ chịu suốt ngày dài. Phù hợp phối cùng nhiều phong cách khác nhau.'}
       </p>
 
-      {/* Colors Swatches Selector */}
-      {colorAttrGroup.length > 0 && (
-        <div className='space-y-3 pt-2'>
-          <span className='text-xs font-black uppercase tracking-wider text-black block'>
-            Màu sắc: <span className='font-medium text-neutral-500 normal-case'>{selectedColorName}</span>
-          </span>
-          <div className='flex flex-wrap gap-2.5 pt-0.5'>
-            {colorAttrGroup.map((option) => {
-              const isChecked = selectedColor === option.value
-              const hex = colorHexMap[option.value] || option.value || '#E5E7EB'
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => setSelectedColor(option.value)}
-                  className={cn(
-                    'w-6 h-6 rounded-full border border-neutral-200 transition-all cursor-pointer relative flex items-center justify-center hover:scale-110',
-                    isChecked && 'ring-1 ring-black ring-offset-2'
-                  )}
-                  style={{ backgroundColor: hex }}
-                  title={option.name}
-                  type='button'
-                />
-              )
-            })}
-          </div>
-        </div>
-      )}
+      {/* ── Dynamic Attribute Selectors ── */}
+      {attrGroups.map((group) => {
+        const selected = selectedAttrs[group.name] || ''
+        const isColor = isColorAttr(group.name)
+        const isSize = isSizeAttr(group.name)
 
-      {/* Sizes Boxed Selector */}
-      {sizeAttrGroup.length > 0 && (
-        <div className='space-y-3 pt-2'>
-          <span className='text-xs font-black uppercase tracking-wider text-black block'>
-            Kích thước: <span className='font-medium text-neutral-500 normal-case'>{selectedSize}</span>
-          </span>
-          <div className='flex flex-wrap gap-2 pt-0.5'>
-            {sizeAttrGroup.map((option) => {
-              const isChecked = selectedSize === option.value
-              return (
-                <button
-                  key={option.id}
-                  onClick={() => setSelectedSize(option.value)}
-                  className={cn(
-                    'h-10 px-4 border text-xs font-black tracking-wider uppercase transition-all flex items-center justify-center min-w-[44px]',
-                    isChecked 
-                      ? 'border-black bg-black text-white' 
-                      : 'border-neutral-200 bg-white text-neutral-600 hover:border-black'
-                  )}
-                  type='button'
-                >
-                  {option.value}
-                </button>
-              )
-            })}
+        if (isColor) {
+          // ── Color Swatch Selector ──
+          // Tìm tên màu để hiển thị label: nếu là hex code thì tra ngược lại tên
+          const selectedLabel = (() => {
+            if (!selected) return ''
+            // Nếu value lưu là hex (#DC2626), tìm tên từ colorHexMap
+            const nameFromHex = Object.entries(colorHexMap).find(
+              ([, v]) => v.toLowerCase() === selected.toLowerCase()
+            )?.[0]
+            return nameFromHex || selected
+          })()
+
+          return (
+            <div key={group.name} className='space-y-3 pt-2'>
+              <span className='text-xs font-black uppercase tracking-wider text-black block'>
+                {group.name}:{' '}
+                <span className='font-medium text-neutral-500 normal-case'>{selectedLabel}</span>
+              </span>
+              <div className='flex flex-wrap gap-3 pt-0.5'>
+                {group.values.map((option) => {
+                  const isChecked = selected === option.value
+                  // Nếu value đã là hex code (#...), dùng trực tiếp; ngược lại tra bảng
+                  const hex = option.value.startsWith('#')
+                    ? option.value
+                    : colorHexMap[option.value] || option.value || '#E5E7EB'
+                  const isLight = hex === '#FFFFFF' || hex === '#FFFDD0' || hex === '#FBF6F0' || hex === '#FFEB3B'
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => selectAttr(group.name, option.value)}
+                      className={cn(
+                        'w-8 h-8 rounded-full transition-all cursor-pointer flex items-center justify-center hover:scale-110 shadow-sm',
+                        isLight ? 'border border-neutral-300' : 'border border-transparent',
+                        isChecked ? 'ring-2 ring-black ring-offset-2' : 'ring-0'
+                      )}
+                      style={{ backgroundColor: hex }}
+                      title={option.value}
+                      type='button'
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          )
+        }
+
+        // ── Button Selector (size, form dáng, chất liệu, v.v.) ──
+        return (
+          <div key={group.name} className='space-y-3 pt-2'>
+            <span className='text-xs font-black uppercase tracking-wider text-black block'>
+              {group.name}:{' '}
+              <span className='font-medium text-neutral-500 normal-case'>{selected}</span>
+            </span>
+            <div className='flex flex-wrap gap-2 pt-0.5'>
+              {group.values.map((option) => {
+                const isChecked = selected === option.value
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => selectAttr(group.name, option.value)}
+                    className={cn(
+                      'h-10 px-4 border text-xs font-black tracking-wider uppercase transition-all flex items-center justify-center min-w-[44px]',
+                      isChecked
+                        ? 'border-black bg-black text-white'
+                        : 'border-neutral-200 bg-white text-neutral-600 hover:border-black'
+                    )}
+                    type='button'
+                  >
+                    {option.value}
+                  </button>
+                )
+              })}
+            </div>
+            {isSize && (
+              <button className='flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 hover:text-black tracking-wide pt-1'>
+                <Ruler className='w-4 h-4 text-neutral-400' />
+                Hướng dẫn chọn size
+              </button>
+            )}
           </div>
-          <button className='flex items-center gap-1.5 text-[11px] font-bold text-neutral-500 hover:text-black tracking-wide pt-1'>
-            <Ruler className='w-4 h-4 text-neutral-400' />
-            Hướng dẫn chọn size
-          </button>
-        </div>
-      )}
+        )
+      })}
 
       {/* Stock Status */}
       <div className='flex items-center gap-2 pt-1'>
-        <div className={cn(
-          'w-1.5 h-1.5 rounded-full',
-          isOutOfStock ? 'bg-red-500' : isStockLow ? 'bg-amber-500 animate-pulse' : 'bg-green-500'
-        )} />
-        <span className={cn(
-          'text-[9px] font-black uppercase tracking-widest',
-          isOutOfStock ? 'text-red-500' : isStockLow ? 'text-amber-600' : 'text-green-600'
-        )}>
+        <div
+          className={cn(
+            'w-1.5 h-1.5 rounded-full',
+            isOutOfStock ? 'bg-red-500' : isStockLow ? 'bg-amber-500 animate-pulse' : 'bg-green-500'
+          )}
+        />
+        <span
+          className={cn(
+            'text-[9px] font-black uppercase tracking-widest',
+            isOutOfStock ? 'text-red-500' : isStockLow ? 'text-amber-600' : 'text-green-600'
+          )}
+        >
           {isOutOfStock ? 'Hết hàng' : isStockLow ? `Sắp hết (Còn ${stockQuantity})` : 'Còn hàng'}
         </span>
       </div>
@@ -404,7 +413,12 @@ const ProductInfo = ({ product, onReviewsClick }: ProductInfoProps) => {
             )}
             title={isWishlisted(product.id) ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
           >
-            <Heart className={cn('w-5 h-5 transition-transform duration-200 active:scale-90', isWishlisted(product.id) && 'fill-current')} />
+            <Heart
+              className={cn(
+                'w-5 h-5 transition-transform duration-200 active:scale-90',
+                isWishlisted(product.id) && 'fill-current'
+              )}
+            />
           </button>
         </div>
         <button
