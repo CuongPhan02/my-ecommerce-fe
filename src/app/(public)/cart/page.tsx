@@ -108,20 +108,23 @@ export default function CartPage() {
     0,
   )
 
+  let shippingFee = 0
+  if (enableShipping && shippingValues.shippingMethodId) {
+    const selectedMethod = shippingMethods.find(m => m.id === shippingValues.shippingMethodId)
+    if (selectedMethod) {
+      shippingFee = selectedMethod.fee
+    }
+  }
+
   let discount = 0
   if (appliedVoucher) {
     if (appliedVoucher.type === 'PERCENTAGE') {
       discount = (subtotal * appliedVoucher.discountValue) / 100
     } else if (appliedVoucher.type === 'FIXED') {
       discount = appliedVoucher.discountValue
-    }
-  }
-
-  let shippingFee = 0
-  if (enableShipping && shippingValues.shippingMethodId) {
-    const selectedMethod = shippingMethods.find(m => m.id === shippingValues.shippingMethodId)
-    if (selectedMethod) {
-      shippingFee = selectedMethod.fee
+    } else if (appliedVoucher.type === 'FREE_SHIPPING') {
+      const maxFreeShipDiscount = appliedVoucher.discountValue > 0 ? appliedVoucher.discountValue : shippingFee
+      discount = Math.min(shippingFee, maxFreeShipDiscount)
     }
   }
 
@@ -343,8 +346,24 @@ export default function CartPage() {
                 Nhận ngay Voucher -15% cho đơn hàng đầu tiên
               </p>
             </div>
-            <button className='bg-white text-[#231f20] px-5 py-3 rounded-sm font-black text-[10px] uppercase tracking-widest hover:bg-[#FAF6F0] transition-all border-none cursor-pointer'>
-              Tham gia
+            <button
+              onClick={() => handleApplyVoucher('LUNECLUB15')}
+              disabled={appliedVoucher?.code === 'LUNECLUB15' || applyVoucherMutation.isPending}
+              className={cn(
+                'bg-white text-[#231f20] px-5 py-3 rounded-sm font-black text-[10px] uppercase tracking-widest transition-all border-none cursor-pointer',
+                appliedVoucher?.code === 'LUNECLUB15'
+                  ? 'bg-emerald-600 text-white cursor-default'
+                  : 'hover:bg-[#FAF6F0]',
+                applyVoucherMutation.isPending && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              {applyVoucherMutation.isPending && couponCode === 'LUNECLUB15' ? (
+                'Đang xử lý...'
+              ) : appliedVoucher?.code === 'LUNECLUB15' ? (
+                'Đã tham gia'
+              ) : (
+                'Tham gia'
+              )}
             </button>
           </div>
         </div>
