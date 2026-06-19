@@ -302,7 +302,7 @@ export default function AIChatbot() {
 
   // Load chat history from localStorage on mount
   useEffect(() => {
-    const savedChat = localStorage.getItem('nude_shop_ai_chat')
+    const savedChat = localStorage.getItem('lune_shop_ai_chat')
     if (savedChat) {
       try {
         setMessages(JSON.parse(savedChat))
@@ -314,7 +314,7 @@ export default function AIChatbot() {
         {
           role: 'model',
           message:
-            'Dạ xin chào anh/chị! Em là NUDE — trợ lý ảo thời trang của Nude Shop 👗\n\nEm có thể giúp anh/chị:\n• Tư vấn sản phẩm & phối đồ\n• Tra cứu mã giảm giá\n• Kiểm tra tình trạng đơn hàng\n• Phân tích ảnh trang phục\n\nAnh/chị cần tư vấn gì ạ?',
+            'Dạ xin chào anh/chị! Em là LUNÉ — trợ lý ảo thời trang của LUNÉ 👗\n\nEm có thể giúp anh/chị:\n• Tư vấn sản phẩm & phối đồ\n• Tra cứu mã giảm giá\n• Kiểm tra tình trạng đơn hàng\n• Phân tích ảnh trang phục\n\nAnh/chị cần tư vấn gì ạ?',
           timestamp: new Date().toLocaleTimeString('vi-VN', {
             hour: '2-digit',
             minute: '2-digit',
@@ -326,9 +326,9 @@ export default function AIChatbot() {
 
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem('nude_shop_ai_chat', JSON.stringify(messages))
+      localStorage.setItem('lune_shop_ai_chat', JSON.stringify(messages))
     } else {
-      localStorage.removeItem('nude_shop_ai_chat')
+      localStorage.removeItem('lune_shop_ai_chat')
     }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -598,7 +598,7 @@ export default function AIChatbot() {
               </div>
               <div>
                 <h4 className='text-sm font-bold tracking-wider uppercase m-0'>
-                  Trợ Lý Ảo NUDE
+                  Trợ Lý Ảo LUNÉ
                 </h4>
                 <div className='flex items-center gap-1.5 mt-0.5'>
                   <span className='h-2 w-2 rounded-full bg-emerald-500 inline-block animate-pulse'></span>
